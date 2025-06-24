@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Панель заведующего кафедрой</title>
+    <script>
+        function showTab(tabId) {
+            var tabs = document.getElementsByClassName("tab-content");
+            for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove("active");
+            var buttons = document.getElementsByClassName("tab-button");
+            for (var i = 0; i < buttons.length; i++) buttons[i].classList.remove("active");
+            document.getElementById(tabId).classList.add("active");
+            document.getElementById("btn_" + tabId).classList.add("active");
+            localStorage.setItem("activeTab", tabId);
+        }
+
+        window.onload = function() {
+            var savedTab = localStorage.getItem("activeTab");
+            if (savedTab) {
+                showTab(savedTab);
+            }
+        }
+    </script>
+</head>
+<body>
+
+<h1>Заведующий кафедрой</h1>
+
+<div>
+    <div class="tab-button active" id="btn_tab1" onclick="showTab('tab1')">Сотрудники</div>
+    <div class="tab-button" id="btn_tab2" onclick="showTab('tab2')">Уровни доступа</div>
+    <div class="tab-button" id="btn_tab3" onclick="showTab('tab3')">ИП преподавателей</div>
+</div>
+
+<div id="tab1" class="tab-content active">
+    <h2>Сотрудники</h2>
+
+    <h3>Список сотрудников</h3>
+    <table border="1" cellpadding="5">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Имя пользователя</th>
+                <th>Преподаватель</th>
+                <th>Администратор</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in staff_users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.is_staff|yesno:"Да,Нет" }}</td>
+                    <td>{{ user.is_superuser|yesno:"Да,Нет" }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="4">Сотрудники не найдены</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Добавить сотрудника</h3>
+    <form method="post">
+        {% csrf_token %}
+        <label>Имя пользователя: <input type="text" name="username" required></label><br>
+        <label>Пароль: <input type="password" name="password" required></label><br>
+        <button type="submit" name="action" value="add">Добавить</button>
+    </form>
+
+    <h3>Удалить сотрудника</h3>
+    <form method="post">
+        {% csrf_token %}
+        <select name="delete_user">
+            {% for user in staff_users %}
+                <option value="{{ user.id }}">{{ user.username }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" name="action" value="delete">Удалить</button>
+    </form>
+</div>
+
+<div id="tab2" class="tab-content">
+    <h2>Уровни доступа</h2>
+    <p>Здесь будет интерфейс для назначения прав доступа.</p>
+</div>
+
+<div id="tab3" class="tab-content">
+    <h2>ИП преподавателей</h2>
+    <p>Здесь можно просматривать и редактировать ИП преподавателей.</p>
+</div>
+
+<p><a href="/logout/">Выйти</a></p>
+
+{% if messages %}
+    <ul>
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    <script>
+        if (window.history.replaceState) {
+            window.history.replaceState(null, null, window.location.href);
+        }
+    </script>
+{% endif %}
+
+</body>
+</html>
