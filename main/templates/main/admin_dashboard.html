@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Панель заведующего кафедрой</title>
+    <style>
+        .error { color: red; }
+        .success { color: green; }
+    </style>
     <script>
         function showTab(tabId) {
             var tabs = document.getElementsByClassName("tab-content");
@@ -16,9 +20,7 @@
 
         window.onload = function() {
             var savedTab = localStorage.getItem("activeTab");
-            if (savedTab) {
-                showTab(savedTab);
-            }
+            if (savedTab) showTab(savedTab);
         }
     </script>
 </head>
@@ -30,8 +32,10 @@
     <div class="tab-button active" id="btn_tab1" onclick="showTab('tab1')">Сотрудники</div>
     <div class="tab-button" id="btn_tab2" onclick="showTab('tab2')">Уровни доступа</div>
     <div class="tab-button" id="btn_tab3" onclick="showTab('tab3')">ИП преподавателей</div>
+    <div class="tab-button" id="btn_tab4" onclick="showTab('tab4')">ППС</div>
 </div>
 
+<!-- Вкладка 1 -->
 <div id="tab1" class="tab-content active">
     <h2>Сотрудники</h2>
 
@@ -62,9 +66,10 @@
     <h3>Добавить сотрудника</h3>
     <form method="post">
         {% csrf_token %}
+        <input type="hidden" name="action" value="add">
         <label>Имя пользователя: <input type="text" name="username" required></label><br>
         <label>Пароль: <input type="password" name="password" required></label><br>
-        <button type="submit" name="action" value="add">Добавить</button>
+        <button type="submit">Добавить</button>
     </form>
 
     <h3>Удалить сотрудника</h3>
@@ -79,22 +84,103 @@
     </form>
 </div>
 
+<!-- Вкладка 2 -->
 <div id="tab2" class="tab-content">
     <h2>Уровни доступа</h2>
     <p>Здесь будет интерфейс для назначения прав доступа.</p>
 </div>
 
+<!-- Вкладка 3 -->
 <div id="tab3" class="tab-content">
     <h2>ИП преподавателей</h2>
     <p>Здесь можно просматривать и редактировать ИП преподавателей.</p>
 </div>
 
-<p><a href="/logout/">Выйти</a></p>
+<!-- Вкладка 4 -->
+<div id="tab4" class="tab-content">
+    <h2>Профессорско-преподавательский состав</h2>
 
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="add_teacher">
+
+        <label>ФИО: <input type="text" name="full_name" required></label><br>
+        <label>Тип:
+            <select name="teacher_type" required>
+                <option value="">--Выберите--</option>
+                <option value="Внутр">Внутр</option>
+                <option value="Шт">Шт</option>
+            </select>
+        </label><br>
+        <label>Должность: <input type="text" name="position" required></label><br>
+        <label>Ставка: <input type="text" name="rate" required></label><br>
+        <label>Степень: <input type="text" name="degree"></label><br>
+        <label>Звание: <input type="text" name="rank"></label><br>
+        <label>Почта: <input type="email" name="email"></label><br>
+        <label>Телефон: <input type="text" name="phone"></label><br>
+        <label>Дата рождения: <input type="date" name="birthday"></label><br>
+        <label>Домашний адрес: <input type="text" name="address"></label><br>
+        <button type="submit">Добавить преподавателя</button>
+    </form>
+
+    <h3>Список преподавателей</h3>
+    <table border="1" cellpadding="5">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>ФИО</th>
+                <th>Тип</th>
+                <th>Должность</th>
+                <th>Ставка</th>
+                <th>Степень</th>
+                <th>Звание</th>
+                <th>Почта</th>
+                <th>Телефон</th>
+                <th>Дата рождения</th>
+                <th>Адрес</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for teacher in teachers %}
+            <tr>
+                <td>{{ teacher.id }}</td>
+                <td>{{ teacher.full_name }}</td>
+                <td>{{ teacher.teacher_type }}</td>
+                <td>{{ teacher.position }}</td>
+                <td>{{ teacher.rate }}</td>
+                <td>{{ teacher.degree|default:"-" }}</td>
+                <td>{{ teacher.rank|default:"-" }}</td>
+                <td>{{ teacher.email|default:"-" }}</td>
+                <td>{{ teacher.phone|default:"-" }}</td>
+                <td>{{ teacher.birthday|date:"d.m.Y"|default:"-" }}</td>
+                <td>{{ teacher.address|default:"-" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="11">Преподаватели не найдены</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <h3>Удалить преподавателя</h3>
+<form method="post">
+    {% csrf_token %}
+    <label for="delete_teacher">Выберите преподавателя:</label>
+    <select name="delete_teacher" required>
+        {% for teacher in teachers %}
+            <option value="{{ teacher.id }}">{{ teacher.full_name }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" name="action" value="delete_teacher">Удалить</button>
+</form>
+
+</div>
+
+<p><a href="{% url 'logout' %}">Выйти</a></p>
+
+<!-- Сообщения -->
 {% if messages %}
     <ul>
         {% for message in messages %}
-            <li>{{ message }}</li>
+            <li class="{{ message.tags }}">{{ message }}</li>
         {% endfor %}
     </ul>
     <script>
