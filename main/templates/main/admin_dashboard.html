@@ -63,12 +63,27 @@
         </tbody>
     </table>
 
-    <h3>Добавить сотрудника</h3>
+    <h2>Добавить сотрудника</h2>
     <form method="post">
         {% csrf_token %}
         <input type="hidden" name="action" value="add">
-        <label>Имя пользователя: <input type="text" name="username" required></label><br>
-        <label>Пароль: <input type="password" name="password" required></label><br>
+        
+        <label>Имя пользователя:</label>
+        <input type="text" name="username" required><br>
+        
+        <label>Пароль:</label>
+        <input type="password" name="password" required><br>
+        
+        <label>Преподаватель:</label>
+        <select name="teacher_id">
+            <option value="">-- Новый преподаватель --</option>
+            {% for teacher in teachers %}
+                {% if not teacher.user %}
+                    <option value="{{ teacher.id }}">{{ teacher.full_name }}</option>
+                {% endif %}
+            {% endfor %}
+        </select><br>
+    
         <button type="submit">Добавить</button>
     </form>
 
@@ -124,42 +139,45 @@
     </form>
 
     <h3>Список преподавателей</h3>
-    <table border="1" cellpadding="5">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>ФИО</th>
-                <th>Тип</th>
-                <th>Должность</th>
-                <th>Ставка</th>
-                <th>Степень</th>
-                <th>Звание</th>
-                <th>Почта</th>
-                <th>Телефон</th>
-                <th>Дата рождения</th>
-                <th>Адрес</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for teacher in teachers %}
-            <tr>
-                <td>{{ teacher.id }}</td>
-                <td>{{ teacher.full_name }}</td>
-                <td>{{ teacher.teacher_type }}</td>
-                <td>{{ teacher.position }}</td>
-                <td>{{ teacher.rate }}</td>
-                <td>{{ teacher.degree|default:"-" }}</td>
-                <td>{{ teacher.rank|default:"-" }}</td>
-                <td>{{ teacher.email|default:"-" }}</td>
-                <td>{{ teacher.phone|default:"-" }}</td>
-                <td>{{ teacher.birthday|date:"d.m.Y"|default:"-" }}</td>
-                <td>{{ teacher.address|default:"-" }}</td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="11">Преподаватели не найдены</td></tr>
-            {% endfor %}
-        </tbody>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>ФИО</th>
+            <th>Тип</th>
+            <th>Должность</th>
+            <th>Ставка</th>
+            <th>Степень</th>
+            <th>Звание</th>
+            <th>Почта</th>
+            <th>Телефон</th>
+            <th>Дата рождения</th>
+            <th>Адрес</th>
+            <th>Логин</th>  <!-- Новое поле -->
+        </tr>
+        {% for teacher in teachers %}
+        <tr>
+            <td>{{ teacher.id }}</td>
+            <td>{{ teacher.full_name }}</td>
+            <td>{{ teacher.teacher_type }}</td>
+            <td>{{ teacher.position }}</td>
+            <td>{{ teacher.rate }}</td>
+            <td>{{ teacher.degree }}</td>
+            <td>{{ teacher.rank }}</td>
+            <td>{{ teacher.email }}</td>
+            <td>{{ teacher.phone }}</td>
+            <td>{{ teacher.birthday }}</td>
+            <td>{{ teacher.address }}</td>
+            <td>
+                {% if teacher.user %}
+                    {{ teacher.user.username }}
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
     </table>
+    
     <h3>Удалить преподавателя</h3>
 <form method="post">
     {% csrf_token %}

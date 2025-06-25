@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
-from main.models import Teacher  # ← не забудь импортировать
+from main.models import Teacher 
 
 def login_view(request):
     if request.method == 'POST':
@@ -39,14 +39,28 @@ def dashboard(request):
             if action == 'add':
                 username = request.POST.get('username')
                 password = request.POST.get('password')
+                teacher_id = request.POST.get('teacher_id')
 
                 if username and password:
-                    if not User.objects.filter(username=username).exists():
-                        user = User.objects.create_user(username=username, password=password, is_staff=True)
-                        Teacher.objects.create(full_name=username, user=user)
-                        messages.success(request, f"Преподаватель '{username}' успешно добавлен.")
-                    else:
+                    if User.objects.filter(username=username).exists():
                         messages.warning(request, f"Пользователь '{username}' уже существует.")
+                    else:
+                        user = User.objects.create_user(username=username, password=password, is_staff=True)
+
+                        if teacher_id:
+                            try:
+                                teacher = Teacher.objects.get(id=teacher_id)
+                                if teacher.user:
+                                    messages.warning(request, f"У преподавателя '{teacher.full_name}' уже есть логин.")
+                                else:
+                                    teacher.user = user
+                                    teacher.save()
+                                    messages.success(request, f"Пользователь '{username}' привязан к преподавателю '{teacher.full_name}'.")
+                            except Teacher.DoesNotExist:
+                                messages.error(request, "Преподаватель не найден.")
+                        else:
+                            Teacher.objects.create(full_name=username, user=user)
+                            messages.success(request, f"Создан новый преподаватель и пользователь '{username}'.")
                 else:
                     messages.error(request, "Имя пользователя и пароль обязательны.")
 
@@ -55,9 +69,9 @@ def dashboard(request):
                 try:
                     user = User.objects.get(id=user_id)
                     if not user.is_superuser:
-                        Teacher.objects.filter(user=user).delete()
+                        Teacher.objects.filter(user=user).update(user=None)
                         user.delete()
-                        messages.success(request, f"Преподаватель '{user.username}' удалён.")
+                        messages.success(request, f"Пользователь '{user.username}' удалён.")
                     else:
                         messages.warning(request, "Нельзя удалить суперпользователя.")
                 except User.DoesNotExist:
@@ -75,9 +89,8 @@ def dashboard(request):
                 birthday = request.POST.get('birthday') or None
                 address = request.POST.get('address')
 
-                # Проверка обязательных полей
                 if not full_name or not teacher_type or not position or not rate:
-                    messages.error(request, "Поля ФИО, Тип, Должность и Ставка обязательны для заполнения.")
+                    messages.error(request, "Поля ФИО, Тип, Должность и Ставка обязательны.")
                 else:
                     Teacher.objects.create(
                         full_name=full_name,
@@ -92,15 +105,15 @@ def dashboard(request):
                         address=address or None
                     )
                     messages.success(request, f"Преподаватель '{full_name}' успешно добавлен.")
+
             elif action == 'delete_teacher':
                 teacher_id = request.POST.get('delete_teacher')
                 try:
-                   teacher = Teacher.objects.get(id=teacher_id)
-                   teacher.delete()
-                   messages.success(request, f"Преподаватель '{teacher.full_name}' удалён.")
+                    teacher = Teacher.objects.get(id=teacher_id)
+                    teacher.delete()
+                    messages.success(request, f"Преподаватель '{teacher.full_name}' удалён.")
                 except Teacher.DoesNotExist:
                     messages.error(request, "Преподаватель не найден.")
-          
 
         staff_users = User.objects.filter(is_staff=True, is_superuser=False)
         teachers = Teacher.objects.all()
