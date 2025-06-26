@@ -262,7 +262,59 @@
         </tr>
         {% endfor %}
     </table>
-    <p>Нагрузка на условиях почасовой оплаты.</p>
+    <p>Второй семестр.</p>
+    <table>
+        <tr>
+            <th>Дисциплины</th>
+            <th>Курс</th>
+            <th>Количество групп</th>
+            <th>Количество студентов</th>
+            <th>Лекции</th>
+            <th>Практические занятия</th>
+            <th>Лабораторные занятия</th>
+            <th>Курсовое проектирование</th>
+            <th>Консультации</th>
+            <th>Зачеты</th>
+            <th>Экзамены</th>
+            <th>Рецензирование контр.работ заочников</th>
+            <th>Руководство практиками студентов</th>
+            <th>Контрольное посещение занятий</th>
+            <th>Руководство квалификац. работами бакалавра, специалиста, магистра</th>
+            <th>Работа в ГЭК, ГАК</th>
+            <th>Прием вступительных и кандидатских экзаменов</th>
+            <th>Руководство аспирантами и соискателями</th>
+            <th>ОргСРС</th>
+            <th>Рейтинг</th>
+            <th>Всего часов по плану</th>
+            <th>Всего часов фактически</th>
+        </tr>
+        {% for d in discipines_secondsem %}
+        <tr>
+            <td>{{ d.discipline }}</td>
+            <td>{{ d.course|default_if_none:"" }}</td>
+            <td>{{ d.group_count|default_if_none:"" }}</td>
+            <td>{{ d.student_count|default_if_none:"" }}</td>
+            <td>{% if d.lectures %}{{ d.lectures }}{% endif %}</td>
+            <td>{% if d.practicals %}{{ d.practicals }}{% endif %}</td>
+            <td>{% if d.labs %}{{ d.labs }}{% endif %}</td>
+            <td>{% if d.project_work %}{{ d.project_work}}{% endif %}</td>
+            <td>{% if d.consultations %}{{ d.consultations }}{% endif %}</td>
+            <td>{{ d.tests }}</td>
+            <td>{{ d.exams }}</td>
+            <td>{{ d.review_distance }}</td>
+            <td>{{ d.practice_supervision }}</td>
+            <td>{{ d.visit_control }}</td>
+            <td>{{ d.qualification_supervision }}</td>
+            <td>{{ d.phd_supervision }}</td>
+            <td>{{ d.exam_commission }}</td>
+            <td>{{ d.org_srs }}</td>
+            <td>{{ d.org_srs}}</td>
+            <td>{{ d.rating }}</td>
+            <td>{{ d.total_plan }}</td>
+            <td>{{ d.total_actual }}</td>
+        </tr>
+        {% endfor %}
+    </table>
 </div>
 
 <!-- Вкладка 4: ППС -->

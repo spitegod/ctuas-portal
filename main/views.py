@@ -148,7 +148,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
-from main.models import Teacher, FirstSem
+from main.models import Teacher, FirstSem, SecondSem
 from django.db.models import Q
 
 
@@ -285,13 +285,15 @@ def dashboard(request):
 
         teachers = Teacher.objects.all()
         discipines_firstsem = FirstSem.objects.all()
+        discipines_secondsem = SecondSem.objects.all()
 
 
 
         return render(request, 'main/admin_dashboard.html', {
             'staff_users': staff_users,
             'teachers': teachers,
-            'disciplines_firstsem': discipines_firstsem
+            'disciplines_firstsem': discipines_firstsem,
+            'discipines_secondsem': discipines_secondsem
         })
 
     elif request.user.is_staff:
