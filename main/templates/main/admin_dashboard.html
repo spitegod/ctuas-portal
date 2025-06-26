@@ -234,6 +234,31 @@
             <th>Всего часов по плану</th>
             <th>Всего часов фактически</th>
         </tr>
+        {% for d in disciplines %}
+        <tr>
+            <td>{{ d.discipline }}</td>
+            <td>{{ d.group_count }}</td>
+            <td>{{ d.student_count }}</td>
+            <td>{{ d.lectures }}</td>
+            <td>{{ d.practicals }}</td>
+            <td>{{ d.labs }}</td>
+            <td>{{ d.project_work}}</td>
+            <td>{{ d.consultations }}</td>
+            <td>{{ d.tests }}</td>
+            <td>{{ d.exams }}</td>
+            <td>{{ d.review_distance }}</td>
+            <td>{{ d.practice_supervision }}</td>
+            <td>{{ d.visit_control }}</td>
+            <td>{{ d.qualification_supervision }}</td>
+            <td>{{ d.phd_supervision }}</td>
+            <td>{{ d.exam_commission }}</td>
+            <td>{{ d.org_srs }}</td>
+            <td>{{ d.org_srs}}</td>
+            <td>{{ d.rating }}</td>
+            <td>{{ d.total_plan }}</td>
+            <td>{{ d.total_actual }}</td>
+        </tr>
+        {% endfor %}
     </table>
 </div>
 

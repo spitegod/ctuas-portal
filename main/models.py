@@ -25,3 +25,35 @@ class Teacher(models.Model):
         return self.full_name
 # Create your models here.
 
+
+
+
+class DisciplineLoad(models.Model):
+    discipline = models.CharField(max_length=255)
+    course = models.IntegerField(null=True, blank=True)
+    group_count = models.IntegerField(null=True, blank=True)
+    student_count = models.IntegerField(null=True, blank=True)
+
+    lectures = models.FloatField(null=True, blank=True)
+    practicals = models.FloatField(null=True, blank=True)
+    labs = models.FloatField(null=True, blank=True)
+    project_work = models.FloatField(null=True, blank=True)
+    consultations = models.FloatField(null=True, blank=True)
+    tests = models.FloatField(null=True, blank=True)
+    exams = models.FloatField(null=True, blank=True)
+    review_distance = models.FloatField(null=True, blank=True)
+    practice_supervision = models.FloatField(null=True, blank=True)
+    visit_control = models.FloatField(null=True, blank=True)
+    qualification_supervision = models.FloatField(null=True, blank=True)
+    committee_work = models.FloatField(null=True, blank=True)
+    exam_commission = models.FloatField(null=True, blank=True)
+    phd_supervision = models.FloatField(null=True, blank=True)
+    org_srs = models.FloatField(null=True, blank=True)
+    rating = models.FloatField(null=True, blank=True)
+
+    total_plan = models.FloatField(null=True, blank=True)
+    total_actual = models.FloatField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.discipline} (курс {self.course})"
+
