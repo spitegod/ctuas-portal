@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
 from main.models import Teacher 
-
+from django.db.models import Q
 def login_view(request):
     if request.method == 'POST':
         username = request.POST['username']
@@ -114,13 +114,30 @@ def dashboard(request):
                     messages.success(request, f"Преподаватель '{teacher.full_name}' удалён.")
                 except Teacher.DoesNotExist:
                     messages.error(request, "Преподаватель не найден.")
+                    
+            elif action == 'update_permissions':
+                user_id = request.POST.get("user_id")
+                is_staff = request.POST.get("is_staff") == "True"
+                is_superuser = request.POST.get("is_superuser") == "True"
 
-        staff_users = User.objects.filter(is_staff=True, is_superuser=False)
-        teachers = Teacher.objects.all()
-        return render(request, 'main/admin_dashboard.html', {
-            'staff_users': staff_users,
-            'teachers': teachers
-        })
+                try:
+                    user = User.objects.get(id=user_id)
+                    user.is_staff = is_staff
+                    user.is_superuser = is_superuser
+                    user.save()
+                    messages.success(request, f"Права пользователя '{user.username}' обновлены.", extra_tags="access")
+                except User.DoesNotExist:
+                    messages.error(request, "Пользователь не найден.", extra_tags="access")
+            #это с заведующим кафедры
+            staff_users = User.objects.filter(
+                    Q(is_staff=True) | Q(is_superuser=True) | Q(teacher__isnull=False)
+                ).distinct()
+            teachers = Teacher.objects.all()
+
+            return render(request, 'main/admin_dashboard.html', {
+                'staff_users': staff_users,
+                'teachers': teachers
+            })
 
     elif request.user.is_staff:
         return render(request, 'main/teacher_dashboard.html')

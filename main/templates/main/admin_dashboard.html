@@ -168,7 +168,42 @@
 <!-- Вкладка 2: Уровни доступа -->
 <div id="tab2" class="tab-content">
     <h2>Уровни доступа</h2>
-    <p>Здесь будет интерфейс для назначения прав доступа.</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="update_permissions">
+
+        <label>Выберите сотрудника:</label>
+        <select name="user_id" required>
+            {% for user in staff_users %}
+                <option value="{{ user.id }}">{{ user.username }}</option>
+            {% endfor %}
+        </select>
+
+        <label>Права преподавателя:</label>
+        <select name="is_staff" required>
+            <option value="True">Да</option>
+            <option value="False">Нет</option>
+        </select>
+
+        <label>Права администратора:</label>
+        <select name="is_superuser" required>
+            <option value="True">Да</option>
+            <option value="False">Нет</option>
+        </select>
+
+        <button type="submit">Сохранить права</button>
+    </form>
+
+    {% if messages %}
+        <ul class="message">
+            {% for message in messages %}
+                {% if "access" in message.tags %}
+                    <li class="{{ message.tags }}">{{ message }}</li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    {% endif %}
 </div>
 
 <!-- Вкладка 3: ИП преподавателей -->
