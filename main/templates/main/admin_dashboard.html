@@ -272,24 +272,26 @@
         </select>
         <button type="submit" name="action" value="delete_teacher">Удалить</button>
     </form>
+
+    <!-- Сообщения -->
+    {% if messages %}
+        <ul class="message">
+            {% for message in messages %}
+                <li class="{{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        <script>
+            if (window.history.replaceState) {
+                window.history.replaceState(null, null, window.location.href);
+            }
+        </script>
+    {% endif %}
 </div>
 
 <!-- Выход -->
 <p><a href="{% url 'logout' %}">Выйти</a></p>
 
-<!-- Сообщения -->
-{% if messages %}
-    <ul class="message">
-        {% for message in messages %}
-            <li class="{{ message.tags }}">{{ message }}</li>
-        {% endfor %}
-    </ul>
-    <script>
-        if (window.history.replaceState) {
-            window.history.replaceState(null, null, window.location.href);
-        }
-    </script>
-{% endif %}
+
 
 </body>
 </html>
