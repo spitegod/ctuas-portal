@@ -213,6 +213,7 @@
     <table>
         <tr>
             <th>Дисциплины</th>
+            <th>Курс</th>
             <th>Количество групп</th>
             <th>Количество студентов</th>
             <th>Лекции</th>
@@ -234,16 +235,17 @@
             <th>Всего часов по плану</th>
             <th>Всего часов фактически</th>
         </tr>
-        {% for d in disciplines %}
+        {% for d in disciplines_firstsem %}
         <tr>
             <td>{{ d.discipline }}</td>
-            <td>{{ d.group_count }}</td>
-            <td>{{ d.student_count }}</td>
-            <td>{{ d.lectures }}</td>
-            <td>{{ d.practicals }}</td>
-            <td>{{ d.labs }}</td>
-            <td>{{ d.project_work}}</td>
-            <td>{{ d.consultations }}</td>
+            <td>{{ d.course|default_if_none:"" }}</td>
+            <td>{{ d.group_count|default_if_none:"" }}</td>
+            <td>{{ d.student_count|default_if_none:"" }}</td>
+            <td>{% if d.lectures %}{{ d.lectures }}{% endif %}</td>
+            <td>{% if d.practicals %}{{ d.practicals }}{% endif %}</td>
+            <td>{% if d.labs %}{{ d.labs }}{% endif %}</td>
+            <td>{% if d.project_work %}{{ d.project_work}}{% endif %}</td>
+            <td>{% if d.consultations %}{{ d.consultations }}{% endif %}</td>
             <td>{{ d.tests }}</td>
             <td>{{ d.exams }}</td>
             <td>{{ d.review_distance }}</td>
@@ -260,6 +262,7 @@
         </tr>
         {% endfor %}
     </table>
+    <p>Нагрузка на условиях почасовой оплаты.</p>
 </div>
 
 <!-- Вкладка 4: ППС -->

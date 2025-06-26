@@ -28,7 +28,7 @@ class Teacher(models.Model):
 
 
 
-class DisciplineLoad(models.Model):
+class FirstSem(models.Model):
     discipline = models.CharField(max_length=255)
     course = models.IntegerField(null=True, blank=True)
     group_count = models.IntegerField(null=True, blank=True)

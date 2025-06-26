@@ -148,9 +148,9 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
-from main.models import Teacher 
+from main.models import Teacher, FirstSem
 from django.db.models import Q
-from .models import DisciplineLoad
+
 
 def login_view(request):
     if request.method == 'POST':
@@ -284,13 +284,14 @@ def dashboard(request):
         ).exclude(is_superuser=True).distinct()
 
         teachers = Teacher.objects.all()
-        disciplines = DisciplineLoad.objects.all()
+        discipines_firstsem = FirstSem.objects.all()
+
 
 
         return render(request, 'main/admin_dashboard.html', {
             'staff_users': staff_users,
             'teachers': teachers,
-            'disciplines': disciplines
+            'disciplines_firstsem': discipines_firstsem
         })
 
     elif request.user.is_staff:
@@ -299,7 +300,3 @@ def dashboard(request):
         return render(request, 'main/student_dashboard.html')
     
 
-def discipline_table_view(request):
-    disciplines = DisciplineLoad.objects.all()
-    print(f"Загружено дисциплин: {disciplines.count()}")  # отладка
-    return render(request, 'discipline_table.html', {'disciplines': disciplines})
