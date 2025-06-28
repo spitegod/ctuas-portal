@@ -1,6 +1,10 @@
 import openpyxl
 from main.models import Teacher
+from django.db import connection
 
+with connection.cursor() as cursor:
+    cursor.execute("DELETE FROM sqlite_sequence WHERE name='main_teacher';")
+    
 def import_teachers_from_excel(file_path):
     import openpyxl
     from main.models import Teacher
@@ -9,6 +13,7 @@ def import_teachers_from_excel(file_path):
     sheet = wb.active
 
     Teacher.objects.all().delete()
+    
 
     for i, row in enumerate(sheet.iter_rows(min_row=2), start=2):
         try:
