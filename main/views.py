@@ -158,15 +158,11 @@ def login_view(request):
         password = request.POST['password']
         user = authenticate(request, username=username, password=password)
         if user:
-            if user.is_superuser:
-                login(request, user)
-                return redirect('dashboard')
-            else:
-                return render(request, 'main/login.html', {'error': 'Доступ разрешён только заведующему кафедры'})
+            login(request, user)  # авторизуем независимо от прав
+            return redirect('dashboard')  # там разруливаем, куда перекинуть
         else:
             return render(request, 'main/login.html', {'error': 'Неверный логин или пароль'})
     return render(request, 'main/login.html')
-
 
 def index(request):
     if request.user.is_authenticated:
