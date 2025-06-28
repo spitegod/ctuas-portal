@@ -5,14 +5,14 @@ def import_teachers_from_excel(file_path):
     wb = openpyxl.load_workbook(file_path)
     sheet = wb.active
 
-    for i, row in enumerate(sheet.iter_rows(min_row=2), start=2):  # Пропустить заголовок
+    for i, row in enumerate(sheet.iter_rows(min_row=2), start=2): 
         try:
             full_name = row[0].value
             teacher_type = row[1].value
             position = row[2].value
             rate = row[3].value
             degree = row[4].value
-            title = row[5].value    # ← исправлено: было rank
+            title = row[5].value    
             email = row[6].value
             phone = row[7].value
             birthday = row[8].value
@@ -24,7 +24,7 @@ def import_teachers_from_excel(file_path):
                 position=position,
                 rate=rate,
                 degree=degree,
-                title=title,     # ← тоже исправлено
+                title=title,   
                 email=email,
                 phone=phone,
                 birthday=birthday,
