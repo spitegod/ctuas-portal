@@ -7,8 +7,7 @@ from django.contrib import messages
 from main.models import Teacher, FirstSem, SecondSem
 from django.db.models import Q
 from django.shortcuts import render, redirect
-from .models import EducationalMethodicalWork
-from .forms import EducationalMethodicalWorkForm
+from main.models import Teacher, EducationalMethodicalWork, OrganizationalMethodicalWork
 
 
 def login_view(request):
@@ -171,45 +170,63 @@ def dashboard(request):
     else:
         return render(request, 'main/student_dashboard.html')
     
+@login_required
 def teacher_dashboard(request):
     teacher = request.user.teacher
 
-    if request.method == 'POST':
-        form_type = request.POST.get("form_type")
+    # === Обработка добавления учебно-методической работы ===
+    if request.method == 'POST' and request.POST.get("form_type") == "teaching_method":
+        title = request.POST.get("title")
+        start_date = request.POST.get("start_date")
+        end_date = request.POST.get("end_date")
+        completed = request.POST.get("completed")
 
-        # === Добавление записи ===
-        if form_type == "teaching_method":
-            title = request.POST.get("title")
-            start_date = request.POST.get("start_date")
-            end_date = request.POST.get("end_date")
-            is_completed = request.POST.get("completed")  # как текст
+        EducationalMethodicalWork.objects.create(
+            teacher=teacher,
+            title=title,
+            start_date=start_date,
+            end_date=end_date or None,
+            completed=completed
+        )
+        messages.success(request, "Запись по учебно-методической работе успешно добавлена.")
+        return redirect('/dashboard?tab=2')
 
-            if not title or not start_date:
-                messages.error(request, "Поля 'Наименование' и 'Начало' обязательны.")
-            else:
-                EducationalMethodicalWork.objects.create(
-                    teacher=teacher,
-                    title=title,
-                    start_date=start_date,
-                    end_date=end_date or None,
-                    completed=is_completed
-                )
-                messages.success(request, "Запись успешно добавлена.")
-            return redirect('/dashboard?tab=2')
+    # === Удаление записи из учебно-методической работы ===
+    if request.method == 'POST' and request.POST.get("form_type") == "delete_teaching_method":
+        work_id = request.POST.get("work_id")
+        EducationalMethodicalWork.objects.filter(id=work_id, teacher=teacher).delete()
+        messages.success(request, "Запись удалена.")
+        return redirect('/dashboard?tab=2')
 
-        # === Удаление записи ===
-        elif form_type == "delete_teaching_method":
-            work_id = request.POST.get("work_id")
-            try:
-                work = EducationalMethodicalWork.objects.get(id=work_id, teacher=teacher)
-                work.delete()
-                messages.success(request, "Запись успешно удалена.")
-            except EducationalMethodicalWork.DoesNotExist:
-                messages.error(request, "Запись не найдена.")
-            return redirect('/dashboard?tab=2')
+    # === Обработка добавления орг.-методической работы ===
+    if request.method == 'POST' and request.POST.get("form_type") == "organizational_method":
+        title = request.POST.get("title")
+        start_date = request.POST.get("start_date")
+        end_date = request.POST.get("end_date")
+        completed = request.POST.get("completed")
 
-    # === Получение всех записей преподавателя ===
-    works = EducationalMethodicalWork.objects.filter(teacher=teacher)
+        OrganizationalMethodicalWork.objects.create(
+            teacher=teacher,
+            title=title,
+            start_date=start_date,
+            end_date=end_date or None,
+            completed=completed
+        )
+        messages.success(request, "Орг.-методическая работа успешно добавлена.")
+        return redirect('/dashboard?tab=3')
+
+    # === Удаление записи из орг.-методической работы ===
+    if request.method == 'POST' and request.POST.get("delete_organizational_method"):
+        work_id = request.POST.get("delete_organizational_method")
+        OrganizationalMethodicalWork.objects.filter(id=work_id, teacher=teacher).delete()
+        messages.success(request, "Запись удалена.")
+        return redirect('/dashboard?tab=3')
+
+    # === Выборки всех работ преподавателя ===
+    edu_works = EducationalMethodicalWork.objects.filter(teacher=teacher)
+    org_works = OrganizationalMethodicalWork.objects.filter(teacher=teacher)
+
     return render(request, 'main/teacher_dashboard.html', {
-        'works': works
+        'works': edu_works,
+        'org_works': org_works,
     })
