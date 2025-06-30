@@ -182,6 +182,7 @@ def dashboard(request):
         if request.method == 'POST':
             action = request.POST.get('action')
 
+            # === Добавление пользователя ===
             if action == 'add':
                 username = request.POST.get('username')
                 password = request.POST.get('password')
@@ -209,6 +210,7 @@ def dashboard(request):
                         Teacher.objects.create(full_name=username, user=user)
                         messages.success(request, f"Создан новый преподаватель и пользователь '{username}'.")
 
+            # === Удаление пользователя ===
             elif action == 'delete':
                 user_id = request.POST.get('delete_user')
                 try:
@@ -222,6 +224,7 @@ def dashboard(request):
                 except User.DoesNotExist:
                     messages.error(request, "Пользователь не найден.")
 
+            # === Изменение прав доступа ===
             elif action == 'update_permissions':
                 user_id = request.POST.get("user_id")
                 is_staff = request.POST.get("is_staff") == "True"
@@ -229,13 +232,17 @@ def dashboard(request):
 
                 try:
                     user = User.objects.get(id=user_id)
-                    user.is_staff = is_staff
-                    user.is_superuser = is_superuser
-                    user.save()
-                    messages.success(request, f"Права пользователя '{user.username}' обновлены.", extra_tags="access")
+                    if user == request.user and not is_superuser:
+                        messages.warning(request, "Нельзя снять права суперпользователя у самого себя.")
+                    else:
+                        user.is_staff = is_staff
+                        user.is_superuser = is_superuser
+                        user.save()
+                        messages.success(request, f"Права пользователя '{user.username}' обновлены.", extra_tags="access")
                 except User.DoesNotExist:
                     messages.error(request, "Пользователь не найден.", extra_tags="access")
 
+            # === Добавление преподавателя ===
             elif action == 'add_teacher':
                 full_name = request.POST.get('full_name')
                 teacher_type = request.POST.get('teacher_type')
@@ -265,36 +272,40 @@ def dashboard(request):
                     )
                     messages.success(request, f"Преподаватель '{full_name}' успешно добавлен.")
 
+            # === Удаление преподавателя ===
             elif action == 'delete_teacher':
                 teacher_id = request.POST.get('delete_teacher')
                 try:
                     teacher = Teacher.objects.get(id=teacher_id)
+                    name = teacher.full_name
+                    if teacher.user:
+                        teacher.user = None
+                        teacher.save()
                     teacher.delete()
-                    messages.success(request, f"Преподаватель '{teacher.full_name}' удалён.")
+                    messages.success(request, f"Преподаватель '{name}' удалён.")
                 except Teacher.DoesNotExist:
                     messages.error(request, "Преподаватель не найден.")
 
-        # Показываем всех, у кого есть привязка к Teacher или кто is_staff, кроме суперпользователя
+        # === Подготовка данных для отображения ===
         staff_users = User.objects.filter(
             Q(is_staff=True) | Q(teacher__isnull=False)
-        ).exclude(is_superuser=True).distinct()
+        ).distinct()
 
         teachers = Teacher.objects.all()
         discipines_firstsem = FirstSem.objects.all()
         discipines_secondsem = SecondSem.objects.all()
 
-
-
         return render(request, 'main/admin_dashboard.html', {
             'staff_users': staff_users,
             'teachers': teachers,
             'disciplines_firstsem': discipines_firstsem,
-            'discipines_secondsem': discipines_secondsem
+            'discipines_secondsem': discipines_secondsem,
         })
 
+    # === Для обычных преподавателей ===
     elif request.user.is_staff:
         return render(request, 'main/teacher_dashboard.html')
+
+    # === Для студентов (если реализовано) ===
     else:
         return render(request, 'main/student_dashboard.html')
-    
-
