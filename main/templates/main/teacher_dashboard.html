@@ -130,6 +130,15 @@
   </div>
 
   <div class="container">
+    {% if messages %}
+    <ul style="list-style: none; padding: 0;">
+      {% for message in messages %}
+        <li style="padding: 10px; margin-bottom: 10px; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; border-radius: 5px;">
+          {{ message }}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
     <h2>Личный кабинет преподавателя</h2>
     <h4>Здравствуйте, {{ request.user.teacher.full_name }}!</h4>
 
@@ -150,7 +159,56 @@
 
       <div id="tabContents">
         <div class="tab-content active" id="tab1">Тут будет ИП работы преподавателя.</div>
-        <div class="tab-content" id="tab2">Тут будет Учебно-методическая работа.</div>
+        <div class="tab-content" id="tab2">
+          <h3>Учебно-методическая работа</h3>
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="teaching_method">
+        
+            <label>Наименование работы:
+              <input type="text" name="title" required>
+            </label>
+            <label>Начало работы:
+              <input type="text" name="start_date" required>
+            </label>
+            <label>Окончание работы:
+              <input type="text" name="end_date">
+            </label>
+            <label>Отметка о выполнении: <input type="text" name="completed"></label>
+        
+            <button type="submit">Добавить</button>
+          </form>
+        
+          <table>
+            <thead>
+              <tr>
+                <th>Наименование работы</th>
+                <th>Начало</th>
+                <th>Окончание</th>
+                <th>Выполнено</th>
+                <th>Действие</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for work in works %}
+              <tr>
+                <td>{{ work.title }}</td>
+                <td>{{ work.start_date }}</td>
+                <td>{{ work.end_date }}</td>
+                <td>{{ work.completed }}</td>
+                <td>
+                  <form method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="delete_teaching_method">
+                    <input type="hidden" name="work_id" value="{{ work.id }}">
+                    <button type="submit" style="color: red;">Удалить</button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
         <div class="tab-content" id="tab3">Тут будет Организационно-методическая работа.</div>
         <div class="tab-content" id="tab4">Тут будет Научно-исследовательская работа.</div>
         <div class="tab-content" id="tab5">Тут будет Хоздоговорная деятельность.</div>
@@ -199,6 +257,11 @@
         btn.classList.toggle("active", i === index - 1);
       });
     }
+    window.addEventListener('DOMContentLoaded', function() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const tab = parseInt(urlParams.get('tab'));
+  if (tab) showTab(tab);
+});
   </script>
 </body>
 </html>
