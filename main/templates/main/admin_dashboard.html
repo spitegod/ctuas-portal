@@ -70,40 +70,79 @@
         .success {
             color: green;
         }
-        .top-bar {
+
+        .user-dropdown {
             position: fixed;
-            top: 0;
-            right: 0;
-            padding: 10px 20px;
-            background-color: #f0f0f0;
-            border-bottom-left-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            z-index: 999;
+            top: 10px;
+            right: 20px;
+            z-index: 1000;
             display: flex;
             align-items: center;
-            gap: 15px;
+            font-family: Arial, sans-serif;
         }
 
-        .logout-button {
-            color: #fff;
-            background-color: #d9534f;
-            padding: 6px 12px;
-            border-radius: 4px;
+        .user-dropdown .avatar {
+            width: 36px;
+            height: 36px;
+            background-color: #3c8dbc;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .user-dropdown .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 45px;
+            right: 0;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            min-width: 160px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .user-dropdown .dropdown-menu a {
+            display: block;
+            padding: 10px 15px;
             text-decoration: none;
-            font-weight: bold;
-        }
-
-        .logout-button:hover {
-            background-color: #c9302c;
-        }
-
-        .user-info {
-            font-weight: bold;
             color: #333;
         }
+
+        .user-dropdown .dropdown-menu a:hover {
+            background-color: #f5f5f5;
+        }
+
+        .user-dropdown.open .dropdown-menu {
+            display: block;
+        }
+
+        .user-dropdown .username {
+            margin-left: 10px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
     </style>
 
     <script>
+        function toggleDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('open');
+        }
+
+        // Закрытие меню при клике вне его
+        document.addEventListener('click', function (e) {
+            const dropdown = document.getElementById('userDropdown');
+            if (!dropdown.contains(e.target)) {
+                dropdown.classList.remove('open');
+            }
+        });
         function showTab(tabId) {
             let tabs = document.getElementsByClassName("tab-content");
             for (let i = 0; i < tabs.length; i++) tabs[i].classList.remove("active");
@@ -460,9 +499,15 @@
 </div>
 
 
-<div class="top-bar">
-    <span class="user-info">👤 {{ request.user.username }}</span>
-    <a href="{% url 'logout' %}" class="logout-button">Выйти</a>
+<div class="user-dropdown" id="userDropdown">
+    <div class="avatar" onclick="toggleDropdown()">
+        {{ request.user.username|slice:":1"|upper }}
+    </div>
+    <span class="username">{{ request.user.username }}</span>
+    <div class="dropdown-menu" id="dropdownMenu">
+        <a href="#">Профиль</a>
+        <a href="{% url 'logout' %}">Выйти</a>
+    </div>
 </div>
 
 
