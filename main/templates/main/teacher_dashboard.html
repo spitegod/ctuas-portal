@@ -161,48 +161,42 @@
         <div class="tab-content active" id="tab1">Тут будет ИП работы преподавателя.</div>
         <div class="tab-content" id="tab2">
           <h3>Учебно-методическая работа</h3>
-          <form method="post">
+          <form method="POST">
             {% csrf_token %}
             <input type="hidden" name="form_type" value="teaching_method">
-        
-            <label>Наименование работы:
-              <input type="text" name="title" required>
-            </label>
-            <label>Начало работы:
-              <input type="text" name="start_date" required>
-            </label>
-            <label>Окончание работы:
-              <input type="text" name="end_date">
-            </label>
-            <label>Отметка о выполнении: <input type="text" name="completed"></label>
-        
-            <button type="submit">Добавить</button>
+            {% if active_tab == 2 and edit_work_tab2 %}
+              <input type="hidden" name="work_id" value="{{ edit_work_tab2.id }}">
+            {% endif %}
+            <label>Наименование работы:</label>
+            <input type="text" name="title" value="{{ edit_work_tab2.title|default:'' }}"><br>
+            <label>Начало работы:</label>
+            <input type="text" name="start_date" value="{{ edit_work_tab2.start_date|default:'' }}"><br>
+            <label>Окончание работы:</label>
+            <input type="text" name="end_date" value="{{ edit_work_tab2.end_date|default:'' }}"><br>
+            <label>Отметка о выполнении:</label>
+            <input type="text" name="completed" value="{{ edit_work_tab2.completed|default:'' }}"><br>
+            <button type="submit">{% if active_tab == 2 and edit_work_tab2 %}Сохранить изменения{% else %}Добавить{% endif %}</button>
           </form>
         
           <table>
             <thead>
-              <tr>
-                <th>Наименование работы</th>
-                <th>Начало</th>
-                <th>Окончание</th>
-                <th>Выполнено</th>
-                <th>Действие</th>
-              </tr>
+              <tr><th>Наименование</th><th>Начало</th><th>Окончание</th><th>Выполнено</th><th>Действие</th></tr>
             </thead>
             <tbody>
               {% for work in works %}
               <tr>
-                <td>{{ work.title }}</td>
-                <td>{{ work.start_date }}</td>
-                <td>{{ work.end_date }}</td>
-                <td>{{ work.completed }}</td>
+                <td>{{ work.title }}</td><td>{{ work.start_date }}</td><td>{{ work.end_date }}</td><td>{{ work.completed }}</td>
                 <td>
-                  <form method="post" style="display:inline;">
+                  <form method="POST" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="edit_teaching_method" value="{{ work.id }}">
+                    <button type="submit">Редактировать</button>
+                  </form>
+                  <form method="POST" style="display:inline;">
                     {% csrf_token %}
                     <input type="hidden" name="form_type" value="delete_teaching_method">
                     <input type="hidden" name="work_id" value="{{ work.id }}">
-                    <button type="submit" style="color: red;">Удалить</button>
-                  </form>
+                    <button type="submit">Удалить</button>
                   </form>
                 </td>
               </tr>
@@ -210,41 +204,45 @@
             </tbody>
           </table>
         </div>
+        
+        <!-- === Организационно-методическая работа === -->
         <div class="tab-content" id="tab3">
           <h3>Организационно-методическая работа</h3>
-          <form method="post">
+          <form method="POST">
             {% csrf_token %}
             <input type="hidden" name="form_type" value="organizational_method">
-        
-            <label>Наименование работы: <input type="text" name="title" required></label>
-            <label>Начало работы: <input type="text" name="start_date" required></label>
-            <label>Окончание работы: <input type="text" name="end_date"></label>
-            <label>Отметка о выполнении: <input type="text" name="completed"></label>
-            <button type="submit">Добавить</button>
+            {% if active_tab == 3 and edit_work_tab3 %}
+              <input type="hidden" name="work_id" value="{{ edit_work_tab3.id }}">
+            {% endif %}
+            <label>Наименование:</label>
+            <input type="text" name="title" value="{{ edit_work_tab3.title|default:'' }}"><br>
+            <label>Начало:</label>
+            <input type="text" name="start_date" value="{{ edit_work_tab3.start_date|default:'' }}"><br>
+            <label>Окончание:</label>
+            <input type="text" name="end_date" value="{{ edit_work_tab3.end_date|default:'' }}"><br>
+            <label>Выполнено:</label>
+            <input type="text" name="completed" value="{{ edit_work_tab3.completed|default:'' }}"><br>
+            <button type="submit">{% if active_tab == 3 and edit_work_tab3 %}Сохранить изменения{% else %}Добавить{% endif %}</button>
           </form>
-        
           <table>
             <thead>
-              <tr>
-                <th>Наименование работы</th>
-                <th>Начало</th>
-                <th>Окончание</th>
-                <th>Отметка</th>
-                <th>Удалить</th>
-              </tr>
+              <tr><th>Наименование</th><th>Начало</th><th>Окончание</th><th>Выполнено</th><th>Действие</th></tr>
             </thead>
             <tbody>
               {% for work in org_works %}
               <tr>
-                <td>{{ work.title }}</td>
-                <td>{{ work.start_date }}</td>
-                <td>{{ work.end_date }}</td>
-                <td>{{ work.completed }}</td>
+                <td>{{ work.title }}</td><td>{{ work.start_date }}</td><td>{{ work.end_date }}</td><td>{{ work.completed }}</td>
                 <td>
-                  <form method="post" style="display:inline;">
+                  <form method="POST" style="display:inline;">
                     {% csrf_token %}
-                    <input type="hidden" name="delete_organizational_method" value="{{ work.id }}">
-                    <button type="submit" style="color: red;">Удалить</button>
+                    <input type="hidden" name="edit_organizational_method" value="{{ work.id }}">
+                    <button type="submit">Редактировать</button>
+                  </form>
+                  <form method="POST" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="delete_organizational_method">
+                    <input type="hidden" name="work_id" value="{{ work.id }}">
+                    <button type="submit">Удалить</button>
                   </form>
                 </td>
               </tr>
@@ -252,24 +250,31 @@
             </tbody>
           </table>
         </div>
+        
+                      
+       
         <div class="tab-content" id="tab4">
           <h3>Научно-исследовательская работа</h3>
           <form method="post">
             {% csrf_token %}
             <input type="hidden" name="form_type" value="research_work">
+            <input type="hidden" name="active_tab" value="4">
+            {% if active_tab == 4 and edit_work_tab4 %}
+              <input type="hidden" name="work_id" value="{{ edit_work_tab4.id }}">
+            {% endif %}
             <label>Наименование темы, этап, задание:
-              <input type="text" name="topic" required>
+              <input type="text" name="topic" value="{{ edit_work_tab4.topic|default:'' }}" required>
             </label>
             <label>Начало работы:
-              <input type="text" name="start_date" required>
+              <input type="date" name="start_date" value="{{ edit_work_tab4.start_date|default:'' }}" required>
             </label>
             <label>Окончание работы:
-              <input type="text" name="end_date">
+              <input type="date" name="end_date" value="{{ edit_work_tab4.end_date|default:'' }}">
             </label>
             <label>Отметка о выполнении:
-              <input type="text" name="completed">
+              <input type="text" name="completed" value="{{ edit_work_tab4.completed|default:'' }}">
             </label>
-            <button type="submit">Добавить</button>
+            <button type="submit">{% if active_tab == 4 and edit_work_tab4 %}Сохранить изменения{% else %}Добавить{% endif %}</button>
           </form>
         
           <table>
@@ -279,7 +284,7 @@
                 <th>Начало</th>
                 <th>Окончание</th>
                 <th>Выполнено</th>
-                <th>Удалить</th>
+                <th>Действие</th>
               </tr>
             </thead>
             <tbody>
@@ -292,7 +297,14 @@
                 <td>
                   <form method="post" style="display:inline;">
                     {% csrf_token %}
-                    <input type="hidden" name="delete_research_work" value="{{ work.id }}">
+                    <input type="hidden" name="form_type" value="edit_research_work">
+                    <input type="hidden" name="edit_research_work" value="{{ work.id }}">
+                    <button type="submit" style="color: orange;">Редактировать</button>
+                  </form>
+                  <form method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="delete_research_work">
+                    <input type="hidden" name="work_id" value="{{ work.id }}">
                     <button type="submit" style="color: red;">Удалить</button>
                   </form>
                 </td>
@@ -306,33 +318,27 @@
           <form method="post">
             {% csrf_token %}
             <input type="hidden" name="form_type" value="contract_research">
+            <input type="hidden" name="active_tab" value="5">
+            {% if active_tab == 5 and edit_work_tab5 %}
+              <input type="hidden" name="work_id" value="{{ edit_work_tab5.id }}">
+            {% endif %}
         
-            <div class="form-group">
-              <label for="topic">Наименование темы, шифр:</label>
-              <textarea name="topic" rows="3" class="form-control" required></textarea>
-            </div>
+            <label>Наименование темы, шифр:</label>
+            <textarea name="topic" required>{{ edit_work_tab5.topic|default:'' }}</textarea>
         
-            <div class="form-group">
-              <label for="position">Должность:</label>
-              <input type="text" name="position" class="form-control" required>
-            </div>
+            <label>Должность:</label>
+            <input type="text" name="position" value="{{ edit_work_tab5.position|default:'' }}" required>
         
-            <div class="form-group">
-              <label for="start_date">Начало:</label>
-              <input type="date" name="start_date" class="form-control" required>
-            </div>
+            <label>Начало:</label>
+<input type="date" name="start_date" value="{{ edit_work_tab5.start_date|default:'' }}" required>
+
+<label>Окончание:</label>
+<input type="date" name="end_date" value="{{ edit_work_tab5.end_date|default:'' }}">>
         
-            <div class="form-group">
-              <label for="end_date">Окончание:</label>
-              <input type="date" name="end_date" class="form-control">
-            </div>
+            <label>Отметка о выполнении:</label>
+            <input type="text" name="completed" value="{{ edit_work_tab5.completed|default:'' }}">
         
-            <div class="form-group">
-              <label for="completed">Отметка о выполнении:</label>
-              <input type="text" name="completed" class="form-control">
-            </div>
-        
-            <button type="submit" class="btn btn-primary">Добавить</button>
+            <button type="submit">{% if active_tab == 5 and edit_work_tab5 %}Сохранить изменения{% else %}Добавить{% endif %}</button>
           </form>
         
           <table>
@@ -343,7 +349,7 @@
                 <th>Начало</th>
                 <th>Окончание</th>
                 <th>Отметка</th>
-                <th>Удалить</th>
+                <th>Действие</th>
               </tr>
             </thead>
             <tbody>
@@ -357,7 +363,14 @@
                 <td>
                   <form method="post" style="display:inline;">
                     {% csrf_token %}
-                    <input type="hidden" name="delete_contract_research" value="{{ work.id }}">
+                    <input type="hidden" name="form_type" value="edit_contract_research">
+                    <input type="hidden" name="edit_contract_research" value="{{ work.id }}">
+                    <button type="submit" style="color: orange;">Редактировать</button>
+                  </form>
+                  <form method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="delete_contract_research">
+                    <input type="hidden" name="work_id" value="{{ work.id }}">
                     <button type="submit" style="color: red;">Удалить</button>
                   </form>
                 </td>
@@ -366,34 +379,40 @@
             </tbody>
           </table>
         </div>
+        
         <div class="tab-content" id="tab6">
           <h3>Научно-методическая работа</h3>
           <form method="post">
             {% csrf_token %}
             <input type="hidden" name="form_type" value="scientific_method">
-            <label>Наименование темы, этап, задание</label>
-            <textarea name="topic" class="form-control" rows="2" required></textarea>
+            <input type="hidden" name="active_tab" value="6">
+            {% if edit_id_tab6 and edit_work_tab6 %}
+              <input type="hidden" name="work_id" value="{{ edit_work_tab6.id }}">
+            {% endif %}
         
-            <label>Начало</label>
-            <input type="text" name="start_date" class="form-control">
+            <label>Наименование темы, этап, задание:</label>
+            <textarea name="topic" required>{{ edit_work_tab6.topic|default:'' }}</textarea>
         
-            <label>Окончание</label>
-            <input type="text" name="end_date" class="form-control">
+            <label>Начало:</label>
+            <input type="date" name="start_date" value="{{ edit_work_tab6.start_date|default:'' }}">
         
-            <label>Отметка о выполнении</label>
-            <input type="text" name="completed" class="form-control">
+            <label>Окончание:</label>
+            <input type="date" name="end_date" value="{{ edit_work_tab6.end_date|default:'' }}">
         
-            <button type="submit">Добавить</button>
+            <label>Отметка о выполнении:</label>
+            <input type="text" name="completed" value="{{ edit_work_tab6.completed|default:'' }}">
+        
+            <button type="submit">Сохранить изменения</button>
           </form>
         
           <table>
             <thead>
               <tr>
-                <th>Наименование темы, этап, задание</th>
+                <th>Наименование темы</th>
                 <th>Начало</th>
                 <th>Окончание</th>
                 <th>Отметка</th>
-                <th>Удалить</th>
+                <th>Действие</th>
               </tr>
             </thead>
             <tbody>
@@ -406,7 +425,15 @@
                 <td>
                   <form method="post" style="display:inline;">
                     {% csrf_token %}
-                    <input type="hidden" name="delete_scientific_method" value="{{ work.id }}">
+                    <input type="hidden" name="form_type" value="edit_scientific_method">
+                    <input type="hidden" name="edit_scientific_method" value="{{ work.id }}">
+                    <input type="hidden" name="active_tab" value="6">
+                    <button type="submit" style="color: orange;">Редактировать</button>
+                  </form>
+                  <form method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="delete_scientific_method">
+                    <input type="hidden" name="work_id" value="{{ work.id }}">
                     <button type="submit" style="color: red;">Удалить</button>
                   </form>
                 </td>
@@ -415,6 +442,8 @@
             </tbody>
           </table>
         </div>
+        
+        
         
         <div class="tab-content" id="tab7">Тут будут Научные статьи и чекбоксы.</div>
         <div class="tab-content" id="tab8">Тут будет Общественно-воспитательная работа.</div>
