@@ -106,4 +106,13 @@ class OrganizationalMethodicalWork(models.Model):
 
     def __str__(self):
         return self.title
-    
+
+class ResearchWork(models.Model):
+    teacher = models.ForeignKey('main.Teacher', on_delete=models.CASCADE, related_name='research_works')
+    topic = models.TextField("Наименование темы, этап, задание")  # ← изменено название поля
+    start_date = models.CharField("Начало работы", max_length=100)
+    end_date = models.CharField("Окончание работы", max_length=100, blank=True, null=True)
+    completed = models.CharField("Отметка о выполнении", max_length=100, blank=True)
+
+    def __str__(self):
+        return self.topic
