@@ -8,7 +8,7 @@ from main.models import Teacher, FirstSem, SecondSem
 from django.db.models import Q
 from django.shortcuts import render, redirect
 from main.models import Teacher, EducationalMethodicalWork, OrganizationalMethodicalWork,ResearchWork
-from .models import Teacher, EducationalMethodicalWork, OrganizationalMethodicalWork, ResearchWork, ContractResearchWork
+from .models import Teacher, EducationalMethodicalWork, OrganizationalMethodicalWork, ResearchWork, ContractResearchWork,ScientificMethodicalWork
 from .forms import EducationalMethodicalWorkForm, OrganizationalMethodicalWorkForm, ResearchWorkForm, ContractResearchWorkForm
 
 
@@ -175,83 +175,108 @@ def dashboard(request):
 def teacher_dashboard(request):
     teacher = request.user.teacher
 
-    # === Учебно-методическая работа ===
+    # === Добавление учебно-методической работы ===
     if request.method == 'POST' and request.POST.get("form_type") == "teaching_method":
-        form = EducationalMethodicalWorkForm(request.POST)
-        if form.is_valid():
-            work = form.save(commit=False)
-            work.teacher = teacher
-            work.save()
-            messages.success(request, "Учебно-методическая работа добавлена.")
-            return redirect('/dashboard?tab=2')
+        EducationalMethodicalWork.objects.create(
+            teacher=teacher,
+            title=request.POST.get("title"),
+            start_date=request.POST.get("start_date"),
+            end_date=request.POST.get("end_date") or None,
+            completed=request.POST.get("completed")
+        )
+        messages.success(request, "Учебно-методическая работа добавлена.")
+        return redirect('/dashboard?tab=2')
 
+    # === Удаление учебно-методической работы ===
     if request.method == 'POST' and request.POST.get("delete_teaching_method"):
-        work_id = request.POST.get("delete_teaching_method")
-        EducationalMethodicalWork.objects.filter(id=work_id, teacher=teacher).delete()
+        EducationalMethodicalWork.objects.filter(id=request.POST.get("work_id"), teacher=teacher).delete()
         messages.success(request, "Запись удалена.")
         return redirect('/dashboard?tab=2')
 
-    # === Организационно-методическая работа ===
+    # === Добавление орг.-методической работы ===
     if request.method == 'POST' and request.POST.get("form_type") == "organizational_method":
-        form = OrganizationalMethodicalWorkForm(request.POST)
-        if form.is_valid():
-            work = form.save(commit=False)
-            work.teacher = teacher
-            work.save()
-            messages.success(request, "Организационно-методическая работа добавлена.")
-            return redirect('/dashboard?tab=3')
+        OrganizationalMethodicalWork.objects.create(
+            teacher=teacher,
+            title=request.POST.get("title"),
+            start_date=request.POST.get("start_date"),
+            end_date=request.POST.get("end_date") or None,
+            completed=request.POST.get("completed")
+        )
+        messages.success(request, "Орг.-методическая работа добавлена.")
+        return redirect('/dashboard?tab=3')
 
+    # === Удаление орг.-методической работы ===
     if request.method == 'POST' and request.POST.get("delete_organizational_method"):
-        work_id = request.POST.get("delete_organizational_method")
-        OrganizationalMethodicalWork.objects.filter(id=work_id, teacher=teacher).delete()
+        OrganizationalMethodicalWork.objects.filter(id=request.POST.get("delete_organizational_method"), teacher=teacher).delete()
         messages.success(request, "Запись удалена.")
         return redirect('/dashboard?tab=3')
 
-    # === Научно-исследовательская работа ===
+    # === Добавление научно-исследовательской работы ===
     if request.method == 'POST' and request.POST.get("form_type") == "research_work":
-        form = ResearchWorkForm(request.POST)
-        if form.is_valid():
-            work = form.save(commit=False)
-            work.teacher = teacher
-            work.save()
-            messages.success(request, "Научно-исследовательская работа добавлена.")
-            return redirect('/dashboard?tab=4')
+        ResearchWork.objects.create(
+            teacher=teacher,
+            topic=request.POST.get("topic"),
+            start_date=request.POST.get("start_date"),
+            end_date=request.POST.get("end_date") or None,
+            completed=request.POST.get("completed")
+        )
+        messages.success(request, "Научно-исследовательская работа добавлена.")
+        return redirect('/dashboard?tab=4')
 
+    # === Удаление научно-исследовательской работы ===
     if request.method == 'POST' and request.POST.get("delete_research_work"):
-        work_id = request.POST.get("delete_research_work")
-        ResearchWork.objects.filter(id=work_id, teacher=teacher).delete()
+        ResearchWork.objects.filter(id=request.POST.get("delete_research_work"), teacher=teacher).delete()
         messages.success(request, "Запись удалена.")
         return redirect('/dashboard?tab=4')
 
-    # === Хоздоговорная НИР ===
+    # === Добавление хоздоговорной НИР ===
     if request.method == 'POST' and request.POST.get("form_type") == "contract_research":
-        form = ContractResearchWorkForm(request.POST)
-        if form.is_valid():
-            work = form.save(commit=False)
-            work.teacher = teacher
-            work.save()
-            messages.success(request, "Хоздоговорная НИР добавлена.")
-            return redirect('/dashboard?tab=5')
+        ContractResearchWork.objects.create(
+            teacher=teacher,
+            topic=request.POST.get("topic"),
+            position=request.POST.get("position"),
+            start_date=request.POST.get("start_date"),
+            end_date=request.POST.get("end_date") or None,
+            completed=request.POST.get("completed")
+        )
+        messages.success(request, "Запись по хоздоговорной НИР добавлена.")
+        return redirect('/dashboard?tab=5')
 
+    # === Удаление хоздоговорной НИР ===
     if request.method == 'POST' and request.POST.get("delete_contract_research"):
-        work_id = request.POST.get("delete_contract_research")
-        ContractResearchWork.objects.filter(id=work_id, teacher=teacher).delete()
+        ContractResearchWork.objects.filter(id=request.POST.get("delete_contract_research"), teacher=teacher).delete()
         messages.success(request, "Запись удалена.")
         return redirect('/dashboard?tab=5')
 
-    # === Получение записей ===
+    # === Добавление научно-методической работы ===
+    if request.method == 'POST' and request.POST.get("form_type") == "scientific_method":
+        ScientificMethodicalWork.objects.create(
+            teacher=teacher,
+            topic=request.POST.get("topic"),
+            start_date=request.POST.get("start_date"),
+            end_date=request.POST.get("end_date") or None,
+            completed=request.POST.get("completed")
+        )
+        messages.success(request, "Научно-методическая работа добавлена.")
+        return redirect('/dashboard?tab=6')
+
+    # === Удаление научно-методической работы ===
+    if request.method == 'POST' and request.POST.get("delete_scientific_method"):
+        ScientificMethodicalWork.objects.filter(id=request.POST.get("delete_scientific_method"), teacher=teacher).delete()
+        messages.success(request, "Запись удалена.")
+        return redirect('/dashboard?tab=6')
+
+    # === Выборки всех типов работ ===
     edu_works = EducationalMethodicalWork.objects.filter(teacher=teacher)
     org_works = OrganizationalMethodicalWork.objects.filter(teacher=teacher)
     research_works = ResearchWork.objects.filter(teacher=teacher)
     contract_works = ContractResearchWork.objects.filter(teacher=teacher)
+    scientific_works = ScientificMethodicalWork.objects.filter(teacher=teacher)
 
     return render(request, 'main/teacher_dashboard.html', {
-        'edu_form': EducationalMethodicalWorkForm(),
-        'org_form': OrganizationalMethodicalWorkForm(),
-        'research_form': ResearchWorkForm(),
-        'contract_form': ContractResearchWorkForm(),
         'works': edu_works,
         'org_works': org_works,
         'research_works': research_works,
         'contract_works': contract_works,
+        'scientific_works': scientific_works,
     })

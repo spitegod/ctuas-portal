@@ -127,3 +127,13 @@ class ContractResearchWork(models.Model):
 
     def __str__(self):
         return f"{self.topic} ({self.teacher})"
+    
+class ScientificMethodicalWork(models.Model):
+    teacher = models.ForeignKey('main.Teacher', on_delete=models.CASCADE, related_name='scientific_methods')
+    topic = models.TextField("Наименование темы, этап, задание")
+    start_date = models.CharField("Начало", max_length=100)
+    end_date = models.CharField("Окончание", max_length=100, blank=True, null=True)
+    completed = models.CharField("Отметка о выполнении", max_length=100, blank=True, null=True)
+
+    def __str__(self):
+        return self.topic

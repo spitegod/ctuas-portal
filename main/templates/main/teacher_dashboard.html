@@ -366,7 +366,56 @@
             </tbody>
           </table>
         </div>
-        <div class="tab-content" id="tab6">Тут будет Научно-методическая работа.</div>
+        <div class="tab-content" id="tab6">
+          <h3>Научно-методическая работа</h3>
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="scientific_method">
+            <label>Наименование темы, этап, задание</label>
+            <textarea name="topic" class="form-control" rows="2" required></textarea>
+        
+            <label>Начало</label>
+            <input type="text" name="start_date" class="form-control">
+        
+            <label>Окончание</label>
+            <input type="text" name="end_date" class="form-control">
+        
+            <label>Отметка о выполнении</label>
+            <input type="text" name="completed" class="form-control">
+        
+            <button type="submit">Добавить</button>
+          </form>
+        
+          <table>
+            <thead>
+              <tr>
+                <th>Наименование темы, этап, задание</th>
+                <th>Начало</th>
+                <th>Окончание</th>
+                <th>Отметка</th>
+                <th>Удалить</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for work in scientific_works %}
+              <tr>
+                <td>{{ work.topic }}</td>
+                <td>{{ work.start_date }}</td>
+                <td>{{ work.end_date }}</td>
+                <td>{{ work.completed }}</td>
+                <td>
+                  <form method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="delete_scientific_method" value="{{ work.id }}">
+                    <button type="submit" style="color: red;">Удалить</button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        
         <div class="tab-content" id="tab7">Тут будут Научные статьи и чекбоксы.</div>
         <div class="tab-content" id="tab8">Тут будет Общественно-воспитательная работа.</div>
         <div class="tab-content" id="tab9">Тут будут замечания о работе.</div>
