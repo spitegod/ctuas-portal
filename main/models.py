@@ -116,3 +116,14 @@ class ResearchWork(models.Model):
 
     def __str__(self):
         return self.topic
+    
+class ContractResearchWork(models.Model):
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+    topic = models.TextField("Наименование темы, шифр")
+    position = models.CharField("Должность по НИР", max_length=255)
+    start_date = models.DateField("Начало")
+    end_date = models.DateField("Окончание", null=True, blank=True)
+    completed = models.CharField("Отметка о выполнении", max_length=255, blank=True)
+
+    def __str__(self):
+        return f"{self.topic} ({self.teacher})"

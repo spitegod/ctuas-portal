@@ -8,6 +8,8 @@ from main.models import Teacher, FirstSem, SecondSem
 from django.db.models import Q
 from django.shortcuts import render, redirect
 from main.models import Teacher, EducationalMethodicalWork, OrganizationalMethodicalWork,ResearchWork
+from .models import Teacher, EducationalMethodicalWork, OrganizationalMethodicalWork, ResearchWork, ContractResearchWork
+from .forms import EducationalMethodicalWorkForm, OrganizationalMethodicalWorkForm, ResearchWorkForm, ContractResearchWorkForm
 
 
 def login_view(request):
@@ -173,22 +175,15 @@ def dashboard(request):
 def teacher_dashboard(request):
     teacher = request.user.teacher
 
-    # === Учебно-методическая ===
+    # === Учебно-методическая работа ===
     if request.method == 'POST' and request.POST.get("form_type") == "teaching_method":
-        title = request.POST.get("title")
-        start_date = request.POST.get("start_date")
-        end_date = request.POST.get("end_date")
-        completed = request.POST.get("completed")
-
-        EducationalMethodicalWork.objects.create(
-            teacher=teacher,
-            title=title,
-            start_date=start_date,
-            end_date=end_date or None,
-            completed=completed
-        )
-        messages.success(request, "Учебно-методическая работа добавлена.")
-        return redirect('/dashboard?tab=2')
+        form = EducationalMethodicalWorkForm(request.POST)
+        if form.is_valid():
+            work = form.save(commit=False)
+            work.teacher = teacher
+            work.save()
+            messages.success(request, "Учебно-методическая работа добавлена.")
+            return redirect('/dashboard?tab=2')
 
     if request.method == 'POST' and request.POST.get("delete_teaching_method"):
         work_id = request.POST.get("delete_teaching_method")
@@ -196,22 +191,15 @@ def teacher_dashboard(request):
         messages.success(request, "Запись удалена.")
         return redirect('/dashboard?tab=2')
 
-    # === Организационно-методическая ===
+    # === Организационно-методическая работа ===
     if request.method == 'POST' and request.POST.get("form_type") == "organizational_method":
-        title = request.POST.get("title")
-        start_date = request.POST.get("start_date")
-        end_date = request.POST.get("end_date")
-        completed = request.POST.get("completed")
-
-        OrganizationalMethodicalWork.objects.create(
-            teacher=teacher,
-            title=title,
-            start_date=start_date,
-            end_date=end_date or None,
-            completed=completed
-        )
-        messages.success(request, "Организационно-методическая работа добавлена.")
-        return redirect('/dashboard?tab=3')
+        form = OrganizationalMethodicalWorkForm(request.POST)
+        if form.is_valid():
+            work = form.save(commit=False)
+            work.teacher = teacher
+            work.save()
+            messages.success(request, "Организационно-методическая работа добавлена.")
+            return redirect('/dashboard?tab=3')
 
     if request.method == 'POST' and request.POST.get("delete_organizational_method"):
         work_id = request.POST.get("delete_organizational_method")
@@ -219,22 +207,15 @@ def teacher_dashboard(request):
         messages.success(request, "Запись удалена.")
         return redirect('/dashboard?tab=3')
 
-    # === Научно-исследовательская ===
+    # === Научно-исследовательская работа ===
     if request.method == 'POST' and request.POST.get("form_type") == "research_work":
-        topic = request.POST.get("topic")
-        start_date = request.POST.get("start_date")
-        end_date = request.POST.get("end_date")
-        completed = request.POST.get("completed")
-
-        ResearchWork.objects.create(
-            teacher=teacher,
-            topic=topic,
-            start_date=start_date,
-            end_date=end_date or None,
-            completed=completed
-        )
-        messages.success(request, "Научно-исследовательская работа добавлена.")
-        return redirect('/dashboard?tab=4')
+        form = ResearchWorkForm(request.POST)
+        if form.is_valid():
+            work = form.save(commit=False)
+            work.teacher = teacher
+            work.save()
+            messages.success(request, "Научно-исследовательская работа добавлена.")
+            return redirect('/dashboard?tab=4')
 
     if request.method == 'POST' and request.POST.get("delete_research_work"):
         work_id = request.POST.get("delete_research_work")
@@ -242,13 +223,35 @@ def teacher_dashboard(request):
         messages.success(request, "Запись удалена.")
         return redirect('/dashboard?tab=4')
 
-    # === Выборка работ ===
+    # === Хоздоговорная НИР ===
+    if request.method == 'POST' and request.POST.get("form_type") == "contract_research":
+        form = ContractResearchWorkForm(request.POST)
+        if form.is_valid():
+            work = form.save(commit=False)
+            work.teacher = teacher
+            work.save()
+            messages.success(request, "Хоздоговорная НИР добавлена.")
+            return redirect('/dashboard?tab=5')
+
+    if request.method == 'POST' and request.POST.get("delete_contract_research"):
+        work_id = request.POST.get("delete_contract_research")
+        ContractResearchWork.objects.filter(id=work_id, teacher=teacher).delete()
+        messages.success(request, "Запись удалена.")
+        return redirect('/dashboard?tab=5')
+
+    # === Получение записей ===
     edu_works = EducationalMethodicalWork.objects.filter(teacher=teacher)
     org_works = OrganizationalMethodicalWork.objects.filter(teacher=teacher)
     research_works = ResearchWork.objects.filter(teacher=teacher)
+    contract_works = ContractResearchWork.objects.filter(teacher=teacher)
 
     return render(request, 'main/teacher_dashboard.html', {
+        'edu_form': EducationalMethodicalWorkForm(),
+        'org_form': OrganizationalMethodicalWorkForm(),
+        'research_form': ResearchWorkForm(),
+        'contract_form': ContractResearchWorkForm(),
         'works': edu_works,
         'org_works': org_works,
         'research_works': research_works,
+        'contract_works': contract_works,
     })

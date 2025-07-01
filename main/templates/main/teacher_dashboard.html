@@ -301,7 +301,71 @@
             </tbody>
           </table>
         </div>
-        <div class="tab-content" id="tab5">Тут будет Хоздоговорная деятельность.</div>
+        <div class="tab-content" id="tab5">
+          <h3>Участие в хоздоговорной НИР</h3>
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="contract_research">
+        
+            <div class="form-group">
+              <label for="topic">Наименование темы, шифр:</label>
+              <textarea name="topic" rows="3" class="form-control" required></textarea>
+            </div>
+        
+            <div class="form-group">
+              <label for="position">Должность:</label>
+              <input type="text" name="position" class="form-control" required>
+            </div>
+        
+            <div class="form-group">
+              <label for="start_date">Начало:</label>
+              <input type="date" name="start_date" class="form-control" required>
+            </div>
+        
+            <div class="form-group">
+              <label for="end_date">Окончание:</label>
+              <input type="date" name="end_date" class="form-control">
+            </div>
+        
+            <div class="form-group">
+              <label for="completed">Отметка о выполнении:</label>
+              <input type="text" name="completed" class="form-control">
+            </div>
+        
+            <button type="submit" class="btn btn-primary">Добавить</button>
+          </form>
+        
+          <table>
+            <thead>
+              <tr>
+                <th>Наименование темы, шифр</th>
+                <th>Должность</th>
+                <th>Начало</th>
+                <th>Окончание</th>
+                <th>Отметка</th>
+                <th>Удалить</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for work in contract_works %}
+              <tr>
+                <td>{{ work.topic }}</td>
+                <td>{{ work.position }}</td>
+                <td>{{ work.start_date }}</td>
+                <td>{{ work.end_date }}</td>
+                <td>{{ work.completed }}</td>
+                <td>
+                  <form method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="delete_contract_research" value="{{ work.id }}">
+                    <button type="submit" style="color: red;">Удалить</button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
         <div class="tab-content" id="tab6">Тут будет Научно-методическая работа.</div>
         <div class="tab-content" id="tab7">Тут будут Научные статьи и чекбоксы.</div>
         <div class="tab-content" id="tab8">Тут будет Общественно-воспитательная работа.</div>
