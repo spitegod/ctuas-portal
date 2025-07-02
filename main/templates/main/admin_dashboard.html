@@ -467,6 +467,26 @@
         {% endfor %}
         
     </table>
+    <h2>Научно-методическая работа</h2>
+    <table>
+        <tr>
+            <th>Наименование темы, этап, задание</th>
+            <th>Начало</th>
+            <th>Окончание</th>
+            <th>Отметка о выполнении</th>
+        </tr>
+        
+        {% for o in sci_methodwork %}
+        <tr>
+            <td>{{ o.name }}</td>
+            <td>{{ o.start_date }}</td>
+            <td>{{ o.end_date }}</td>
+            <td>{{ o.status }}</td>
+            
+        </tr>
+        {% endfor %}
+        
+    </table>
 </div>
 
 <!-- Вкладка 4: ППС -->
