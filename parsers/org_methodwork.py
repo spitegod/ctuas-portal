@@ -8,13 +8,12 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
 
-# Инициализируем Django
 django.setup()
 
 
-from main.models import MethodicalWork
+from main.models import OrgMethodicalWork
 
-from main.models import MethodicalWork
+
 
 def parse_methodical_work(sheet, teacher=None):
     for i, row in enumerate(sheet.iter_rows(min_row=2, values_only=True), start=2):
@@ -27,7 +26,7 @@ def parse_methodical_work(sheet, teacher=None):
         if not name or str(name).strip() == "":
             continue
 
-        MethodicalWork.objects.create(
+        OrgMethodicalWork.objects.create(
             name=name.strip(),
             start_date=str(start).strip() if start else "",
             end_date=str(end).strip() if end else "",

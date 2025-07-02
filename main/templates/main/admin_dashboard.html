@@ -386,7 +386,7 @@
         {% endfor %}
     </table>
 
-    <p>2. Учебно-методическая работа</p>
+    <p>Учебно-методическая работа</p>
     <table>
         <tr>
             <th>Наименование работы</th>
@@ -400,6 +400,25 @@
             <td>{{ e.start_date }}</td>
             <td>{{ e.end_date }}</td>
             <td>{{ e.status }}</td>
+            
+        </tr>
+        {% endfor %}
+    </table>
+
+    <p>Организационно-методическая работа</p>
+    <table>
+        <tr>
+            <th>Наименование работы</th>
+            <th>Начало работы</th>
+            <th>Окончание работы</th>
+            <th>Отметка о выполнении</th>
+        </tr>
+        {% for o in org_methodwork %}
+        <tr>
+            <td>{{ o.name }}</td>
+            <td>{{ o.start_date }}</td>
+            <td>{{ o.end_date }}</td>
+            <td>{{ o.status }}</td>
             
         </tr>
         {% endfor %}
