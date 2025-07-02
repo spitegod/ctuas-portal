@@ -444,6 +444,28 @@
         {% endfor %}
         
     </table>
+    <p>Участие в хоздоговорной НИР</p>
+    <table>
+        <tr>
+            <th>Наименование темы, шифр</th>
+            <th>Должность по НИР</th>
+            <th>Начало</th>
+            <th>Окончание</th>
+            <th>Отметка о выполнении</th>
+        </tr>
+        
+        {% for o in contractwork %}
+        <tr>
+            <td>{{ o.name }}</td>
+            <td>{{ o.job }}</td>
+            <td>{{ o.start_date }}</td>
+            <td>{{ o.end_date }}</td>
+            <td>{{ o.status }}</td>
+            
+        </tr>
+        {% endfor %}
+        
+    </table>
 </div>
 
 <!-- Вкладка 4: ППС -->
