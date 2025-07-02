@@ -175,10 +175,9 @@ def dashboard(request):
 def teacher_dashboard(request):
     teacher = request.user.teacher
 
-    # Переменные для редактирования для всех вкладок
     edit_id_tab2 = edit_id_tab3 = edit_id_tab4 = edit_id_tab5 = edit_id_tab6 = None
     edit_work_tab2 = edit_work_tab3 = edit_work_tab4 = edit_work_tab5 = edit_work_tab6 = None
-    active_tab = 1
+    active_tab = int(request.GET.get("tab") or request.POST.get("active_tab") or 1)
 
     if request.method == 'POST':
         form_type = request.POST.get("form_type")
@@ -209,12 +208,12 @@ def teacher_dashboard(request):
                     completed=request.POST.get("completed")
                 )
                 messages.success(request, "Учебно-методическая работа добавлена.")
-            return redirect('/dashboard?tab=2')
+            return redirect(f'/dashboard?tab={active_tab}')
 
         elif form_type == "delete_teaching_method":
             EducationalMethodicalWork.objects.filter(id=request.POST.get("work_id"), teacher=teacher).delete()
             messages.success(request, "Запись удалена.")
-            return redirect('/dashboard?tab=2')
+            return redirect(f'/dashboard?tab={active_tab}')
 
         # === Организационно-методическая ===
         if request.POST.get("edit_organizational_method"):
@@ -242,12 +241,12 @@ def teacher_dashboard(request):
                     completed=request.POST.get("completed")
                 )
                 messages.success(request, "Орг.-методическая работа добавлена.")
-            return redirect('/dashboard?tab=3')
+            return redirect(f'/dashboard?tab={active_tab}')
 
         elif form_type == "delete_organizational_method":
             OrganizationalMethodicalWork.objects.filter(id=request.POST.get("work_id"), teacher=teacher).delete()
             messages.success(request, "Запись удалена.")
-            return redirect('/dashboard?tab=3')
+            return redirect(f'/dashboard?tab={active_tab}')
 
         # === Научно-исследовательская ===
         if request.POST.get("edit_research_work"):
@@ -275,12 +274,12 @@ def teacher_dashboard(request):
                     completed=request.POST.get("completed")
                 )
                 messages.success(request, "Научно-исследовательская работа добавлена.")
-            return redirect('/dashboard?tab=4')
+            return redirect(f'/dashboard?tab={active_tab}')
 
         elif form_type == "delete_research_work":
             ResearchWork.objects.filter(id=request.POST.get("work_id"), teacher=teacher).delete()
             messages.success(request, "Запись удалена.")
-            return redirect('/dashboard?tab=4')
+            return redirect(f'/dashboard?tab={active_tab}')
 
         # === Хоздоговорная НИР ===
         if request.POST.get("edit_contract_research"):
@@ -310,12 +309,12 @@ def teacher_dashboard(request):
                     completed=request.POST.get("completed")
                 )
                 messages.success(request, "Хоздоговорная НИР добавлена.")
-            return redirect('/dashboard?tab=5')
+            return redirect(f'/dashboard?tab={active_tab}')
 
         elif form_type == "delete_contract_research":
             ContractResearchWork.objects.filter(id=request.POST.get("work_id"), teacher=teacher).delete()
             messages.success(request, "Запись удалена.")
-            return redirect('/dashboard?tab=5')
+            return redirect(f'/dashboard?tab={active_tab}')
 
         # === Научно-методическая ===
         if request.POST.get("edit_scientific_method"):
@@ -329,7 +328,7 @@ def teacher_dashboard(request):
 
             if not topic:
                 messages.error(request, "Поле 'Наименование темы' обязательно для заполнения.")
-                return redirect('/dashboard?tab=6')
+                return redirect(f'/dashboard?tab={active_tab}')
 
             if work_id:
                 work = ScientificMethodicalWork.objects.filter(id=work_id, teacher=teacher).first()
@@ -349,12 +348,12 @@ def teacher_dashboard(request):
                     completed=request.POST.get("completed")
                 )
                 messages.success(request, "Научно-методическая работа добавлена.")
-            return redirect('/dashboard?tab=6')
+            return redirect(f'/dashboard?tab={active_tab}')
 
         elif form_type == "delete_scientific_method":
             ScientificMethodicalWork.objects.filter(id=request.POST.get("work_id"), teacher=teacher).delete()
             messages.success(request, "Запись удалена.")
-            return redirect('/dashboard?tab=6')
+            return redirect(f'/dashboard?tab={active_tab}')
 
     context = {
         'works': EducationalMethodicalWork.objects.filter(teacher=teacher),

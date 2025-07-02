@@ -158,12 +158,13 @@
       </div>
 
       <div id="tabContents">
-        <div class="tab-content active" id="tab1">Тут будет ИП работы преподавателя.</div>
-        <div class="tab-content" id="tab2">
+        <div class="tab-content {% if active_tab == 1 %}active{% endif %}" id="tab1"></div>
+        <div class="tab-content {% if active_tab == 2 %}active{% endif %}t" id="tab2">
           <h3>Учебно-методическая работа</h3>
           <form method="POST">
             {% csrf_token %}
             <input type="hidden" name="form_type" value="teaching_method">
+            <input type="hidden" name="active_tab" value="2"> 
             {% if active_tab == 2 and edit_work_tab2 %}
               <input type="hidden" name="work_id" value="{{ edit_work_tab2.id }}">
             {% endif %}
@@ -190,12 +191,14 @@
                   <form method="POST" style="display:inline;">
                     {% csrf_token %}
                     <input type="hidden" name="edit_teaching_method" value="{{ work.id }}">
+                    <input type="hidden" name="active_tab" value="2"> 
                     <button type="submit">Редактировать</button>
                   </form>
                   <form method="POST" style="display:inline;">
                     {% csrf_token %}
                     <input type="hidden" name="form_type" value="delete_teaching_method">
                     <input type="hidden" name="work_id" value="{{ work.id }}">
+                    <input type="hidden" name="active_tab" value="2"> 
                     <button type="submit">Удалить</button>
                   </form>
                 </td>
@@ -468,7 +471,7 @@
       const menu = document.getElementById("dropdownMenu");
       menu.style.display = menu.style.display === "block" ? "none" : "block";
     }
-
+  
     document.addEventListener("click", function(event) {
       const dropdown = document.getElementById("userDropdown");
       const menu = document.getElementById("dropdownMenu");
@@ -476,24 +479,27 @@
         menu.style.display = "none";
       }
     });
-
+  
     function showTab(index) {
       const contents = document.querySelectorAll(".tab-content");
       const buttons = document.querySelectorAll(".tab-button");
-
+  
       contents.forEach((tab, i) => {
         tab.classList.toggle("active", i === index - 1);
       });
-
+  
       buttons.forEach((btn, i) => {
         btn.classList.toggle("active", i === index - 1);
       });
+  
+      history.replaceState(null, '', '?tab=' + index);
     }
-    window.addEventListener('DOMContentLoaded', function() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const tab = parseInt(urlParams.get('tab'));
-  if (tab) showTab(tab);
-});
+  
+    window.addEventListener('DOMContentLoaded', function () {
+      const activeTab = {{ active_tab|default:"1"|escapejs }};
+      showTab(parseInt(activeTab));
+    });
   </script>
+  
 </body>
 </html>
