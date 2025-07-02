@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
-from main.models import Teacher, FirstSem, SecondSem
+from main.models import Teacher, FirstSem, SecondSem, MethodicalWork
 from django.db.models import Q
 from django.shortcuts import render, redirect
 from main.models import Teacher, EducationalMethodicalWork, OrganizationalMethodicalWork,ResearchWork
@@ -154,12 +154,14 @@ def dashboard(request):
         teachers = Teacher.objects.all()
         discipines_firstsem = FirstSem.objects.all()
         discipines_secondsem = SecondSem.objects.all()
+        edu_methodwork = MethodicalWork.objects.all()
 
         return render(request, 'main/admin_dashboard.html', {
             'staff_users': staff_users,
             'teachers': teachers,
             'disciplines_firstsem': discipines_firstsem,
             'discipines_secondsem': discipines_secondsem,
+            'edu_methodwork': edu_methodwork
         })
 
     # === Для обычных преподавателей ===

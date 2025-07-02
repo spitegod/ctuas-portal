@@ -385,6 +385,25 @@
         </tr>
         {% endfor %}
     </table>
+
+    <p>2. Учебно-методическая работа</p>
+    <table>
+        <tr>
+            <th>Наименование работы</th>
+            <th>Начало работы</th>
+            <th>Окончание работы</th>
+            <th>Отметка о выполнении</th>
+        </tr>
+        {% for e in edu_methodwork %}
+        <tr>
+            <td>{{ e.name }}</td>
+            <td>{{ e.start_date }}</td>
+            <td>{{ e.end_date }}</td>
+            <td>{{ e.status }}</td>
+            
+        </tr>
+        {% endfor %}
+    </table>
 </div>
 
 <!-- Вкладка 4: ППС -->

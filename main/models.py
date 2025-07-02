@@ -137,3 +137,9 @@ class ScientificMethodicalWork(models.Model):
 
     def __str__(self):
         return self.topic
+    
+class MethodicalWork(models.Model):
+    name = models.TextField("Наименование работы")
+    start_date = models.CharField("Начало работы", max_length=100)
+    end_date = models.CharField("Окончание работы", max_length=100)
+    status = models.CharField("Отметка о выполнении", max_length=100, blank=True)
