@@ -541,6 +541,23 @@
         {% endfor %}
         
     </table>
+    <h2>Повышение квалификации</h2>
+    <table>
+        <tr>
+            <th>Дата</th>
+            <th>Форма повышения квалификации</th>
+            <th>Отметка о выполнении</th>
+        </tr>
+        
+        {% for o in raising %}
+        <tr>
+            <td>{{ o.date }}</td>
+            <td>{{ o.form }}</td>
+            <td>{{ o.mark }}</td>
+        </tr>
+        {% endfor %}
+        
+    </table>
 </div>
 
 <!-- Вкладка 4: ППС -->

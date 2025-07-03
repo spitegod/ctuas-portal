@@ -213,4 +213,10 @@ class PublicWork(models.Model):
 class Remark(models.Model):
     date = models.TextField("Дата")
     remark = models.TextField("Содержание замечаний", max_length=100)
-    signature = models.TextField("Роспись проверяющего", max_length=100)     
+    signature = models.TextField("Роспись проверяющего", max_length=100)
+
+
+class Raising(models.Model):
+    date = models.TextField("Дата")
+    form = models.TextField("Форма повышения квалификации", max_length=100)
+    mark = models.TextField("Отметка о выполнении", max_length=100)     
