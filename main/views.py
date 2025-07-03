@@ -147,25 +147,41 @@ def dashboard(request):
                     messages.success(request, f"Преподаватель '{name}' удалён.")
                 except Teacher.DoesNotExist:
                     messages.error(request, "Преподаватель не найден.")
+            
+            # === Выбор преподавателя ===
+            elif action == 'select_ip_teacher':
+                selected_teacher_id = request.POST.get('selected_teacher_id')
+                if selected_teacher_id:
+                    request.session['selected_teacher_id'] = selected_teacher_id
 
         # === Подготовка данных для отображения ===
         staff_users = User.objects.filter(
             Q(is_staff=True) | Q(teacher__isnull=False)
         ).distinct()
 
+        selected_teacher = None
+        selected_teacher_id = request.session.get('selected_teacher_id')
+
+        if selected_teacher_id:
+            try:
+                selected_teacher = Teacher.objects.get(id=selected_teacher_id)
+            except Teacher.DoesNotExist:
+                selected_teacher = None
+                request.session.pop('selected_teacher_id', None)
+
         teachers = Teacher.objects.all()
-        discipines_firstsem = FirstSem.objects.all()
-        discipines_secondsem = SecondSem.objects.all()
-        edu_methodwork = MethodicalWork.objects.all()
-        org_methodwork = OrgMethodicalWork.objects.all()
-        sci_researchwork = SciResearchWork.objects.all()
-        contractwork = ContractWork.objects.all()
-        sci_methodwork = SciMethodicalWork.objects.all()
-        published_sciwork = PublishedSciWork.objects.all()
-        public_work = PublicWork.objects.all()
-        remark = Remark.objects.all()
-        raising = Raising.objects.all()
-        recommendation = Recommendation.objects.all()
+        discipines_firstsem = FirstSem.objects.filter(teacher=selected_teacher) if selected_teacher else []
+        discipines_secondsem = SecondSem.objects.filter(teacher=selected_teacher) if selected_teacher else []
+        edu_methodwork = EducationalMethodicalWork.objects.filter(teacher=selected_teacher) if selected_teacher else []
+        org_methodwork = OrganizationalMethodicalWork.objects.filter(teacher=selected_teacher) if selected_teacher else []
+        sci_researchwork = ResearchWork.objects.filter(teacher=selected_teacher) if selected_teacher else []
+        contractwork = ContractResearchWork.objects.filter(teacher=selected_teacher) if selected_teacher else []
+        sci_methodwork = ScientificMethodicalWork.objects.filter(teacher=selected_teacher) if selected_teacher else []
+        published_sciwork = PublishedSciWork.objects.filter(teacher=selected_teacher) if selected_teacher else []
+        social_eduwork = SocialEducationalWork.objects.filter(teacher=selected_teacher) if selected_teacher else []
+        remark = TeacherRemark.objects.filter(teacher=selected_teacher) if selected_teacher else []
+        raising = Raising.objects.filter(teacher=selected_teacher) if selected_teacher else []
+        recommendation = Recommendation.objects.filter(teacher=selected_teacher) if selected_teacher else []
 
         return render(request, 'main/admin_dashboard.html', {
             'staff_users': staff_users,
@@ -178,10 +194,11 @@ def dashboard(request):
             'contractwork': contractwork,
             'sci_methodwork': sci_methodwork,
             'published_sciwork': published_sciwork,
-            'public_work': public_work,
+            'social_eduwork': social_eduwork,
             'remark': remark,
             'raising': raising,
-            'recommendation': recommendation
+            'recommendation': recommendation,
+            'selected_teacher': selected_teacher
         })
 
     # === Для обычных преподавателей ===
