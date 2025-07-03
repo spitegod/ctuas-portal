@@ -204,3 +204,8 @@ class PublishedSciWork(models.Model):
     start_date = models.TextField("Выходные данные", max_length=100)
     end_date = models.TextField("Объем в п.л.", max_length=100)
     status = models.TextField("Соавторы", max_length=100, blank=True)
+
+class PublicWork(models.Model):
+    name = models.TextField("Наименование работы")
+    mark = models.TextField("Отметка о выполнении", max_length=100)
+    

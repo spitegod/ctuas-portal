@@ -11,7 +11,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
 django.setup()
 
 
-from main.models import SciMethodicalWork
+from main.models import PublishedSciWork
 
 
 
@@ -27,7 +27,7 @@ def parse_methodical_work(sheet, teacher=None):
         if not name or str(name).strip() == "":
             continue
 
-        SciMethodicalWork.objects.create(
+        PublishedSciWork.objects.create(
             n=n.strip(),
             name=name.strip(),
             output=output.strip(),
