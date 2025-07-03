@@ -29,6 +29,7 @@ class Teacher(models.Model):
 
 
 class FirstSem(models.Model):
+    teacher = models.ForeignKey('main.Teacher', on_delete=models.CASCADE, related_name="first_sems")
     discipline = models.CharField(max_length=255)
     course = models.IntegerField(null=True, blank=True)
     group_count = models.IntegerField(null=True, blank=True)
@@ -59,6 +60,7 @@ class FirstSem(models.Model):
 
 
 class SecondSem(models.Model):
+    teacher = models.ForeignKey('main.Teacher', on_delete=models.CASCADE, related_name="second_sems")
     discipline = models.CharField(max_length=255)
     course = models.IntegerField(null=True, blank=True)
     group_count = models.IntegerField(null=True, blank=True)
