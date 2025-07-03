@@ -219,4 +219,8 @@ class Remark(models.Model):
 class Raising(models.Model):
     date = models.TextField("Дата")
     form = models.TextField("Форма повышения квалификации", max_length=100)
-    mark = models.TextField("Отметка о выполнении", max_length=100)     
+    mark = models.TextField("Отметка о выполнении", max_length=100)
+
+
+class Recommendation(models.Model):
+    recom = models.TextField("Рекомендация кафедры по избранию преподавателя")   

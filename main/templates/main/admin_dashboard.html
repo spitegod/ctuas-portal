@@ -558,6 +558,17 @@
         {% endfor %}
         
     </table>
+
+    <h2>Рекомендация кафедры по избранию преподавателя</h2>
+    <table>
+        
+        {% for o in recommendation %}
+        <tr>
+            <td>{{ o.recommendation }}</td>
+        </tr>
+        {% endfor %}
+        
+    </table>
 </div>
 
 <!-- Вкладка 4: ППС -->
