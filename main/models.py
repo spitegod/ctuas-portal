@@ -184,3 +184,16 @@ class TeacherRemark(models.Model):
 
     def __str__(self):
         return f"{self.date} — {self.content[:30]}"
+    
+
+class QualificationUpgrade(models.Model):
+    teacher = models.ForeignKey('main.Teacher', on_delete=models.CASCADE, related_name='qualifications')
+    title = models.CharField("Название", max_length=255)
+    location = models.CharField("Место", max_length=255)
+    document_number = models.CharField("Номер документа", max_length=100)
+    date = models.DateField("Дата")
+    duration = models.CharField("Срок прохождения", max_length=100)
+    volume = models.CharField("Объём", max_length=100)
+
+    def __str__(self):
+        return f"{self.title} ({self.date})"

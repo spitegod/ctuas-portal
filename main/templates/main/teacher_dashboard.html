@@ -854,16 +854,60 @@ input:focus + .bar:before {
   </table>
 </div>
 
-<div class="tab-content" id="tab10">
-<form>
-<label>Название: <input type="text"/></label>
-<label>Место: <input type="text"/></label>
-<label>Номер документа: <input type="text"/></label>
-<label>Дата: <input type="date"/></label>
-<label>Срок прохождения: <input type="text"/></label>
-<label>Объём: <input type="text"/></label>
-<button type="submit">Сохранить</button>
-</form>
+<div class="tab-content {% if active_tab == 10 %}active{% endif %}" id="tab10">
+  <h3>Повышение квалификации</h3>
+  <form method="POST">
+    {% csrf_token %}
+    <input type="hidden" name="form_type" value="qualification_upgrade">
+    <input type="hidden" name="active_tab" value="10">
+    {% if edit_work_tab10 %}
+      <input type="hidden" name="work_id" value="{{ edit_work_tab10.id }}">
+    {% endif %}
+    <label>Название: <input type="text" name="title" value="{{ edit_work_tab10.title|default:'' }}"></label>
+    <label>Место: <input type="text" name="place" value="{{ edit_work_tab10.location|default:'' }}"></label>
+    <label>Номер документа: <input type="text" name="document_number" value="{{ edit_work_tab10.document_number|default:'' }}"></label>
+    <label>Дата: <input type="date" name="date" value="{{ edit_work_tab10.date|default:'' }}"></label>
+    <label>Срок прохождения: <input type="text" name="duration" value="{{ edit_work_tab10.duration|default:'' }}"></label>
+    <label>Объём: <input type="text" name="volume" value="{{ edit_work_tab10.volume|default:'' }}"></label>
+    <button type="submit" class="button-add">{% if edit_work_tab10 %}Сохранить изменения{% else %}Добавить{% endif %}</button>
+  </form>
+
+  <table class="responsive-table">
+    <thead>
+      <tr>
+        <th>Название</th><th>Место</th><th>Номер документа</th><th>Дата</th><th>Срок</th><th>Объём</th><th>Действие</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for qual in qualification_upgrades %}
+      <tr>
+        <td>{{ qual.title }}</td>
+        <td>{{ qual.location }}</td>
+        <td>{{ qual.document_number }}</td>
+        <td>{{ qual.date }}</td>
+        <td>{{ qual.duration }}</td>
+        <td>{{ qual.volume }}</td>
+        <td>
+          <form method="POST" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="edit_qualification" value="{{ qual.id }}">
+            <input type="hidden" name="active_tab" value="10">
+            <button type="submit" class="edit-btn">Редактировать</button>
+          </form>
+          <form method="POST" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="delete_qualification">
+            <input type="hidden" name="work_id" value="{{ qual.id }}">
+            <input type="hidden" name="active_tab" value="10">
+            <button type="submit" class="delete-btn">Удалить</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
 </div>
 </div>
 </div>

@@ -8,7 +8,7 @@ from main.models import Teacher, FirstSem, SecondSem, MethodicalWork, OrgMethodi
 from django.db.models import Q
 from django.shortcuts import render, redirect
 from main.models import Teacher, EducationalMethodicalWork, OrganizationalMethodicalWork,ResearchWork
-from .models import Teacher, EducationalMethodicalWork, OrganizationalMethodicalWork, ResearchWork, ContractResearchWork,ScientificMethodicalWork,SocialEducationalWork,TeacherRemark
+from .models import Teacher, EducationalMethodicalWork, OrganizationalMethodicalWork, ResearchWork, ContractResearchWork,ScientificMethodicalWork,SocialEducationalWork,TeacherRemark, QualificationUpgrade, QualificationUpgrade
 from .forms import EducationalMethodicalWorkForm, OrganizationalMethodicalWorkForm, ResearchWorkForm, ContractResearchWorkForm
 
 
@@ -182,18 +182,17 @@ def dashboard(request):
     else:
         return render(request, 'main/student_dashboard.html')
     
-
 def teacher_dashboard(request):
     teacher = request.user.teacher
 
-    edit_id_tab2 = edit_id_tab3 = edit_id_tab4 = edit_id_tab5 = edit_id_tab6 = edit_id_tab8 = edit_id_tab9 = None
-    edit_work_tab2 = edit_work_tab3 = edit_work_tab4 = edit_work_tab5 = edit_work_tab6 = edit_work_tab8 = edit_work_tab9 = None
+    edit_id_tab2 = edit_id_tab3 = edit_id_tab4 = edit_id_tab5 = edit_id_tab6 = edit_id_tab8 = edit_id_tab9 = edit_id_tab10 = None
+    edit_work_tab2 = edit_work_tab3 = edit_work_tab4 = edit_work_tab5 = edit_work_tab6 = edit_work_tab8 = edit_work_tab9 = edit_work_tab10 = None
     active_tab = int(request.GET.get("tab") or request.POST.get("active_tab") or 1)
 
     if request.method == 'POST':
         form_type = request.POST.get("form_type")
 
-        # Учебно-методическая
+        # === Вкладка 2: Учебно-методическая ===
         if request.POST.get("edit_teaching_method"):
             edit_id_tab2 = request.POST.get("edit_teaching_method")
             edit_work_tab2 = EducationalMethodicalWork.objects.filter(id=edit_id_tab2, teacher=teacher).first()
@@ -219,14 +218,14 @@ def teacher_dashboard(request):
                     completed=request.POST.get("completed")
                 )
                 messages.success(request, "Учебно-методическая работа добавлена.")
-            return redirect(f'/dashboard?tab={active_tab}')
+            return redirect(f'/dashboard?tab=2')
 
         elif form_type == "delete_teaching_method":
             EducationalMethodicalWork.objects.filter(id=request.POST.get("work_id"), teacher=teacher).delete()
             messages.success(request, "Запись удалена.")
-            return redirect(f'/dashboard?tab={active_tab}')
+            return redirect(f'/dashboard?tab=2')
 
-        # Организационно-методическая
+        # === Вкладка 3: Организационно-методическая ===
         if request.POST.get("edit_organizational_method"):
             edit_id_tab3 = request.POST.get("edit_organizational_method")
             edit_work_tab3 = OrganizationalMethodicalWork.objects.filter(id=edit_id_tab3, teacher=teacher).first()
@@ -252,14 +251,14 @@ def teacher_dashboard(request):
                     completed=request.POST.get("completed")
                 )
                 messages.success(request, "Орг.-методическая работа добавлена.")
-            return redirect(f'/dashboard?tab={active_tab}')
+            return redirect(f'/dashboard?tab=3')
 
         elif form_type == "delete_organizational_method":
             OrganizationalMethodicalWork.objects.filter(id=request.POST.get("work_id"), teacher=teacher).delete()
             messages.success(request, "Запись удалена.")
-            return redirect(f'/dashboard?tab={active_tab}')
+            return redirect(f'/dashboard?tab=3')
 
-        # Научно-исследовательская
+        # === Вкладка 4: Научно-исследовательская ===
         if request.POST.get("edit_research_work"):
             edit_id_tab4 = request.POST.get("edit_research_work")
             edit_work_tab4 = ResearchWork.objects.filter(id=edit_id_tab4, teacher=teacher).first()
@@ -285,14 +284,14 @@ def teacher_dashboard(request):
                     completed=request.POST.get("completed")
                 )
                 messages.success(request, "Научно-исследовательская работа добавлена.")
-            return redirect(f'/dashboard?tab={active_tab}')
+            return redirect(f'/dashboard?tab=4')
 
         elif form_type == "delete_research_work":
             ResearchWork.objects.filter(id=request.POST.get("work_id"), teacher=teacher).delete()
             messages.success(request, "Запись удалена.")
-            return redirect(f'/dashboard?tab={active_tab}')
+            return redirect(f'/dashboard?tab=4')
 
-        # Хоздоговорная НИР
+        # === Вкладка 5: Хоздоговорная НИР ===
         if request.POST.get("edit_contract_research"):
             edit_id_tab5 = request.POST.get("edit_contract_research")
             edit_work_tab5 = ContractResearchWork.objects.filter(id=edit_id_tab5, teacher=teacher).first()
@@ -320,14 +319,14 @@ def teacher_dashboard(request):
                     completed=request.POST.get("completed")
                 )
                 messages.success(request, "Хоздоговорная НИР добавлена.")
-            return redirect(f'/dashboard?tab={active_tab}')
+            return redirect(f'/dashboard?tab=5')
 
         elif form_type == "delete_contract_research":
             ContractResearchWork.objects.filter(id=request.POST.get("work_id"), teacher=teacher).delete()
             messages.success(request, "Запись удалена.")
-            return redirect(f'/dashboard?tab={active_tab}')
+            return redirect(f'/dashboard?tab=5')
 
-        # Научно-методическая
+        # === Вкладка 6: Научно-методическая ===
         if request.POST.get("edit_scientific_method"):
             edit_id_tab6 = request.POST.get("edit_scientific_method")
             edit_work_tab6 = ScientificMethodicalWork.objects.filter(id=edit_id_tab6, teacher=teacher).first()
@@ -339,7 +338,7 @@ def teacher_dashboard(request):
 
             if not topic:
                 messages.error(request, "Поле 'Наименование темы' обязательно для заполнения.")
-                return redirect(f'/dashboard?tab={active_tab}')
+                return redirect(f'/dashboard?tab=6')
 
             if work_id:
                 work = ScientificMethodicalWork.objects.filter(id=work_id, teacher=teacher).first()
@@ -359,14 +358,14 @@ def teacher_dashboard(request):
                     completed=request.POST.get("completed")
                 )
                 messages.success(request, "Научно-методическая работа добавлена.")
-            return redirect(f'/dashboard?tab={active_tab}')
+            return redirect(f'/dashboard?tab=6')
 
         elif form_type == "delete_scientific_method":
             ScientificMethodicalWork.objects.filter(id=request.POST.get("work_id"), teacher=teacher).delete()
             messages.success(request, "Запись удалена.")
-            return redirect(f'/dashboard?tab={active_tab}')
+            return redirect(f'/dashboard?tab=6')
 
-        # Общественная и воспитательная работа
+        # === Вкладка 8: Общественная работа ===
         if request.POST.get("edit_social_work"):
             edit_id_tab8 = request.POST.get("edit_social_work")
             edit_work_tab8 = SocialEducationalWork.objects.filter(id=edit_id_tab8, teacher=teacher).first()
@@ -395,8 +394,7 @@ def teacher_dashboard(request):
             messages.success(request, "Запись удалена.")
             return redirect(f'/dashboard?tab=8')
 
-
-        # === Замечания ===
+        # === Вкладка 9: Замечания ===
         if request.POST.get("edit_remark"):
             edit_id_tab9 = request.POST.get("edit_remark")
             edit_work_tab9 = TeacherRemark.objects.filter(id=edit_id_tab9, teacher=teacher).first()
@@ -425,6 +423,48 @@ def teacher_dashboard(request):
             messages.success(request, "Запись удалена.")
             return redirect(f'/dashboard?tab=9')
 
+        # === Вкладка 10: Повышение квалификации ===
+        if request.POST.get("edit_qualification"):
+            edit_id_tab10 = request.POST.get("edit_qualification")
+            edit_work_tab10 = QualificationUpgrade.objects.filter(id=edit_id_tab10, teacher=teacher).first()
+            active_tab = 10
+
+        elif form_type == "qualification_upgrade":
+            work_id = request.POST.get("work_id")
+            date = request.POST.get("date")
+            if not date:
+                messages.error(request, "Поле 'Дата' обязательно для заполнения.")
+                return redirect(f'/dashboard?tab=10')
+    
+            if work_id:
+                work = QualificationUpgrade.objects.filter(id=work_id, teacher=teacher).first()
+                if work:
+                    work.title = request.POST.get("title")
+                    work.location = request.POST.get("place")
+                    work.document_number = request.POST.get("document_number")
+                    work.date = request.POST.get("date")
+                    work.duration = request.POST.get("duration")
+                    work.volume = request.POST.get("volume")
+                    work.save()
+                    messages.success(request, "Запись обновлена.")
+            else:
+                QualificationUpgrade.objects.create(
+                    teacher=teacher,
+                    title=request.POST.get("title"),
+                    location=request.POST.get("place"),
+                    document_number=request.POST.get("document_number"),
+                    date=request.POST.get("date")  or None,
+                    duration=request.POST.get("duration"),
+                    volume=request.POST.get("volume")
+                )
+                messages.success(request, "Повышение квалификации добавлено.")
+            return redirect(f'/dashboard?tab=10')
+
+        elif form_type == "delete_qualification_upgrade":
+            QualificationUpgrade.objects.filter(id=request.POST.get("work_id"), teacher=teacher).delete()
+            messages.success(request, "Запись удалена.")
+            return redirect(f'/dashboard?tab=10')
+
     context = {
         'works': EducationalMethodicalWork.objects.filter(teacher=teacher),
         'org_works': OrganizationalMethodicalWork.objects.filter(teacher=teacher),
@@ -432,14 +472,16 @@ def teacher_dashboard(request):
         'contract_works': ContractResearchWork.objects.filter(teacher=teacher),
         'scientific_works': ScientificMethodicalWork.objects.filter(teacher=teacher),
         'social_works': SocialEducationalWork.objects.filter(teacher=teacher),
+        'teacher_remarks': TeacherRemark.objects.filter(teacher=teacher),
+        'qualification_upgrades': QualificationUpgrade.objects.filter(teacher=teacher),
         'edit_work_tab2': edit_work_tab2,
         'edit_work_tab3': edit_work_tab3,
         'edit_work_tab4': edit_work_tab4,
         'edit_work_tab5': edit_work_tab5,
         'edit_work_tab6': edit_work_tab6,
         'edit_work_tab8': edit_work_tab8,
-        'teacher_remarks': TeacherRemark.objects.filter(teacher=teacher),
         'edit_work_tab9': edit_work_tab9,
+        'edit_work_tab10': edit_work_tab10,
         'active_tab': active_tab,
     }
 
