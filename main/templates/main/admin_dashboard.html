@@ -280,6 +280,23 @@
 <div id="tab3" class="tab-content">
     <h1>ИП преподавателей</h1>
     <p>Здесь можно просматривать и редактировать ИП преподавателей.</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="select_ip_teacher">
+        
+        <label><strong>Выберите преподавателя:</strong></label>
+        <select name="selected_teacher_id" onchange="this.form.submit()">
+            <option value="">-- выберите преподавателя --</option>
+            {% for teacher in teachers %}
+                <option value="{{ teacher.id }}" {% if selected_teacher and selected_teacher.id == teacher.id %}selected{% endif %}>
+                    {{ teacher.full_name }}
+                </option>
+            {% endfor %}
+        </select>
+    </form>
+
+
     <h2>Первый семестр</h2>
     <table>
         <tr>
