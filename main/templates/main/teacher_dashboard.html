@@ -508,6 +508,9 @@ input:focus + .bar:before {
 <input name="completed" type="text" value="{{ edit_work_tab2.completed|default:'' }}"/><br/>
 <button class="button-add" style="" type="submit">{% if active_tab == 2 and edit_work_tab2 %}Сохранить изменения{% else %}Добавить{% endif %}</button>
 </form>
+<form method="get" action="{% url 'export_teaching_excel' %}" style="margin-bottom: 15px;">
+  <button type="submit" class="button-add">Экспорт в Excel</button>
+</form>
 <table class="responsive-table">
 <thead>
 <tr><th>Наименование</th><th>Начало</th><th>Окончание</th><th>Выполнено</th><th>Действие</th></tr>
@@ -554,6 +557,9 @@ input:focus + .bar:before {
 <label>Выполнено:</label>
 <input name="completed" type="text" value="{{ edit_work_tab3.completed|default:'' }}"/><br/>
 <button class="button-add" style="" type="submit">{% if active_tab == 3 and edit_work_tab3 %}Сохранить изменения{% else %}Добавить{% endif %}</button>
+</form>
+<form method="get" action="{% url 'export_organizational_excel' %}" style="margin-bottom: 15px;">
+  <button type="submit" class="button-add">Экспорт в Excel</button>
 </form>
 <table class="responsive-table">
 <thead>
@@ -603,6 +609,9 @@ input:focus + .bar:before {
               <input name="completed" type="text" value="{{ edit_work_tab4.completed|default:'' }}"/>
 </label>
 <button class="button-add" style="" type="submit">{% if active_tab == 4 and edit_work_tab4 %}Сохранить изменения{% else %}Добавить{% endif %}</button>
+</form>
+<form method="get" action="{% url 'export_research_excel' %}" style="margin-bottom: 15px;">
+  <button type="submit" class="button-add">Экспорт в Excel</button>
 </form>
 <table class="responsive-table">
 <thead>
@@ -663,6 +672,9 @@ input:focus + .bar:before {
 <input name="completed" type="text" value="{{ edit_work_tab5.completed|default:'' }}"/>
 <button class="button-add" style="" type="submit">{% if active_tab == 5 and edit_work_tab5 %}Сохранить изменения{% else %}Добавить{% endif %}</button>
 </form>
+<form method="get" action="{% url 'export_contract_excel' %}" style="margin-bottom: 15px;">
+  <button type="submit" class="button-add">Экспорт в Excel</button>
+</form>
 <table class="responsive-table">
 <thead>
 <tr>
@@ -721,6 +733,9 @@ input:focus + .bar:before {
 <input name="completed" type="text" value="{{ edit_work_tab6.completed|default:'' }}"/>
 <button type="submit">Сохранить изменения</button>
 </form>
+<form method="get" action="{% url 'export_scientific_excel' %}" style="margin-bottom: 15px;">
+  <button type="submit" class="button-add">Экспорт в Excel</button>
+</form>
 <table class="responsive-table">
 <thead>
 <tr>
@@ -776,6 +791,9 @@ input:focus + .bar:before {
       {% if active_tab == 8 and edit_work_tab8 %}Сохранить изменения{% else %}Добавить{% endif %}
     </button>
   </form>
+  <form method="get" action="{% url 'export_social_excel' %}" style="margin-bottom: 15px;">
+    <button type="submit" class="button-add">Экспорт в Excel</button>
+</form>
 
   <table class="responsive-table">
     <thead>
@@ -823,6 +841,9 @@ input:focus + .bar:before {
       {% if edit_work_tab9 %}Сохранить изменения{% else %}Добавить{% endif %}
     </button>
   </form>
+  <form method="get" action="{% url 'export_remarks_excel' %}" style="margin-bottom: 15px;">
+    <button type="submit" class="button-add">Экспорт в Excel</button>
+</form>
 
   <table class="responsive-table">
     <thead>
@@ -871,6 +892,10 @@ input:focus + .bar:before {
     <label>Объём: <input type="text" name="volume" value="{{ edit_work_tab10.volume|default:'' }}"></label>
     <button type="submit" class="button-add">{% if edit_work_tab10 %}Сохранить изменения{% else %}Добавить{% endif %}</button>
   </form>
+
+  <form method="get" action="{% url 'export_qualification_excel' %}" style="margin-bottom: 15px;">
+    <button type="submit" class="button-add">Экспорт в Excel</button>
+</form>
 
   <table class="responsive-table">
     <thead>

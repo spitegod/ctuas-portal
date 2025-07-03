@@ -10,6 +10,8 @@ from django.shortcuts import render, redirect
 from main.models import Teacher, EducationalMethodicalWork, OrganizationalMethodicalWork,ResearchWork
 from .models import Teacher, EducationalMethodicalWork, OrganizationalMethodicalWork, ResearchWork, ContractResearchWork,ScientificMethodicalWork,SocialEducationalWork,TeacherRemark, QualificationUpgrade, QualificationUpgrade
 from .forms import EducationalMethodicalWorkForm, OrganizationalMethodicalWorkForm, ResearchWorkForm, ContractResearchWorkForm
+import openpyxl
+from django.http import HttpResponse
 
 
 def login_view(request):
@@ -486,3 +488,198 @@ def teacher_dashboard(request):
     }
 
     return render(request, 'main/teacher_dashboard.html', context)
+
+def export_qualification_excel(request):
+    teacher = request.user.teacher
+    qualifications = QualificationUpgrade.objects.filter(teacher=teacher)
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Повышение квалификации"
+
+    headers = ["Название", "Место", "Номер документа", "Дата", "Срок", "Объём"]
+    ws.append(headers)
+
+    for q in qualifications:
+        ws.append([
+            q.title,
+            q.location,
+            q.document_number,
+            q.date.strftime('%Y-%m-%d') if q.date else '',
+            q.duration,
+            q.volume
+        ])
+
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    response["Content-Disposition"] = 'attachment; filename="qualification.xlsx"'
+    wb.save(response)
+    return response
+
+def export_teaching_excel(request):
+    teacher = request.user.teacher
+    works = EducationalMethodicalWork.objects.filter(teacher=teacher)
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Учебно-методическая"
+
+    ws.append(["Наименование", "Дата начала", "Дата окончания", "Отметка"])
+    for w in works:
+        ws.append([w.title, w.start_date, w.end_date, w.completed])
+
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response["Content-Disposition"] = 'attachment; filename="teaching.xlsx"'
+    wb.save(response)
+    return response
+
+@login_required
+def export_organizational_excel(request):
+    teacher = request.user.teacher
+    works = OrganizationalMethodicalWork.objects.filter(teacher=teacher)
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Орг-методическая"
+
+    ws.append(["Наименование", "Дата начала", "Дата окончания", "Отметка"])
+    for w in works:
+        ws.append([w.title, w.start_date, w.end_date, w.completed])
+
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response["Content-Disposition"] = 'attachment; filename="organizational.xlsx"'
+    wb.save(response)
+    return response
+
+
+@login_required
+def export_organizational_excel(request):
+    teacher = request.user.teacher
+    works = OrganizationalMethodicalWork.objects.filter(teacher=teacher)
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Орг-методическая"
+
+    ws.append(["Наименование", "Дата начала", "Дата окончания", "Отметка"])
+    for w in works:
+        ws.append([w.title, w.start_date, w.end_date, w.completed])
+
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response["Content-Disposition"] = 'attachment; filename="organizational.xlsx"'
+    wb.save(response)
+    return response
+
+
+@login_required
+def export_research_excel(request):
+    teacher = request.user.teacher
+    works = ResearchWork.objects.filter(teacher=teacher)
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "НИР"
+
+    ws.append(["Тема", "Дата начала", "Дата окончания", "Отметка"])
+    for w in works:
+        ws.append([w.topic, w.start_date, w.end_date, w.completed])
+
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response["Content-Disposition"] = 'attachment; filename="research.xlsx"'
+    wb.save(response)
+    return response
+
+@login_required
+def export_contract_excel(request):
+    teacher = request.user.teacher
+    works = ContractResearchWork.objects.filter(teacher=teacher)
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Хоздоговорная НИР"
+
+    ws.append(["Тема", "Должность", "Дата начала", "Дата окончания", "Отметка"])
+    for w in works:
+        ws.append([w.topic, w.position, w.start_date, w.end_date, w.completed])
+
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response["Content-Disposition"] = 'attachment; filename="contract.xlsx"'
+    wb.save(response)
+    return response
+
+
+@login_required
+def export_scientific_excel(request):
+    teacher = request.user.teacher
+    works = ScientificMethodicalWork.objects.filter(teacher=teacher)
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Научно-методическая"
+
+    ws.append(["Тема", "Дата начала", "Дата окончания", "Отметка"])
+    for w in works:
+        ws.append([w.topic, w.start_date, w.end_date, w.completed])
+
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response["Content-Disposition"] = 'attachment; filename="scientific.xlsx"'
+    wb.save(response)
+    return response
+
+
+@login_required
+def export_social_excel(request):
+    teacher = request.user.teacher
+    works = SocialEducationalWork.objects.filter(teacher=teacher)
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Общественная работа"
+
+    ws.append(["Наименование", "Отметка"])
+    for w in works:
+        ws.append([w.title, w.completed])
+
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response["Content-Disposition"] = 'attachment; filename="social.xlsx"'
+    wb.save(response)
+    return response
+
+
+@login_required
+def export_remarks_excel(request):
+    teacher = request.user.teacher
+    works = TeacherRemark.objects.filter(teacher=teacher)
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Замечания"
+
+    ws.append(["Дата", "Содержание"])
+    for w in works:
+        ws.append([w.date, w.content])
+
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response["Content-Disposition"] = 'attachment; filename="remarks.xlsx"'
+    wb.save(response)
+    return response
+
+
+@login_required
+def export_qualification_excel(request):
+    teacher = request.user.teacher
+    works = QualificationUpgrade.objects.filter(teacher=teacher)
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Повышение квалификации"
+
+    ws.append(["Название", "Место", "Номер документа", "Дата", "Срок", "Объём"])
+    for w in works:
+        ws.append([w.title, w.location, w.document_number, w.date, w.duration, w.volume])
+
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response["Content-Disposition"] = 'attachment; filename="qualification.xlsx"'
+    wb.save(response)
+    return response
