@@ -759,7 +759,54 @@ input:focus + .bar:before {
 </table>
 </div>
 <div class="tab-content" id="tab7">Тут будут Научные статьи и чекбоксы.</div>
-<div class="tab-content" id="tab8">Тут будет Общественно-воспитательная работа.</div>
+<div class="tab-content {% if active_tab == 8 %}active{% endif %}" id="tab8">
+  <h3>Общественная и воспитательная работа</h3>
+  <form method="POST">
+    {% csrf_token %}
+    <input type="hidden" name="form_type" value="social_work">
+    <input type="hidden" name="active_tab" value="8">
+    {% if active_tab == 8 and edit_work_tab8 %}
+      <input type="hidden" name="work_id" value="{{ edit_work_tab8.id }}">
+    {% endif %}
+    <label>Наименование работы:</label>
+    <input type="text" name="title" value="{{ edit_work_tab8.title|default:'' }}"><br>
+    <label>Отметка о выполнении:</label>
+    <input type="text" name="completed" value="{{ edit_work_tab8.completed|default:'' }}"><br>
+    <button class="button-add" type="submit">
+      {% if active_tab == 8 and edit_work_tab8 %}Сохранить изменения{% else %}Добавить{% endif %}
+    </button>
+  </form>
+
+  <table class="responsive-table">
+    <thead>
+      <tr><th>Наименование работы</th><th>Отметка о выполнении</th><th>Действие</th></tr>
+    </thead>
+    <tbody>
+      {% for work in social_works %}
+      <tr>
+        <td>{{ work.title }}</td>
+        <td>{{ work.completed }}</td>
+        <td>
+          <form method="POST" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="edit_social_work" value="{{ work.id }}">
+            <input type="hidden" name="active_tab" value="8">
+            <button type="submit" class="edit-btn">Редактировать</button>
+          </form>
+          <form method="POST" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="delete_social_work">
+            <input type="hidden" name="work_id" value="{{ work.id }}">
+            <input type="hidden" name="active_tab" value="8">
+            <button type="submit" class="delete-btn">Удалить</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
 <div class="tab-content" id="tab9">Тут будут замечания о работе.</div>
 <div class="tab-content" id="tab10">
 <form>

@@ -8,7 +8,7 @@ from main.models import Teacher, FirstSem, SecondSem, MethodicalWork, OrgMethodi
 from django.db.models import Q
 from django.shortcuts import render, redirect
 from main.models import Teacher, EducationalMethodicalWork, OrganizationalMethodicalWork,ResearchWork
-from .models import Teacher, EducationalMethodicalWork, OrganizationalMethodicalWork, ResearchWork, ContractResearchWork,ScientificMethodicalWork
+from .models import Teacher, EducationalMethodicalWork, OrganizationalMethodicalWork, ResearchWork, ContractResearchWork,ScientificMethodicalWork,SocialEducationalWork
 from .forms import EducationalMethodicalWorkForm, OrganizationalMethodicalWorkForm, ResearchWorkForm, ContractResearchWorkForm
 
 
@@ -185,14 +185,14 @@ def dashboard(request):
 def teacher_dashboard(request):
     teacher = request.user.teacher
 
-    edit_id_tab2 = edit_id_tab3 = edit_id_tab4 = edit_id_tab5 = edit_id_tab6 = None
-    edit_work_tab2 = edit_work_tab3 = edit_work_tab4 = edit_work_tab5 = edit_work_tab6 = None
+    edit_id_tab2 = edit_id_tab3 = edit_id_tab4 = edit_id_tab5 = edit_id_tab6 = edit_id_tab8 = None
+    edit_work_tab2 = edit_work_tab3 = edit_work_tab4 = edit_work_tab5 = edit_work_tab6 = edit_work_tab8 = None
     active_tab = int(request.GET.get("tab") or request.POST.get("active_tab") or 1)
 
     if request.method == 'POST':
         form_type = request.POST.get("form_type")
 
-        # === Учебно-методическая ===
+        # Учебно-методическая
         if request.POST.get("edit_teaching_method"):
             edit_id_tab2 = request.POST.get("edit_teaching_method")
             edit_work_tab2 = EducationalMethodicalWork.objects.filter(id=edit_id_tab2, teacher=teacher).first()
@@ -225,7 +225,7 @@ def teacher_dashboard(request):
             messages.success(request, "Запись удалена.")
             return redirect(f'/dashboard?tab={active_tab}')
 
-        # === Организационно-методическая ===
+        # Организационно-методическая
         if request.POST.get("edit_organizational_method"):
             edit_id_tab3 = request.POST.get("edit_organizational_method")
             edit_work_tab3 = OrganizationalMethodicalWork.objects.filter(id=edit_id_tab3, teacher=teacher).first()
@@ -258,7 +258,7 @@ def teacher_dashboard(request):
             messages.success(request, "Запись удалена.")
             return redirect(f'/dashboard?tab={active_tab}')
 
-        # === Научно-исследовательская ===
+        # Научно-исследовательская
         if request.POST.get("edit_research_work"):
             edit_id_tab4 = request.POST.get("edit_research_work")
             edit_work_tab4 = ResearchWork.objects.filter(id=edit_id_tab4, teacher=teacher).first()
@@ -291,7 +291,7 @@ def teacher_dashboard(request):
             messages.success(request, "Запись удалена.")
             return redirect(f'/dashboard?tab={active_tab}')
 
-        # === Хоздоговорная НИР ===
+        # Хоздоговорная НИР
         if request.POST.get("edit_contract_research"):
             edit_id_tab5 = request.POST.get("edit_contract_research")
             edit_work_tab5 = ContractResearchWork.objects.filter(id=edit_id_tab5, teacher=teacher).first()
@@ -326,7 +326,7 @@ def teacher_dashboard(request):
             messages.success(request, "Запись удалена.")
             return redirect(f'/dashboard?tab={active_tab}')
 
-        # === Научно-методическая ===
+        # Научно-методическая
         if request.POST.get("edit_scientific_method"):
             edit_id_tab6 = request.POST.get("edit_scientific_method")
             edit_work_tab6 = ScientificMethodicalWork.objects.filter(id=edit_id_tab6, teacher=teacher).first()
@@ -365,23 +365,50 @@ def teacher_dashboard(request):
             messages.success(request, "Запись удалена.")
             return redirect(f'/dashboard?tab={active_tab}')
 
+        # Общественная и воспитательная работа
+        if request.POST.get("edit_social_work"):
+            edit_id_tab8 = request.POST.get("edit_social_work")
+            edit_work_tab8 = SocialEducationalWork.objects.filter(id=edit_id_tab8, teacher=teacher).first()
+            active_tab = 8
+
+        elif form_type == "social_work":
+            work_id = request.POST.get("work_id")
+            if work_id:
+                work = SocialEducationalWork.objects.filter(id=work_id, teacher=teacher).first()
+                if work:
+                    work.title = request.POST.get("title")
+                    work.completed = request.POST.get("completed")
+                    work.save()
+                    messages.success(request, "Запись обновлена.")
+            else:
+                SocialEducationalWork.objects.create(
+                    teacher=teacher,
+                    title=request.POST.get("title"),
+                    completed=request.POST.get("completed")
+                )
+                messages.success(request, "Запись добавлена.")
+            return redirect(f'/dashboard?tab=8')
+
+        elif form_type == "delete_social_work":
+            SocialEducationalWork.objects.filter(id=request.POST.get("work_id"), teacher=teacher).delete()
+            messages.success(request, "Запись удалена.")
+            return redirect(f'/dashboard?tab=8')
+
     context = {
         'works': EducationalMethodicalWork.objects.filter(teacher=teacher),
         'org_works': OrganizationalMethodicalWork.objects.filter(teacher=teacher),
         'research_works': ResearchWork.objects.filter(teacher=teacher),
         'contract_works': ContractResearchWork.objects.filter(teacher=teacher),
         'scientific_works': ScientificMethodicalWork.objects.filter(teacher=teacher),
-        'edit_id_tab2': edit_id_tab2,
+        'social_works': SocialEducationalWork.objects.filter(teacher=teacher),
         'edit_work_tab2': edit_work_tab2,
-        'edit_id_tab3': edit_id_tab3,
         'edit_work_tab3': edit_work_tab3,
-        'edit_id_tab4': edit_id_tab4,
         'edit_work_tab4': edit_work_tab4,
-        'edit_id_tab5': edit_id_tab5,
         'edit_work_tab5': edit_work_tab5,
-        'edit_id_tab6': edit_id_tab6,
         'edit_work_tab6': edit_work_tab6,
+        'edit_work_tab8': edit_work_tab8,
         'active_tab': active_tab,
+        
     }
 
     return render(request, 'main/teacher_dashboard.html', context)
