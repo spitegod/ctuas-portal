@@ -201,6 +201,7 @@ class QualificationUpgrade(models.Model):
         return f"{self.title} ({self.date})"
     
 class PublishedSciWork(models.Model):
+    teacher = models.ForeignKey('main.Teacher', on_delete=models.CASCADE, related_name='published_sci_work')
     name = models.TextField("№ п/п")
     job = models.TextField("Наименование и вид работы", max_length=100)
     start_date = models.TextField("Выходные данные", max_length=100)
@@ -219,10 +220,12 @@ class Remark(models.Model):
 
 
 class Raising(models.Model):
+    teacher = models.ForeignKey('main.Teacher', on_delete=models.CASCADE, related_name='raising')
     date = models.TextField("Дата")
     form = models.TextField("Форма повышения квалификации", max_length=100)
     mark = models.TextField("Отметка о выполнении", max_length=100)
 
 
 class Recommendation(models.Model):
+    teacher = models.ForeignKey('main.Teacher', on_delete=models.CASCADE, related_name='recommendation')
     recom = models.TextField("Рекомендация кафедры по избранию преподавателя")   
