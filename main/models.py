@@ -176,3 +176,11 @@ class SocialEducationalWork(models.Model):
 
     def __str__(self):
         return self.title
+
+class TeacherRemark(models.Model):
+    teacher = models.ForeignKey('main.Teacher', on_delete=models.CASCADE, related_name='remarks')
+    date = models.DateField("Дата")
+    content = models.TextField("Содержание замечаний")
+
+    def __str__(self):
+        return f"{self.date} — {self.content[:30]}"

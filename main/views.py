@@ -8,7 +8,7 @@ from main.models import Teacher, FirstSem, SecondSem, MethodicalWork, OrgMethodi
 from django.db.models import Q
 from django.shortcuts import render, redirect
 from main.models import Teacher, EducationalMethodicalWork, OrganizationalMethodicalWork,ResearchWork
-from .models import Teacher, EducationalMethodicalWork, OrganizationalMethodicalWork, ResearchWork, ContractResearchWork,ScientificMethodicalWork,SocialEducationalWork
+from .models import Teacher, EducationalMethodicalWork, OrganizationalMethodicalWork, ResearchWork, ContractResearchWork,ScientificMethodicalWork,SocialEducationalWork,TeacherRemark
 from .forms import EducationalMethodicalWorkForm, OrganizationalMethodicalWorkForm, ResearchWorkForm, ContractResearchWorkForm
 
 
@@ -182,11 +182,12 @@ def dashboard(request):
     else:
         return render(request, 'main/student_dashboard.html')
     
+
 def teacher_dashboard(request):
     teacher = request.user.teacher
 
-    edit_id_tab2 = edit_id_tab3 = edit_id_tab4 = edit_id_tab5 = edit_id_tab6 = edit_id_tab8 = None
-    edit_work_tab2 = edit_work_tab3 = edit_work_tab4 = edit_work_tab5 = edit_work_tab6 = edit_work_tab8 = None
+    edit_id_tab2 = edit_id_tab3 = edit_id_tab4 = edit_id_tab5 = edit_id_tab6 = edit_id_tab8 = edit_id_tab9 = None
+    edit_work_tab2 = edit_work_tab3 = edit_work_tab4 = edit_work_tab5 = edit_work_tab6 = edit_work_tab8 = edit_work_tab9 = None
     active_tab = int(request.GET.get("tab") or request.POST.get("active_tab") or 1)
 
     if request.method == 'POST':
@@ -394,6 +395,36 @@ def teacher_dashboard(request):
             messages.success(request, "Запись удалена.")
             return redirect(f'/dashboard?tab=8')
 
+
+        # === Замечания ===
+        if request.POST.get("edit_remark"):
+            edit_id_tab9 = request.POST.get("edit_remark")
+            edit_work_tab9 = TeacherRemark.objects.filter(id=edit_id_tab9, teacher=teacher).first()
+            active_tab = 9
+
+        elif form_type == "teacher_remark":
+            work_id = request.POST.get("work_id")
+            if work_id:
+                work = TeacherRemark.objects.filter(id=work_id, teacher=teacher).first()
+                if work:
+                    work.date = request.POST.get("date")
+                    work.content = request.POST.get("content")
+                    work.save()
+                    messages.success(request, "Запись обновлена.")
+            else:
+                TeacherRemark.objects.create(
+                    teacher=teacher,
+                    date=request.POST.get("date"),
+                    content=request.POST.get("content")
+                )
+                messages.success(request, "Замечание добавлено.")
+            return redirect(f'/dashboard?tab=9')
+
+        elif form_type == "delete_teacher_remark":
+            TeacherRemark.objects.filter(id=request.POST.get("work_id"), teacher=teacher).delete()
+            messages.success(request, "Запись удалена.")
+            return redirect(f'/dashboard?tab=9')
+
     context = {
         'works': EducationalMethodicalWork.objects.filter(teacher=teacher),
         'org_works': OrganizationalMethodicalWork.objects.filter(teacher=teacher),
@@ -407,8 +438,9 @@ def teacher_dashboard(request):
         'edit_work_tab5': edit_work_tab5,
         'edit_work_tab6': edit_work_tab6,
         'edit_work_tab8': edit_work_tab8,
+        'teacher_remarks': TeacherRemark.objects.filter(teacher=teacher),
+        'edit_work_tab9': edit_work_tab9,
         'active_tab': active_tab,
-        
     }
 
     return render(request, 'main/teacher_dashboard.html', context)
