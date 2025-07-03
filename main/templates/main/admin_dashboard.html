@@ -487,6 +487,27 @@
         {% endfor %}
         
     </table>
+    <h2>Перечень опубликованных научных и научно-методических работ в учебном году</h2>
+    <table>
+        <tr>
+            <th>№ п/п</th>
+            <th>Наименование и вид работы</th>
+            <th>Выходные данные</th>
+            <th>Объем в п.л.</th>
+            <th>Соавторы</th>
+        </tr>
+        
+        {% for o in published_sciwork %}
+        <tr>
+            <td>{{ o.name }}</td>
+            <td>{{ o.job }}</td>
+            <td>{{ o.start_date }}</td>
+            <td>{{ o.end_date }}</td>
+            <td>{{ o.status }}</td>
+        </tr>
+        {% endfor %}
+        
+    </table>
 </div>
 
 <!-- Вкладка 4: ППС -->

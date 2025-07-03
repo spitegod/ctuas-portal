@@ -197,3 +197,10 @@ class QualificationUpgrade(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.date})"
+    
+class PublishedSciWork(models.Model):
+    name = models.TextField("№ п/п")
+    job = models.TextField("Наименование и вид работы", max_length=100)
+    start_date = models.TextField("Выходные данные", max_length=100)
+    end_date = models.TextField("Объем в п.л.", max_length=100)
+    status = models.TextField("Соавторы", max_length=100, blank=True)

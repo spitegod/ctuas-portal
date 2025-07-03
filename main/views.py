@@ -8,7 +8,7 @@ from main.models import Teacher, FirstSem, SecondSem, MethodicalWork, OrgMethodi
 from django.db.models import Q
 from django.shortcuts import render, redirect
 from main.models import Teacher, EducationalMethodicalWork, OrganizationalMethodicalWork,ResearchWork
-from .models import Teacher, EducationalMethodicalWork, OrganizationalMethodicalWork, ResearchWork, ContractResearchWork,ScientificMethodicalWork,SocialEducationalWork,TeacherRemark, QualificationUpgrade, QualificationUpgrade
+from .models import Teacher, EducationalMethodicalWork, OrganizationalMethodicalWork, ResearchWork, ContractResearchWork,ScientificMethodicalWork,SocialEducationalWork,TeacherRemark, QualificationUpgrade, QualificationUpgrade, PublishedSciWork
 from .forms import EducationalMethodicalWorkForm, OrganizationalMethodicalWorkForm, ResearchWorkForm, ContractResearchWorkForm
 import openpyxl
 from django.http import HttpResponse
@@ -161,6 +161,7 @@ def dashboard(request):
         sci_researchwork = SciResearchWork.objects.all()
         contractwork = ContractWork.objects.all()
         sci_methodwork = SciMethodicalWork.objects.all()
+        published_sciwork = PublishedSciWork.objects.all()
 
         return render(request, 'main/admin_dashboard.html', {
             'staff_users': staff_users,
@@ -171,7 +172,8 @@ def dashboard(request):
             'org_methodwork': org_methodwork,
             'sci_researchwork': sci_researchwork,
             'contractwork': contractwork,
-            'sci_methodwork': sci_methodwork
+            'sci_methodwork': sci_methodwork,
+            'published_sciwork': published_sciwork
         })
 
     # === Для обычных преподавателей ===
