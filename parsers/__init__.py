@@ -7,6 +7,7 @@ from .contractwork import parse_methodical_work as parse_orgs
 from .sci_methodwork import parse_methodical_work as parse_orgz
 from .published_sciworks import parse_methodical_work as parse_p
 from .public_work import parse_methodical_work as parse_pub
+from .remarks import parse_methodical_work as parse_r
 
 sheet_parsers = {
     #"1. У.Р. Первый семестр": parse_first_sem,
@@ -17,6 +18,7 @@ sheet_parsers = {
     #"5. Участие в хоздоговорной НИР": parse_orgs,
     #"6. Научно-методическая работа": parse_orgz,
     #"7. Перечень публикаций и трудов": parse_p,
-    "8. Общественная и воспитательна": parse_pub,
+    #"8. Общественная и воспитательна": parse_pub,
+    "9. Замечания": parse_r
 
 }

@@ -208,4 +208,9 @@ class PublishedSciWork(models.Model):
 class PublicWork(models.Model):
     name = models.TextField("Наименование работы")
     mark = models.TextField("Отметка о выполнении", max_length=100)
-    
+
+
+class Remark(models.Model):
+    date = models.TextField("Дата")
+    remark = models.TextField("Содержание замечаний", max_length=100)
+    signature = models.TextField("Роспись проверяющего", max_length=100)     

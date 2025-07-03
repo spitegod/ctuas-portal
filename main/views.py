@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
-from main.models import Teacher, FirstSem, SecondSem, MethodicalWork, OrgMethodicalWork, SciResearchWork, ContractWork, SciMethodicalWork, PublicWork
+from main.models import Teacher, FirstSem, SecondSem, MethodicalWork, OrgMethodicalWork, SciResearchWork, ContractWork, SciMethodicalWork, PublicWork, Remark
 from django.db.models import Q
 from django.shortcuts import render, redirect
 from main.models import Teacher, EducationalMethodicalWork, OrganizationalMethodicalWork,ResearchWork
@@ -163,6 +163,7 @@ def dashboard(request):
         sci_methodwork = SciMethodicalWork.objects.all()
         published_sciwork = PublishedSciWork.objects.all()
         public_work = PublicWork.objects.all()
+        remark = Remark.objects.all()
 
         return render(request, 'main/admin_dashboard.html', {
             'staff_users': staff_users,
@@ -175,7 +176,8 @@ def dashboard(request):
             'contractwork': contractwork,
             'sci_methodwork': sci_methodwork,
             'published_sciwork': published_sciwork,
-            'public_work': public_work
+            'public_work': public_work,
+            'remark': remark
         })
 
     # === Для обычных преподавателей ===
