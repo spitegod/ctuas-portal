@@ -921,7 +921,7 @@ input:focus + .bar:before {
           </form>
           <form method="POST" style="display:inline;">
             {% csrf_token %}
-            <input type="hidden" name="form_type" value="delete_qualification">
+            <input type="hidden" name="form_type" value="delete_qualification_upgrade">
             <input type="hidden" name="work_id" value="{{ qual.id }}">
             <input type="hidden" name="active_tab" value="10">
             <button type="submit" class="delete-btn">Удалить</button>
