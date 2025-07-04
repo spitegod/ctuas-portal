@@ -644,13 +644,13 @@ input:focus + .bar:before {
                     {% csrf_token %}
                     <input name="form_type" type="hidden" value="edit_research_work"/>
 <input name="edit_research_work" type="hidden" value="{{ work.id }}"/>
-<button class="edit-btn" style="color: orange;" type="submit">Редактировать</button>
+<button class="edit-btn" style="color: white;" type="submit">Редактировать</button>
 </form>
 <form method="post" style="display:inline;">
                     {% csrf_token %}
                     <input name="form_type" type="hidden" value="delete_research_work"/>
 <input name="work_id" type="hidden" value="{{ work.id }}"/>
-<button class="delete-btn" style="color: red;" type="submit">Удалить</button>
+<button class="delete-btn" style="color: white;" type="submit">Удалить</button>
 </form>
 </td>
 </tr>
@@ -708,13 +708,13 @@ input:focus + .bar:before {
                     {% csrf_token %}
                     <input name="form_type" type="hidden" value="edit_contract_research"/>
 <input name="edit_contract_research" type="hidden" value="{{ work.id }}"/>
-<button class="edit-btn" style="color: orange;" type="submit">Редактировать</button>
+<button class="edit-btn" style="color: white;" type="submit">Редактировать</button>
 </form>
 <form method="post" style="display:inline;">
                     {% csrf_token %}
                     <input name="form_type" type="hidden" value="delete_contract_research"/>
 <input name="work_id" type="hidden" value="{{ work.id }}"/>
-<button class="delete-btn" style="color: red;" type="submit">Удалить</button>
+<button class="delete-btn" style="color: white;" type="submit">Удалить</button>
 </form>
 </td>
 </tr>
@@ -740,7 +740,7 @@ input:focus + .bar:before {
 <input name="end_date" type="date" value="{{ edit_work_tab6.end_date|default:'' }}"/>
 <label>Отметка о выполнении:</label>
 <input name="completed" type="text" value="{{ edit_work_tab6.completed|default:'' }}"/>
-<button type="submit">Сохранить изменения</button>
+<button class="button-add" style="" type="submit">Добавить</button>
 </form>
 <form method="get" action="{% url 'export_scientific_excel' %}" style="margin-bottom: 15px;">
   <button type="submit" class="button-add">Экспорт в Excel</button>
@@ -768,13 +768,13 @@ input:focus + .bar:before {
                     <input name="form_type" type="hidden" value="edit_scientific_method"/>
 <input name="edit_scientific_method" type="hidden" value="{{ work.id }}"/>
 <input name="active_tab" type="hidden" value="6"/>
-<button class="edit-btn" style="color: orange;" type="submit">Редактировать</button>
+<button class="edit-btn" style="color: white;" type="submit">Редактировать</button>
 </form>
 <form method="post" style="display:inline;">
                     {% csrf_token %}
                     <input name="form_type" type="hidden" value="delete_scientific_method"/>
 <input name="work_id" type="hidden" value="{{ work.id }}"/>
-<button class="delete-btn" style="color: red;" type="submit">Удалить</button>
+<button class="delete-btn" style="color: white;" type="submit">Удалить</button>
 </form>
 </td>
 </tr>
