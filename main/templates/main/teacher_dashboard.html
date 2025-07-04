@@ -72,20 +72,31 @@
     }
 
     .tab-button {
-      display: inline-block;
-      padding: 10px 20px;
-      background-color: #eee;
-      border: 1px solid #ccc;
-      cursor: pointer;
-      margin-right: 5px;
-      border-radius: 5px 5px 0 0;
-    }
+  display: inline-block;
+  padding: 10px 20px;
+  margin-right: 10px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #007bff;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
 
-    .tab-button.active {
-      background-color: #fff;
-      font-weight: bold;
-      border-bottom: none;
-    }
+.tab-button:hover {
+  text-decoration: underline;
+  color: #0056b3;
+}
+
+.tab-button.active {
+  background-color: #4aa3df;
+  color: #fff;
+  border-radius: 8px;
+  font-weight: 600;
+  pointer-events: none;
+}
 
     .tab-content {
       display: none;
@@ -95,9 +106,7 @@
       background-color: #fff;
     }
 
-    .tab-content.active {
-      display: block;
-    }
+   
 
     table {
       border-collapse: collapse;
@@ -939,37 +948,38 @@ input:focus + .bar:before {
 </div>
 <script>
     function toggleDropdown() {
-      const menu = document.getElementById("dropdownMenu");
-      menu.style.display = menu.style.display === "block" ? "none" : "block";
+    const menu = document.getElementById("dropdownMenu");
+    menu.style.display = menu.style.display === "block" ? "none" : "block";
+  }
+
+  document.addEventListener("click", function(event) {
+    const dropdown = document.getElementById("userDropdown");
+    const menu = document.getElementById("dropdownMenu");
+    if (!dropdown.contains(event.target)) {
+      menu.style.display = "none";
     }
-  
-    document.addEventListener("click", function(event) {
-      const dropdown = document.getElementById("userDropdown");
-      const menu = document.getElementById("dropdownMenu");
-      if (!dropdown.contains(event.target)) {
-        menu.style.display = "none";
-      }
+  });
+
+  function showTab(index) {
+    const contents = document.querySelectorAll(".tab-content");
+    const buttons = document.querySelectorAll(".tab-button");
+
+    contents.forEach((tab, i) => {
+      tab.style.display = (i + 1 === index) ? 'block' : 'none';
     });
-  
-    function showTab(index) {
-      const contents = document.querySelectorAll(".tab-content");
-      const buttons = document.querySelectorAll(".tab-button");
-  
-      contents.forEach((tab, i) => {
-        tab.classList.toggle("active", i === index - 1);
-      });
-  
-      buttons.forEach((btn, i) => {
-        btn.classList.toggle("active", i === index - 1);
-      });
-  
-      history.replaceState(null, '', '?tab=' + index);
-    }
-  
-    window.addEventListener('DOMContentLoaded', function () {
-      const activeTab = {{ active_tab|default:"1"|escapejs }};
-      showTab(parseInt(activeTab));
+
+    buttons.forEach((btn, i) => {
+      btn.classList.toggle("active", i + 1 === index);
     });
+
+    history.replaceState(null, '', '?tab=' + index);
+  }
+
+  window.addEventListener('DOMContentLoaded', function () {
+    let activeTab = parseInt("{{ active_tab|default:'1' }}");
+    if (isNaN(activeTab)) activeTab = 1;
+    showTab(activeTab);
+  });
   </script>
 </body>
 </html>
