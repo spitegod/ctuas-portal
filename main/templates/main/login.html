@@ -154,6 +154,52 @@
       color: rgba(255,255,255,0.7);
       z-index: 10;
     }
+
+    .modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+  background-color: #fff;
+  margin: 10% auto;
+  padding: 30px;
+  border: 1px solid #ccc;
+  width: 80%;
+  max-width: 700px;
+  border-radius: 10px;
+  position: relative;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  text-align: center;
+  font-weight: 700;
+  color: #1b1b1b;
+}
+
+.modal-content a {
+  color: #262a94;
+  text-decoration: underline;
+}
+
+.modal .close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 26px;
+  color: #666;
+  cursor: pointer;
+}
   </style>
 </head>
 <body>
@@ -191,6 +237,39 @@
     </div>
   </div>
 
+  <div class="modal" id="feedbackModal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <h3>Обратная связь</h3>
+    <p><strong>Уважаемые обучающиеся и преподаватели Института архитектуры и строительства ВолгГТУ!</strong></p>
+    <p>Обращения по вопросам <strong style="color:#262a94">качества организации образовательного процесса</strong> просим направлять на адрес электронной почты:  
+      <a href="mailto:quality@volgtu.ru">quality@volgtu.ru</a></p>
+    <p>Обращения по вопросам <strong style="color:#262a94">технических сбоев</strong> работы электронных ресурсов Университета просим направлять на адрес электронной почты: 
+      <a href="mailto:helpdesk@volgtu.ru">helpdesk@volgtu.ru</a></p>
+  </div>
+</div>
+
   <div class="privacy">Политика конфиденциальности</div>
+
+
+  <script>
+  const modal = document.getElementById('feedbackModal');
+
+  document.querySelector('.feedback a').addEventListener('click', function (e) {
+    e.preventDefault();
+    modal.style.display = 'block';
+  });
+
+  function closeModal() {
+    modal.style.display = 'none';
+  }
+
+  window.onclick = function(event) {
+    if (event.target === modal) {
+      modal.style.display = 'none';
+    }
+  }
+</script>
 </body>
+
 </html>
