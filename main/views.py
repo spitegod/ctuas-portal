@@ -15,6 +15,8 @@ from django.http import HttpResponse
 from io import BytesIO
 import openpyxl
 from openpyxl.utils import get_column_letter
+from datetime import datetime
+
 
 def login_view(request):
     if request.method == 'POST':
@@ -215,6 +217,13 @@ def dashboard(request):
     
 def teacher_dashboard(request):
     teacher = request.user.teacher
+    
+    # === Выбор учебного года ===
+    selected_year = request.GET.get("year") or request.session.get("selected_year")
+    if not selected_year:
+        current = datetime.now().year
+        selected_year = f"{current-1}–{current}"
+    request.session["selected_year"] = selected_year
 
     edit_id_tab2 = edit_id_tab3 = edit_id_tab4 = edit_id_tab5 = edit_id_tab6 = edit_id_tab8 = edit_id_tab9 = edit_id_tab10 = None
     edit_work_tab2 = edit_work_tab3 = edit_work_tab4 = edit_work_tab5 = edit_work_tab6 = edit_work_tab8 = edit_work_tab9 = edit_work_tab10 = None
@@ -231,6 +240,7 @@ def teacher_dashboard(request):
 
         elif form_type == "teaching_method":
             work_id = request.POST.get("work_id")
+            academic_year = request.POST.get("academic_year", selected_year)
             if work_id:
                 work = EducationalMethodicalWork.objects.filter(id=work_id, teacher=teacher).first()
                 if work:
@@ -238,6 +248,7 @@ def teacher_dashboard(request):
                     work.start_date = request.POST.get("start_date")
                     work.end_date = request.POST.get("end_date") or None
                     work.completed = request.POST.get("completed")
+                    work.academic_year = academic_year
                     work.save()
                     messages.success(request, "Запись обновлена.")
             else:
@@ -246,7 +257,8 @@ def teacher_dashboard(request):
                     title=request.POST.get("title"),
                     start_date=request.POST.get("start_date"),
                     end_date=request.POST.get("end_date") or None,
-                    completed=request.POST.get("completed")
+                    completed=request.POST.get("completed"),
+                    academic_year=academic_year 
                 )
                 messages.success(request, "Учебно-методическая работа добавлена.")
             return redirect(f'/dashboard?tab=2')
@@ -496,15 +508,17 @@ def teacher_dashboard(request):
             messages.success(request, "Запись удалена.")
             return redirect(f'/dashboard?tab=10')
 
+    
+    
     context = {
-        'works': EducationalMethodicalWork.objects.filter(teacher=teacher),
-        'org_works': OrganizationalMethodicalWork.objects.filter(teacher=teacher),
-        'research_works': ResearchWork.objects.filter(teacher=teacher),
-        'contract_works': ContractResearchWork.objects.filter(teacher=teacher),
-        'scientific_works': ScientificMethodicalWork.objects.filter(teacher=teacher),
-        'social_works': SocialEducationalWork.objects.filter(teacher=teacher),
-        'teacher_remarks': TeacherRemark.objects.filter(teacher=teacher),
-        'qualification_upgrades': QualificationUpgrade.objects.filter(teacher=teacher),
+        'works': EducationalMethodicalWork.objects.filter(teacher=teacher, academic_year=selected_year),
+    'org_works': OrganizationalMethodicalWork.objects.filter(teacher=teacher),  # убрано academic_year
+    'research_works': ResearchWork.objects.filter(teacher=teacher),
+    'contract_works': ContractResearchWork.objects.filter(teacher=teacher),
+    'scientific_works': ScientificMethodicalWork.objects.filter(teacher=teacher),
+    'social_works': SocialEducationalWork.objects.filter(teacher=teacher),
+    'teacher_remarks': TeacherRemark.objects.filter(teacher=teacher),
+    'qualification_upgrades': QualificationUpgrade.objects.filter(teacher=teacher),
         'edit_work_tab2': edit_work_tab2,
         'edit_work_tab3': edit_work_tab3,
         'edit_work_tab4': edit_work_tab4,
@@ -514,6 +528,8 @@ def teacher_dashboard(request):
         'edit_work_tab9': edit_work_tab9,
         'edit_work_tab10': edit_work_tab10,
         'active_tab': active_tab,
+        'selected_year': selected_year,
+        'available_years': ["2022–2023", "2023–2024", "2024–2025"],  # временно
     }
 
     return render(request, 'main/teacher_dashboard.html', context)
@@ -548,18 +564,23 @@ def export_qualification_excel(request):
 
 def export_teaching_excel(request):
     teacher = request.user.teacher
-    works = EducationalMethodicalWork.objects.filter(teacher=teacher)
+    selected_year = request.GET.get("year") or request.session.get("selected_year")
+
+    if selected_year:
+        works = EducationalMethodicalWork.objects.filter(teacher=teacher, academic_year=selected_year)
+    else:
+        works = EducationalMethodicalWork.objects.filter(teacher=teacher)
 
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Учебно-методическая"
 
-    ws.append(["Наименование", "Дата начала", "Дата окончания", "Отметка"])
+    ws.append(["Наименование", "Дата начала", "Дата окончания", "Отметка", "Учебный год"])
     for w in works:
-        ws.append([w.title, w.start_date, w.end_date, w.completed])
+        ws.append([w.title, w.start_date, w.end_date, w.completed, w.academic_year])
 
     response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    response["Content-Disposition"] = 'attachment; filename="teaching.xlsx"'
+    response["Content-Disposition"] = f'attachment; filename="teaching_{selected_year or "all"}.xlsx"'
     wb.save(response)
     return response
 
@@ -714,50 +735,61 @@ def export_qualification_excel(request):
     return response
 
 
+from django.db.models import Model
+
+def has_academic_year_field(model: Model):
+    return 'academic_year' in [f.name for f in model._meta.fields]
+
 def export_full_teacher_excel(request):
     teacher = request.user.teacher
+    selected_year = request.GET.get("year") or request.session.get("selected_year")
 
     wb = openpyxl.Workbook()
     wb.remove(wb.active)
 
-    def add_sheet(title, queryset, columns, extract_fn):
+    def add_sheet(title, model_cls, columns, extract_fn):
         ws = wb.create_sheet(title=title)
         ws.append(columns)
-        for obj in queryset:
+
+        qs = model_cls.objects.filter(teacher=teacher)
+        if selected_year and has_academic_year_field(model_cls):
+            qs = qs.filter(academic_year=selected_year)
+
+        for obj in qs:
             ws.append(extract_fn(obj))
 
         for col in range(1, len(columns) + 1):
             ws.column_dimensions[get_column_letter(col)].width = 20
 
-    add_sheet("Уч.-методическая", EducationalMethodicalWork.objects.filter(teacher=teacher),
+    add_sheet("Уч.-методическая", EducationalMethodicalWork,
+              ["Название", "Начало", "Окончание", "Отметка", "Год"],
+              lambda w: [w.title, w.start_date, w.end_date, w.completed, w.academic_year])
+
+    add_sheet("Орг.-методическая", OrganizationalMethodicalWork,
               ["Название", "Начало", "Окончание", "Отметка"],
               lambda w: [w.title, w.start_date, w.end_date, w.completed])
 
-    add_sheet("Орг.-методическая", OrganizationalMethodicalWork.objects.filter(teacher=teacher),
-              ["Название", "Начало", "Окончание", "Отметка"],
-              lambda w: [w.title, w.start_date, w.end_date, w.completed])
-
-    add_sheet("НИР", ResearchWork.objects.filter(teacher=teacher),
+    add_sheet("НИР", ResearchWork,
               ["Тема", "Начало", "Окончание", "Отметка"],
               lambda w: [w.topic, w.start_date, w.end_date, w.completed])
 
-    add_sheet("Хоздоговорная", ContractResearchWork.objects.filter(teacher=teacher),
+    add_sheet("Хоздоговорная", ContractResearchWork,
               ["Тема", "Должность", "Начало", "Окончание", "Отметка"],
               lambda w: [w.topic, w.position, w.start_date, w.end_date, w.completed])
 
-    add_sheet("Научно-методическая", ScientificMethodicalWork.objects.filter(teacher=teacher),
+    add_sheet("Научно-методическая", ScientificMethodicalWork,
               ["Тема", "Начало", "Окончание", "Отметка"],
               lambda w: [w.topic, w.start_date, w.end_date, w.completed])
 
-    add_sheet("Общественная работа", SocialEducationalWork.objects.filter(teacher=teacher),
+    add_sheet("Общественная работа", SocialEducationalWork,
               ["Наименование", "Отметка"],
               lambda w: [w.title, w.completed])
 
-    add_sheet("Замечания", TeacherRemark.objects.filter(teacher=teacher),
+    add_sheet("Замечания", TeacherRemark,
               ["Дата", "Содержание"],
               lambda w: [w.date, w.content])
 
-    add_sheet("Повышение квалификации", QualificationUpgrade.objects.filter(teacher=teacher),
+    add_sheet("Повышение квалификации", QualificationUpgrade,
               ["Название", "Место", "Номер документа", "Дата", "Срок", "Объём"],
               lambda w: [w.title, w.location, w.document_number, w.date, w.duration, w.volume])
 
@@ -765,9 +797,11 @@ def export_full_teacher_excel(request):
     wb.save(buffer)
     buffer.seek(0)
 
+    filename = f'teacher_full_report_{selected_year or "all"}.xlsx'
     response = HttpResponse(buffer.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename=teacher_full_report.xlsx'
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response
+
 
 def teacher_profile(request):
     teacher = request.user.teacher

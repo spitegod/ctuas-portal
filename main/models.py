@@ -95,6 +95,8 @@ class EducationalMethodicalWork(models.Model):
     start_date = models.CharField("Начало работы", max_length=100)
     end_date = models.CharField("Окончание работы", max_length=100, blank=True, null=True)
     completed = models.CharField("Отметка о выполнении", max_length=100, blank=True)
+    academic_year = models.CharField("Учебный год", max_length=9, default="2024–2025")
+     
 
     def __str__(self):
         return self.title
