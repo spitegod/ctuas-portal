@@ -412,9 +412,11 @@ input:focus + .bar:before {
   align-items: center;
   background-color: white;
   border-radius: 999px;
-  padding: 5px 12px;
+  padding: 6px 14px 6px 10px; /* сверху/снизу и по бокам */
   position: relative;
+  
   cursor: pointer;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
 }
 
 .avatar-circle {
@@ -533,6 +535,7 @@ input:focus + .bar:before {
       {{ last_initial }}
     </div>
     <span class="user-name">{{ request.user.teacher.full_name }}</span>
+    
     <div class="dropdown-menu" id="dropdownMenu">
       <a href="#">Профиль</a>
       <a href="{% url 'logout' %}">Выйти</a>
