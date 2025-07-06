@@ -1,716 +1,740 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>Панель заведующего кафедрой</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Панель заведующего кафедрой</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f5f5f5;
+      color: #333;
+      padding-top: 60px;
+    }
+    .sidebar {
+      width: 240px;
+      background-color: #6caae1;
+      height: 100vh;
+      position: fixed;
+      top: 60px;
+      left: 0;
+      padding-top: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .sidebar a {
+      display: block;
+      padding: 12px 20px;
+      color: white;
+      text-decoration: none;
+      width: 100%;
+    }
+    .sidebar a:hover,
+    .sidebar a.active {
+    background-color: #1b63a1 !important;
+    font-weight: bold;
+    }
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background-color: #1976d2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      color: white;
+      z-index: 999;
+    }
+    .topbar .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .topbar .logo-section img {
+      height: 40px;
+    }
+    .topbar .logo-section span {
+      font-weight: bold;
+      font-size: 18px;
+    }
+    .profile-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background-color: white;
+      color: #3c8dbc;
+      padding: 8px 12px;
+      border-radius: 20px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .profile-box .avatar {
+      width: 32px;
+      height: 32px;
+      background-color: #3c8dbc;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .dropdown-menu-profile {
+      display: none;
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background-color: white;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      min-width: 160px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      z-index: 1001;
+    }
+    .dropdown-menu-profile a {
+      display: block;
+      padding: 10px 15px;
+      text-decoration: none;
+      color: #333;
+    }
+    .dropdown-menu-profile a:hover {
+      background-color: #f5f5f5;
+    }
+    .profile-box.open .dropdown-menu-profile {
+      display: block;
+    }
+    .content {
+      margin-left: 240px;
+      padding: 20px;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 6px;
+    overflow: hidden;
+    }
 
-        .tab-button {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #eee;
-            border: 1px solid #ccc;
-            cursor: pointer;
-            margin-right: 5px;
-            border-radius: 5px 5px 0 0;
-        }
+    th {
+        background-color: #1976d2;
+        color: white;
+        font-weight: bold;
+        text-align: left;
+        padding: 10px 12px;
+        text-transform: uppercase;
+        font-size: 14px;
+    }
 
-        .tab-button.active {
-            background-color: #fff;
-            font-weight: bold;
-            border-bottom: none;
-        }
+    td {
+        padding: 10px 12px;
+        border-top: 1px solid #e0e0e0;
+        font-size: 14px;
+    }
 
-        .tab-content {
-            display: none;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-top: none;
-            background-color: #fff;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-top: 10px;
-        }
-
-        th, td {
-            border: 1px solid #ccc;
-            padding: 6px;
-            text-align: left;
-        }
-
-        label {
-            display: block;
-            margin-top: 10px;
-        }
-
-        input, select, button {
-            padding: 5px;
-            margin-top: 5px;
-            width: 300px;
-        }
-
-        .message {
-            margin-top: 15px;
-        }
-
-        .error {
-            color: red;
-        }
-
-        .success {
-            color: green;
-        }
-
-        .user-dropdown {
-            position: fixed;
-            top: 10px;
-            right: 20px;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            font-family: Arial, sans-serif;
-        }
-
-        .user-dropdown .avatar {
-            width: 36px;
-            height: 36px;
-            background-color: #3c8dbc;
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    h1, h2 {
+      margin-top: 20px;
+    }
+    button,
+        input[type="submit"] {
+            background-color: #1976d2;
             color: white;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            border: none;
+            padding: 8px 18px;
+            text-transform: uppercase;
             font-weight: bold;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .user-dropdown .dropdown-menu {
-            display: none;
-            position: absolute;
-            top: 45px;
-            right: 0;
-            background-color: white;
-            border: 1px solid #ccc;
             border-radius: 6px;
-            min-width: 160px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            margin: 6px 4px 6px 0;
+            box-shadow: 1px 1px 3px rgba(0,0,0,0.15);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
         }
 
-        .user-dropdown .dropdown-menu a {
-            display: block;
-            padding: 10px 15px;
-            text-decoration: none;
-            color: #333;
-        }
-
-        .user-dropdown .dropdown-menu a:hover {
-            background-color: #f5f5f5;
-        }
-
-        .user-dropdown.open .dropdown-menu {
-            display: block;
-        }
-
-        .user-dropdown .username {
-            margin-left: 10px;
-            margin-right: 10px;
-            font-weight: bold;
-        }
-
-    </style>
-
-    <script>
-        function toggleDropdown() {
-            const dropdown = document.getElementById('userDropdown');
-            dropdown.classList.toggle('open');
-        }
-
-        // Закрытие меню при клике вне его
-        document.addEventListener('click', function (e) {
-            const dropdown = document.getElementById('userDropdown');
-            if (!dropdown.contains(e.target)) {
-                dropdown.classList.remove('open');
-            }
-        });
-        function showTab(tabId) {
-            let tabs = document.getElementsByClassName("tab-content");
-            for (let i = 0; i < tabs.length; i++) tabs[i].classList.remove("active");
-
-            let buttons = document.getElementsByClassName("tab-button");
-            for (let i = 0; i < buttons.length; i++) buttons[i].classList.remove("active");
-
-            document.getElementById(tabId).classList.add("active");
-            document.getElementById("btn_" + tabId).classList.add("active");
-            localStorage.setItem("activeTab", tabId);
-        }
-
-        window.onload = function () {
-            let savedTab = localStorage.getItem("activeTab") || "tab1";
-            showTab(savedTab);
-        };
-    </script>
+button:hover,
+input[type="submit"]:hover {
+    background-color: #1565c0;
+}
+  </style>
 </head>
 <body>
-
-<h1>Заведующий кафедрой</h1>
-
-<div>
-    <div class="tab-button" id="btn_tab1" onclick="showTab('tab1')">Сотрудники</div>
-    <div class="tab-button" id="btn_tab2" onclick="showTab('tab2')">Уровни доступа</div>
-    <div class="tab-button" id="btn_tab3" onclick="showTab('tab3')">ИП преподавателей</div>
-    <div class="tab-button" id="btn_tab4" onclick="showTab('tab4')">ППС</div>
-</div>
-
-<!-- Вкладка 1: Сотрудники -->
-<div id="tab1" class="tab-content">
-    <h2>Сотрудники</h2>
-
-    <h3>Список сотрудников</h3>
-    <table>
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Имя пользователя</th>
-            <th>Преподаватель</th>
-            <th>Администратор</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for user in staff_users %}
-            <tr>
-                <td>{{ user.id }}</td>
-                <td>{{ user.username }}</td>
-                <td>{{ user.is_staff|yesno:"Да,Нет" }}</td>
-                <td>{{ user.is_superuser|yesno:"Да,Нет" }}</td>
-            </tr>
-        {% empty %}
-            <tr><td colspan="4">Сотрудники не найдены</td></tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-    <h3>Добавить сотрудника</h3>
-    <form method="post">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="add">
-        <label>Имя пользователя:</label>
-        <input type="text" name="username" required>
-
-        <label>Пароль:</label>
-        <input type="password" name="password" required>
-
-        <label>Преподаватель:</label>
-        <select name="teacher_id">
-            <option value="">-- Новый преподаватель --</option>
-            {% for teacher in teachers %}
-                {% if not teacher.user %}
-                    <option value="{{ teacher.id }}">{{ teacher.full_name }}</option>
-                {% endif %}
-            {% endfor %}
-        </select>
-
-        <button type="submit">Добавить</button>
-    </form>
-
-    <h3>Удалить сотрудника</h3>
-    <form method="post">
-        {% csrf_token %}
-        <select name="delete_user">
-            {% for user in staff_users %}
-                <option value="{{ user.id }}">{{ user.username }}</option>
-            {% endfor %}
-        </select>
-        <button type="submit" name="action" value="delete">Удалить</button>
-    </form>
-</div>
-
-<!-- Вкладка 2: Уровни доступа -->
-<div id="tab2" class="tab-content">
-    <h2>Уровни доступа</h2>
-
-    <form method="post">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="update_permissions">
-
-        <label>Выберите сотрудника:</label>
-        <select name="user_id" required>
-            {% for user in staff_users %}
-                <option value="{{ user.id }}">{{ user.username }}</option>
-            {% endfor %}
-        </select>
-
-        <label>Права преподавателя:</label>
-        <select name="is_staff" required>
-            <option value="True">Да</option>
-            <option value="False">Нет</option>
-        </select>
-
-        <label>Права администратора:</label>
-        <select name="is_superuser" required>
-            <option value="True">Да</option>
-            <option value="False">Нет</option>
-        </select>
-
-        <button type="submit">Сохранить права</button>
-    </form>
-
-    {% if messages %}
-        <ul class="message">
-            {% for message in messages %}
-                {% if "access" in message.tags %}
-                    <li class="{{ message.tags }}">{{ message }}</li>
-                {% endif %}
-            {% endfor %}
-        </ul>
-    {% endif %}
-</div>
-
-<!-- Вкладка 3: ИП преподавателей -->
-<div id="tab3" class="tab-content">
-    <h1>ИП преподавателей</h1>
-    <p>Здесь можно просматривать и редактировать ИП преподавателей.</p>
-
-    <form method="post">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="select_ip_teacher">
-        
-        <label><strong>Выберите преподавателя:</strong></label>
-        <select name="selected_teacher_id" onchange="this.form.submit()">
-            <option value="">-- выберите преподавателя --</option>
-            {% for teacher in teachers %}
-                <option value="{{ teacher.id }}" {% if selected_teacher and selected_teacher.id == teacher.id %}selected{% endif %}>
-                    {{ teacher.full_name }}
-                </option>
-            {% endfor %}
-        </select>
-    </form>
-
-
-    <h2>Первый семестр</h2>
-    <table>
-        <tr>
-            <th>Дисциплины</th>
-            <th>Курс</th>
-            <th>Количество групп</th>
-            <th>Количество студентов</th>
-            <th>Лекции</th>
-            <th>Практические занятия</th>
-            <th>Лабораторные занятия</th>
-            <th>Курсовое проектирование</th>
-            <th>Консультации</th>
-            <th>Зачеты</th>
-            <th>Экзамены</th>
-            <th>Рецензирование контр.работ заочников</th>
-            <th>Руководство практиками студентов</th>
-            <th>Контрольное посещение занятий</th>
-            <th>Руководство квалификац. работами бакалавра, специалиста, магистра</th>
-            <th>Работа в ГЭК, ГАК</th>
-            <th>Прием вступительных и кандидатских экзаменов</th>
-            <th>Руководство аспирантами и соискателями</th>
-            <th>ОргСРС</th>
-            <th>Рейтинг</th>
-            <th>Всего часов по плану</th>
-            <th>Всего часов фактически</th>
-        </tr>
-        {% for d in disciplines_firstsem %}
-        <tr>
-            <td>{{ d.discipline }}</td>
-            <td>{{ d.course|default_if_none:"" }}</td>
-            <td>{{ d.group_count|default_if_none:"" }}</td>
-            <td>{{ d.student_count|default_if_none:"" }}</td>
-            <td>{% if d.lectures %}{{ d.lectures }}{% endif %}</td>
-            <td>{% if d.practicals %}{{ d.practicals }}{% endif %}</td>
-            <td>{% if d.labs %}{{ d.labs }}{% endif %}</td>
-            <td>{% if d.project_work %}{{ d.project_work}}{% endif %}</td>
-            <td>{% if d.consultations %}{{ d.consultations }}{% endif %}</td>
-            <td>{% if d.tests %}{{ d.tests }}{% endif %}</td>
-            <td>{% if d.exams %}{{ d.exams }}{% endif %}</td>
-            <td>{% if d.review_distance %}{{ d.review_distance }}{% endif %}</td>
-            <td>{% if d.practice_supervision %}{{ d.practice_supervision }}{% endif %}</td>
-            <td>{% if d.visit_control %}{{ d.visit_control }}{% endif %}</td>
-            <td>{% if d.qualification_supervision %}{{ d.qualification_supervision }}{% endif %}</td>
-            <td>{% if d.committee_work %}{{ d.committee_work }}{% endif %}</td>
-            <td>{% if d.exam_commission %}{{ d.exam_commission }}{% endif %}</td>
-            <td>{% if d.phd_supervision %}{{ d.phd_supervision }}{% endif %}</td>
-            <td>{% if d.org_srs %}{{ d.org_srs}}{% endif %}</td>
-            <td>{% if d.rating %}{{ d.rating }}{% endif %}</td>
-            <td>{% if d.total_plan %}{{ d.total_plan }}{% endif %}</td>
-            <td>{% if d.total_actual %}{{ d.total_actual }}{% endif %}</td>
-        </tr>
-        {% endfor %}
-    </table>
-    <h2>Второй семестр</h2>
-    <table>
-        <tr>
-            <th>Дисциплины</th>
-            <th>Курс</th>
-            <th>Количество групп</th>
-            <th>Количество студентов</th>
-            <th>Лекции</th>
-            <th>Практические занятия</th>
-            <th>Лабораторные занятия</th>
-            <th>Курсовое проектирование</th>
-            <th>Консультации</th>
-            <th>Зачеты</th>
-            <th>Экзамены</th>
-            <th>Рецензирование контр.работ заочников</th>
-            <th>Руководство практиками студентов</th>
-            <th>Контрольное посещение занятий</th>
-            <th>Руководство квалификац. работами бакалавра, специалиста, магистра</th>
-            <th>Работа в ГЭК, ГАК</th>
-            <th>Прием вступительных и кандидатских экзаменов</th>
-            <th>Руководство аспирантами и соискателями</th>
-            <th>ОргСРС</th>
-            <th>Рейтинг</th>
-            <th>Всего часов по плану</th>
-            <th>Всего часов фактически</th>
-        </tr>
-        {% for d in discipines_secondsem %}
-        <tr>
-            <td>{{ d.discipline }}</td>
-            <td>{{ d.course|default_if_none:"" }}</td>
-            <td>{{ d.group_count|default_if_none:"" }}</td>
-            <td>{{ d.student_count|default_if_none:"" }}</td>
-            <td>{% if d.lectures %}{{ d.lectures }}{% endif %}</td>
-            <td>{% if d.practicals %}{{ d.practicals }}{% endif %}</td>
-            <td>{% if d.labs %}{{ d.labs }}{% endif %}</td>
-            <td>{% if d.project_work %}{{ d.project_work}}{% endif %}</td>
-            <td>{% if d.consultations %}{{ d.consultations }}{% endif %}</td>
-            <td>{% if d.tests %}{{ d.tests }}{% endif %}</td>
-            <td>{% if d.exams %}{{ d.exams }}{% endif %}</td>
-            <td>{% if d.review_distance %}{{ d.review_distance }}{% endif %}</td>
-            <td>{% if d.practice_supervision %}{{ d.practice_supervision }}{% endif %}</td>
-            <td>{% if d.visit_control %}{{ d.visit_control }}{% endif %}</td>
-            <td>{% if d.qualification_supervision %}{{ d.qualification_supervision }}{% endif %}</td>
-            <td>{% if d.committee_work %}{{ d.committee_work }}{% endif %}</td>
-            <td>{% if d.exam_commission %}{{ d.exam_commission }}{% endif %}</td>
-            <td>{% if d.phd_supervision %}{{ d.phd_supervision }}{% endif %}</td>
-            <td>{% if d.org_srs %}{{ d.org_srs}}{% endif %}</td>
-            <td>{% if d.rating %}{{ d.rating }}{% endif %}</td>
-            <td>{% if d.total_plan %}{{ d.total_plan }}{% endif %}</td>
-            <td>{% if d.total_actual %}{{ d.total_actual }}{% endif %}</td>
-        </tr>
-        {% endfor %}
-    </table>
-
-    <h2>Учебно-методическая работа</h2>
-    <table>
-        <tr>
-            <th>Наименование работы</th>
-            <th>Начало работы</th>
-            <th>Окончание работы</th>
-            <th>Отметка о выполнении</th>
-        </tr>
-        {% for e in edu_methodwork %}
-        <tr>
-            <td>{{ e.name }}</td>
-            <td>{{ e.start_date }}</td>
-            <td>{{ e.end_date }}</td>
-            <td>{{ e.status }}</td>
-            
-        </tr>
-        {% endfor %}
-    </table>
-
-    <h2>Организационно-методическая работа</h2>
-    <table>
-        <tr>
-            <th>Наименование работы</th>
-            <th>Начало работы</th>
-            <th>Окончание работы</th>
-            <th>Отметка о выполнении</th>
-        </tr>
-        {% for o in org_methodwork %}
-        <tr>
-            <td>{{ o.name }}</td>
-            <td>{{ o.start_date }}</td>
-            <td>{{ o.end_date }}</td>
-            <td>{{ o.status }}</td>
-            
-        </tr>
-        {% endfor %}
-    </table>
-    <h2>Научно-исследовательская работа</h2>
-    <h3>(в пределах 6-тичасового рабочего дня)</h3>
-    <table>
-        <tr>
-            <th>Наименование темы, этап, задание</th>
-            <th>Начало</th>
-            <th>Окончание</th>
-            <th>Отметка о выполнении</th>
-        </tr>
-        
-        {% for o in sci_researchwork %}
-        <tr>
-            <td>{{ o.name }}</td>
-            <td>{{ o.start_date }}</td>
-            <td>{{ o.end_date }}</td>
-            <td>{{ o.status }}</td>
-            
-        </tr>
-        {% endfor %}
-        
-    </table>
-    <h2>Участие в хоздоговорной НИР</h2>
-    <table>
-        <tr>
-            <th>Наименование темы, шифр</th>
-            <th>Должность по НИР</th>
-            <th>Начало</th>
-            <th>Окончание</th>
-            <th>Отметка о выполнении</th>
-        </tr>
-        
-        {% for o in contractwork %}
-        <tr>
-            <td>{{ o.name }}</td>
-            <td>{{ o.job }}</td>
-            <td>{{ o.start_date }}</td>
-            <td>{{ o.end_date }}</td>
-            <td>{{ o.status }}</td>
-            
-        </tr>
-        {% endfor %}
-        
-    </table>
-    <h2>Научно-методическая работа</h2>
-    <table>
-        <tr>
-            <th>Наименование темы, этап, задание</th>
-            <th>Начало</th>
-            <th>Окончание</th>
-            <th>Отметка о выполнении</th>
-        </tr>
-        
-        {% for o in sci_methodwork %}
-        <tr>
-            <td>{{ o.name }}</td>
-            <td>{{ o.start_date }}</td>
-            <td>{{ o.end_date }}</td>
-            <td>{{ o.status }}</td>
-            
-        </tr>
-        {% endfor %}
-        
-    </table>
-    <h2>Перечень опубликованных научных и научно-методических работ в учебном году</h2>
-    <table>
-        <tr>
-            <th>№ п/п</th>
-            <th>Наименование и вид работы</th>
-            <th>Выходные данные</th>
-            <th>Объем в п.л.</th>
-            <th>Соавторы</th>
-        </tr>
-        
-        {% for o in published_sciwork %}
-        <tr>
-            <td>{{ o.name }}</td>
-            <td>{{ o.job }}</td>
-            <td>{{ o.start_date }}</td>
-            <td>{{ o.end_date }}</td>
-            <td>{{ o.status }}</td>
-        </tr>
-        {% endfor %}
-        
-    </table>
-    <h2>Общественная и воспитательная работа преподавателя в учебном году</h2>
-    <table>
-        <tr>
-            <th>Наименование работы</th>
-            <th>Отметка о выполнении</th>
-        </tr>
-        
-        {% for o in public_work %}
-        <tr>
-            <td>{{ o.name }}</td>
-            <td>{{ o.mark }}</td>
-        </tr>
-        {% endfor %}
-        
-    </table>
-
-    <h2>Замечания о выполнении преподавателем плана работы за учебный год</h2>
-    <table>
-        <tr>
-            <th>Дата</th>
-            <th>Содержание замечаний</th>
-            <th>Роспись проверяющего</th>
-        </tr>
-        
-        {% for o in remark %}
-        <tr>
-            <td>{{ o.date }}</td>
-            <td>{{ o.remark }}</td>
-            <td>{{ o.signature }}</td>
-        </tr>
-        {% endfor %}
-        
-    </table>
-    <h2>Повышение квалификации</h2>
-    <table>
-        <tr>
-            <th>Дата</th>
-            <th>Форма повышения квалификации</th>
-            <th>Отметка о выполнении</th>
-        </tr>
-        
-        {% for o in raising %}
-        <tr>
-            <td>{{ o.date }}</td>
-            <td>{{ o.form }}</td>
-            <td>{{ o.mark }}</td>
-        </tr>
-        {% endfor %}
-        
-    </table>
-
-    <h2>Рекомендация кафедры по избранию преподавателя</h2>
-    <table>
-        
-        {% for o in recommendation %}
-        <tr>
-            <td>{{ o.recommendation }}</td>
-        </tr>
-        {% endfor %}
-        
-    </table>
-</div>
-
-<!-- Вкладка 4: ППС -->
-<div id="tab4" class="tab-content">
-    <h2>Профессорско-преподавательский состав</h2>
-
-    <form method="post">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="add_teacher">
-
-        <label>ФИО:</label>
-        <input type="text" name="full_name" required>
-
-        <label>Тип:</label>
-        <select name="teacher_type" required>
-            <option value="">--Выберите--</option>
-            <option value="Внутр">Внутр</option>
-            <option value="Шт">Шт</option>
-        </select>
-
-        <label>Должность:</label>
-        <input type="text" name="position" required>
-
-        <label>Ставка:</label>
-        <input type="text" name="rate" required>
-
-        <label>Степень:</label>
-        <input type="text" name="degree">
-
-        <label>Звание:</label>
-        <input type="text" name="rank">
-
-        <label>Почта:</label>
-        <input type="email" name="email">
-
-        <label>Телефон:</label>
-        <input type="text" name="phone">
-
-        <label>Дата рождения:</label>
-        <input type="date" name="birthday">
-
-        <label>Домашний адрес:</label>
-        <input type="text" name="address">
-
-        <button type="submit">Добавить преподавателя</button>
-    </form>
-
-    <h3>Список преподавателей</h3>
-    <table>
-        <tr>
-            <th>ID</th>
-            <th>ФИО</th>
-            <th>Тип</th>
-            <th>Должность</th>
-            <th>Ставка</th>
-            <th>Степень</th>
-            <th>Звание</th>
-            <th>Почта</th>
-            <th>Телефон</th>
-            <th>Дата рождения</th>
-            <th>Адрес</th>
-            <th>Логин</th>
-        </tr>
-        {% for teacher in teachers %}
-            <tr>
-                <td>{{ teacher.id }}</td>
-                <td>{{ teacher.full_name }}</td>
-                <td>{{ teacher.teacher_type }}</td>
-                <td>{{ teacher.position }}</td>
-                <td>{{ teacher.rate }}</td>
-                <td>{{ teacher.degree }}</td>
-                <td>{{ teacher.rank }}</td>
-                <td>{{ teacher.email }}</td>
-                <td>{{ teacher.phone }}</td>
-                <td>{{ teacher.birthday }}</td>
-                <td>{{ teacher.address }}</td>
-                <td>
-                    {% if teacher.user %}
-                        {{ teacher.user.username }}
-                    {% else %}
-                        -
-                    {% endif %}
-                </td>
-            </tr>
-        {% endfor %}
-    </table>
-
-    <h3>Удалить преподавателя</h3>
-    <form method="post">
-        {% csrf_token %}
-        <select name="delete_teacher" required>
-            {% for teacher in teachers %}
-                <option value="{{ teacher.id }}">{{ teacher.full_name }}</option>
-            {% endfor %}
-        </select>
-        <button type="submit" name="action" value="delete_teacher">Удалить</button>
-    </form>
-
-    <!-- Сообщения -->
-    {% if messages %}
-        <ul class="message">
-            {% for message in messages %}
-                <li class="{{ message.tags }}">{{ message }}</li>
-            {% endfor %}
-        </ul>
-        <script>
-            if (window.history.replaceState) {
-                window.history.replaceState(null, null, window.location.href);
-            }
-        </script>
-    {% endif %}
-</div>
-
-
-<div class="user-dropdown" id="userDropdown">
-    <div class="avatar" onclick="toggleDropdown()">
-        {{ request.user.username|slice:":1"|upper }}
+  <div class="topbar">
+    <div class="logo-section">
+      <img src="/static/images/vstu-logo.jpg" alt="Logo">
+      <span>ЦТУАС</span>
     </div>
-    <span class="username">{{ request.user.username }}</span>
-    <div class="dropdown-menu" id="dropdownMenu">
+    <div class="profile-box" onclick="event.stopPropagation(); toggleProfileMenu();">
+      <div class="avatar">{{ request.user.username|slice:":1"|upper }}</div>
+      <span>{{ request.user.username }}</span>
+      <div class="dropdown-menu-profile" id="profileDropdown">
         <a href="#">Профиль</a>
         <a href="{% url 'logout' %}">Выйти</a>
+      </div>
     </div>
-</div>
+  </div>
+
+  <div class="sidebar">
+    <a href="#" onclick="showTab('tab1')" id="btn_tab1">Сотрудники</a>
+    <a href="#" onclick="showTab('tab2')" id="btn_tab2">Уровни доступа</a>
+    <a href="#" onclick="showTab('tab3')" id="btn_tab3">ИП преподавателей</a>
+    <a href="#" onclick="showTab('tab4')" id="btn_tab4">ППС</a>
+  </div>
 
 
+    <div class="content">
+        <!-- Вкладка 1: Сотрудники -->
+        <div id="tab1" class="tab-content">
+            <h2>Сотрудники</h2>
+
+            <h3>Список сотрудников</h3>
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Имя пользователя</th>
+                    <th>Преподаватель</th>
+                    <th>Администратор</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for user in staff_users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.is_staff|yesno:"Да,Нет" }}</td>
+                        <td>{{ user.is_superuser|yesno:"Да,Нет" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="4">Сотрудники не найдены</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+            <h3>Добавить сотрудника</h3>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="add">
+                <label>Имя пользователя:</label>
+                <input type="text" name="username" required>
+
+                <label>Пароль:</label>
+                <input type="password" name="password" required>
+
+                <label>Преподаватель:</label>
+                <select name="teacher_id">
+                    <option value="">-- Новый преподаватель --</option>
+                    {% for teacher in teachers %}
+                        {% if not teacher.user %}
+                            <option value="{{ teacher.id }}">{{ teacher.full_name }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+
+                <button type="submit">Добавить</button>
+            </form>
+
+            <h3>Удалить сотрудника</h3>
+            <form method="post">
+                {% csrf_token %}
+                <select name="delete_user">
+                    {% for user in staff_users %}
+                        <option value="{{ user.id }}">{{ user.username }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" name="action" value="delete">Удалить</button>
+            </form>
+        </div>
+
+        <!-- Вкладка 2: Уровни доступа -->
+        <div id="tab2" class="tab-content">
+            <h2>Уровни доступа</h2>
+
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="update_permissions">
+
+                <label>Выберите сотрудника:</label>
+                <select name="user_id" required>
+                    {% for user in staff_users %}
+                        <option value="{{ user.id }}">{{ user.username }}</option>
+                    {% endfor %}
+                </select>
+
+                <label>Права преподавателя:</label>
+                <select name="is_staff" required>
+                    <option value="True">Да</option>
+                    <option value="False">Нет</option>
+                </select>
+
+                <label>Права администратора:</label>
+                <select name="is_superuser" required>
+                    <option value="True">Да</option>
+                    <option value="False">Нет</option>
+                </select>
+
+                <button type="submit">Сохранить права</button>
+            </form>
+
+            {% if messages %}
+                <ul class="message">
+                    {% for message in messages %}
+                        {% if "access" in message.tags %}
+                            <li class="{{ message.tags }}">{{ message }}</li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <!-- Вкладка 3: ИП преподавателей -->
+        <div id="tab3" class="tab-content">
+            <h1>ИП преподавателей</h1>
+            <p>Здесь можно просматривать и редактировать ИП преподавателей.</p>
+
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="select_ip_teacher">
+                
+                <label><strong>Выберите преподавателя:</strong></label>
+                <select name="selected_teacher_id" onchange="this.form.submit()">
+                    <option value="">-- выберите преподавателя --</option>
+                    {% for teacher in teachers %}
+                        <option value="{{ teacher.id }}" {% if selected_teacher and selected_teacher.id == teacher.id %}selected{% endif %}>
+                            {{ teacher.full_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </form>
+
+
+            <h2>Первый семестр</h2>
+            <table>
+                <tr>
+                    <th>Дисциплины</th>
+                    <th>Курс</th>
+                    <th>Количество групп</th>
+                    <th>Количество студентов</th>
+                    <th>Лекции</th>
+                    <th>Практические занятия</th>
+                    <th>Лабораторные занятия</th>
+                    <th>Курсовое проектирование</th>
+                    <th>Консультации</th>
+                    <th>Зачеты</th>
+                    <th>Экзамены</th>
+                    <th>Рецензирование контр.работ заочников</th>
+                    <th>Руководство практиками студентов</th>
+                    <th>Контрольное посещение занятий</th>
+                    <th>Руководство квалификац. работами бакалавра, специалиста, магистра</th>
+                    <th>Работа в ГЭК, ГАК</th>
+                    <th>Прием вступительных и кандидатских экзаменов</th>
+                    <th>Руководство аспирантами и соискателями</th>
+                    <th>ОргСРС</th>
+                    <th>Рейтинг</th>
+                    <th>Всего часов по плану</th>
+                    <th>Всего часов фактически</th>
+                </tr>
+                {% for d in disciplines_firstsem %}
+                <tr>
+                    <td>{{ d.discipline }}</td>
+                    <td>{{ d.course|default_if_none:"" }}</td>
+                    <td>{{ d.group_count|default_if_none:"" }}</td>
+                    <td>{{ d.student_count|default_if_none:"" }}</td>
+                    <td>{% if d.lectures %}{{ d.lectures }}{% endif %}</td>
+                    <td>{% if d.practicals %}{{ d.practicals }}{% endif %}</td>
+                    <td>{% if d.labs %}{{ d.labs }}{% endif %}</td>
+                    <td>{% if d.project_work %}{{ d.project_work}}{% endif %}</td>
+                    <td>{% if d.consultations %}{{ d.consultations }}{% endif %}</td>
+                    <td>{% if d.tests %}{{ d.tests }}{% endif %}</td>
+                    <td>{% if d.exams %}{{ d.exams }}{% endif %}</td>
+                    <td>{% if d.review_distance %}{{ d.review_distance }}{% endif %}</td>
+                    <td>{% if d.practice_supervision %}{{ d.practice_supervision }}{% endif %}</td>
+                    <td>{% if d.visit_control %}{{ d.visit_control }}{% endif %}</td>
+                    <td>{% if d.qualification_supervision %}{{ d.qualification_supervision }}{% endif %}</td>
+                    <td>{% if d.committee_work %}{{ d.committee_work }}{% endif %}</td>
+                    <td>{% if d.exam_commission %}{{ d.exam_commission }}{% endif %}</td>
+                    <td>{% if d.phd_supervision %}{{ d.phd_supervision }}{% endif %}</td>
+                    <td>{% if d.org_srs %}{{ d.org_srs}}{% endif %}</td>
+                    <td>{% if d.rating %}{{ d.rating }}{% endif %}</td>
+                    <td>{% if d.total_plan %}{{ d.total_plan }}{% endif %}</td>
+                    <td>{% if d.total_actual %}{{ d.total_actual }}{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            <h2>Второй семестр</h2>
+            <table>
+                <tr>
+                    <th>Дисциплины</th>
+                    <th>Курс</th>
+                    <th>Количество групп</th>
+                    <th>Количество студентов</th>
+                    <th>Лекции</th>
+                    <th>Практические занятия</th>
+                    <th>Лабораторные занятия</th>
+                    <th>Курсовое проектирование</th>
+                    <th>Консультации</th>
+                    <th>Зачеты</th>
+                    <th>Экзамены</th>
+                    <th>Рецензирование контр.работ заочников</th>
+                    <th>Руководство практиками студентов</th>
+                    <th>Контрольное посещение занятий</th>
+                    <th>Руководство квалификац. работами бакалавра, специалиста, магистра</th>
+                    <th>Работа в ГЭК, ГАК</th>
+                    <th>Прием вступительных и кандидатских экзаменов</th>
+                    <th>Руководство аспирантами и соискателями</th>
+                    <th>ОргСРС</th>
+                    <th>Рейтинг</th>
+                    <th>Всего часов по плану</th>
+                    <th>Всего часов фактически</th>
+                </tr>
+                {% for d in discipines_secondsem %}
+                <tr>
+                    <td>{{ d.discipline }}</td>
+                    <td>{{ d.course|default_if_none:"" }}</td>
+                    <td>{{ d.group_count|default_if_none:"" }}</td>
+                    <td>{{ d.student_count|default_if_none:"" }}</td>
+                    <td>{% if d.lectures %}{{ d.lectures }}{% endif %}</td>
+                    <td>{% if d.practicals %}{{ d.practicals }}{% endif %}</td>
+                    <td>{% if d.labs %}{{ d.labs }}{% endif %}</td>
+                    <td>{% if d.project_work %}{{ d.project_work}}{% endif %}</td>
+                    <td>{% if d.consultations %}{{ d.consultations }}{% endif %}</td>
+                    <td>{% if d.tests %}{{ d.tests }}{% endif %}</td>
+                    <td>{% if d.exams %}{{ d.exams }}{% endif %}</td>
+                    <td>{% if d.review_distance %}{{ d.review_distance }}{% endif %}</td>
+                    <td>{% if d.practice_supervision %}{{ d.practice_supervision }}{% endif %}</td>
+                    <td>{% if d.visit_control %}{{ d.visit_control }}{% endif %}</td>
+                    <td>{% if d.qualification_supervision %}{{ d.qualification_supervision }}{% endif %}</td>
+                    <td>{% if d.committee_work %}{{ d.committee_work }}{% endif %}</td>
+                    <td>{% if d.exam_commission %}{{ d.exam_commission }}{% endif %}</td>
+                    <td>{% if d.phd_supervision %}{{ d.phd_supervision }}{% endif %}</td>
+                    <td>{% if d.org_srs %}{{ d.org_srs}}{% endif %}</td>
+                    <td>{% if d.rating %}{{ d.rating }}{% endif %}</td>
+                    <td>{% if d.total_plan %}{{ d.total_plan }}{% endif %}</td>
+                    <td>{% if d.total_actual %}{{ d.total_actual }}{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </table>
+
+            <h2>Учебно-методическая работа</h2>
+            <table>
+                <tr>
+                    <th>Наименование работы</th>
+                    <th>Начало работы</th>
+                    <th>Окончание работы</th>
+                    <th>Отметка о выполнении</th>
+                </tr>
+                {% for e in edu_methodwork %}
+                <tr>
+                    <td>{{ e.name }}</td>
+                    <td>{{ e.start_date }}</td>
+                    <td>{{ e.end_date }}</td>
+                    <td>{{ e.status }}</td>
+                    
+                </tr>
+                {% endfor %}
+            </table>
+
+            <h2>Организационно-методическая работа</h2>
+            <table>
+                <tr>
+                    <th>Наименование работы</th>
+                    <th>Начало работы</th>
+                    <th>Окончание работы</th>
+                    <th>Отметка о выполнении</th>
+                </tr>
+                {% for o in org_methodwork %}
+                <tr>
+                    <td>{{ o.name }}</td>
+                    <td>{{ o.start_date }}</td>
+                    <td>{{ o.end_date }}</td>
+                    <td>{{ o.status }}</td>
+                    
+                </tr>
+                {% endfor %}
+            </table>
+            <h2>Научно-исследовательская работа</h2>
+            <h3>(в пределах 6-тичасового рабочего дня)</h3>
+            <table>
+                <tr>
+                    <th>Наименование темы, этап, задание</th>
+                    <th>Начало</th>
+                    <th>Окончание</th>
+                    <th>Отметка о выполнении</th>
+                </tr>
+                
+                {% for o in sci_researchwork %}
+                <tr>
+                    <td>{{ o.name }}</td>
+                    <td>{{ o.start_date }}</td>
+                    <td>{{ o.end_date }}</td>
+                    <td>{{ o.status }}</td>
+                    
+                </tr>
+                {% endfor %}
+                
+            </table>
+            <h2>Участие в хоздоговорной НИР</h2>
+            <table>
+                <tr>
+                    <th>Наименование темы, шифр</th>
+                    <th>Должность по НИР</th>
+                    <th>Начало</th>
+                    <th>Окончание</th>
+                    <th>Отметка о выполнении</th>
+                </tr>
+                
+                {% for o in contractwork %}
+                <tr>
+                    <td>{{ o.name }}</td>
+                    <td>{{ o.job }}</td>
+                    <td>{{ o.start_date }}</td>
+                    <td>{{ o.end_date }}</td>
+                    <td>{{ o.status }}</td>
+                    
+                </tr>
+                {% endfor %}
+                
+            </table>
+            <h2>Научно-методическая работа</h2>
+            <table>
+                <tr>
+                    <th>Наименование темы, этап, задание</th>
+                    <th>Начало</th>
+                    <th>Окончание</th>
+                    <th>Отметка о выполнении</th>
+                </tr>
+                
+                {% for o in sci_methodwork %}
+                <tr>
+                    <td>{{ o.name }}</td>
+                    <td>{{ o.start_date }}</td>
+                    <td>{{ o.end_date }}</td>
+                    <td>{{ o.status }}</td>
+                    
+                </tr>
+                {% endfor %}
+                
+            </table>
+            <h2>Перечень опубликованных научных и научно-методических работ в учебном году</h2>
+            <table>
+                <tr>
+                    <th>№ п/п</th>
+                    <th>Наименование и вид работы</th>
+                    <th>Выходные данные</th>
+                    <th>Объем в п.л.</th>
+                    <th>Соавторы</th>
+                </tr>
+                
+                {% for o in published_sciwork %}
+                <tr>
+                    <td>{{ o.name }}</td>
+                    <td>{{ o.job }}</td>
+                    <td>{{ o.start_date }}</td>
+                    <td>{{ o.end_date }}</td>
+                    <td>{{ o.status }}</td>
+                </tr>
+                {% endfor %}
+                
+            </table>
+            <h2>Общественная и воспитательная работа преподавателя в учебном году</h2>
+            <table>
+                <tr>
+                    <th>Наименование работы</th>
+                    <th>Отметка о выполнении</th>
+                </tr>
+                
+                {% for o in public_work %}
+                <tr>
+                    <td>{{ o.name }}</td>
+                    <td>{{ o.mark }}</td>
+                </tr>
+                {% endfor %}
+                
+            </table>
+
+            <h2>Замечания о выполнении преподавателем плана работы за учебный год</h2>
+            <table>
+                <tr>
+                    <th>Дата</th>
+                    <th>Содержание замечаний</th>
+                    <th>Роспись проверяющего</th>
+                </tr>
+                
+                {% for o in remark %}
+                <tr>
+                    <td>{{ o.date }}</td>
+                    <td>{{ o.remark }}</td>
+                    <td>{{ o.signature }}</td>
+                </tr>
+                {% endfor %}
+                
+            </table>
+            <h2>Повышение квалификации</h2>
+            <table>
+                <tr>
+                    <th>Дата</th>
+                    <th>Форма повышения квалификации</th>
+                    <th>Отметка о выполнении</th>
+                </tr>
+                
+                {% for o in raising %}
+                <tr>
+                    <td>{{ o.date }}</td>
+                    <td>{{ o.form }}</td>
+                    <td>{{ o.mark }}</td>
+                </tr>
+                {% endfor %}
+                
+            </table>
+
+            <h2>Рекомендация кафедры по избранию преподавателя</h2>
+            <table>
+                
+                {% for o in recommendation %}
+                <tr>
+                    <td>{{ o.recommendation }}</td>
+                </tr>
+                {% endfor %}
+                
+            </table>
+        </div>
+
+        <!-- Вкладка 4: ППС -->
+        <div id="tab4" class="tab-content">
+            <h2>Профессорско-преподавательский состав</h2>
+
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="add_teacher">
+
+                <label>ФИО:</label>
+                <input type="text" name="full_name" required>
+
+                <label>Тип:</label>
+                <select name="teacher_type" required>
+                    <option value="">--Выберите--</option>
+                    <option value="Внутр">Внутр</option>
+                    <option value="Шт">Шт</option>
+                </select>
+
+                <label>Должность:</label>
+                <input type="text" name="position" required>
+
+                <label>Ставка:</label>
+                <input type="text" name="rate" required>
+
+                <label>Степень:</label>
+                <input type="text" name="degree">
+
+                <label>Звание:</label>
+                <input type="text" name="rank">
+
+                <label>Почта:</label>
+                <input type="email" name="email">
+
+                <label>Телефон:</label>
+                <input type="text" name="phone">
+
+                <label>Дата рождения:</label>
+                <input type="date" name="birthday">
+
+                <label>Домашний адрес:</label>
+                <input type="text" name="address">
+
+                <button type="submit">Добавить преподавателя</button>
+            </form>
+
+            <h3>Список преподавателей</h3>
+            <table>
+                <tr>
+                    <th>ID</th>
+                    <th>ФИО</th>
+                    <th>Тип</th>
+                    <th>Должность</th>
+                    <th>Ставка</th>
+                    <th>Степень</th>
+                    <th>Звание</th>
+                    <th>Почта</th>
+                    <th>Телефон</th>
+                    <th>Дата рождения</th>
+                    <th>Адрес</th>
+                    <th>Логин</th>
+                </tr>
+                {% for teacher in teachers %}
+                    <tr>
+                        <td>{{ teacher.id }}</td>
+                        <td>{{ teacher.full_name }}</td>
+                        <td>{{ teacher.teacher_type }}</td>
+                        <td>{{ teacher.position }}</td>
+                        <td>{{ teacher.rate }}</td>
+                        <td>{{ teacher.degree }}</td>
+                        <td>{{ teacher.rank }}</td>
+                        <td>{{ teacher.email }}</td>
+                        <td>{{ teacher.phone }}</td>
+                        <td>{{ teacher.birthday }}</td>
+                        <td>{{ teacher.address }}</td>
+                        <td>
+                            {% if teacher.user %}
+                                {{ teacher.user.username }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+
+            <h3>Удалить преподавателя</h3>
+            <form method="post">
+                {% csrf_token %}
+                <select name="delete_teacher" required>
+                    {% for teacher in teachers %}
+                        <option value="{{ teacher.id }}">{{ teacher.full_name }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" name="action" value="delete_teacher">Удалить</button>
+            </form>
+
+
+        </div>
+
+
+
+
+    <script>
+        function showTab(tabId) {
+        const tabs = document.getElementsByClassName("tab-content");
+        for (let tab of tabs) tab.classList.remove("active");
+        const buttons = document.querySelectorAll(".sidebar a");
+        for (let btn of buttons) btn.classList.remove("active");
+        document.getElementById(tabId).classList.add("active");
+        document.getElementById("btn_" + tabId).classList.add("active");
+        localStorage.setItem("activeTab", tabId);
+        }
+        window.onload = () => {
+        const savedTab = localStorage.getItem("activeTab") || "tab1";
+        showTab(savedTab);
+        };
+        function toggleProfileMenu() {
+        document.querySelector('.profile-box').classList.toggle('open');
+        }
+        document.addEventListener('click', function(e) {
+        const box = document.querySelector('.profile-box');
+        if (!box.contains(e.target)) box.classList.remove('open');
+        });
+    </script>
 </body>
 </html>
