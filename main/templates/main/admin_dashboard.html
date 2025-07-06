@@ -12,30 +12,46 @@
       color: #333;
       padding-top: 60px;
     }
-    .sidebar {
-      width: 240px;
-      background-color: #6caae1;
-      height: 100vh;
-      position: fixed;
-      top: 60px;
-      left: 0;
-      padding-top: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-    }
-    .sidebar a {
-      display: block;
-      padding: 12px 20px;
-      color: white;
-      text-decoration: none;
-      width: 100%;
-    }
-    .sidebar a:hover,
-    .sidebar a.active {
-    background-color: #1b63a1 !important;
-    font-weight: bold;
-    }
+.sidebar {
+  width: 220px;
+  background-color: #e6f0ff;
+  padding: 20px 10px;
+  position: fixed;
+  top: 70px;
+  bottom: 0;
+  left: 0;
+  overflow-y: auto;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+/* Общий стиль кнопок */
+.tab-button {
+  display: block;
+  background-color: transparent;
+  color: #2075d6;
+  padding: 12px 20px;
+  margin-bottom: 10px;
+  border-radius: 15px;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* При наведении */
+.tab-button:hover {
+  background-color: #cfe2ff;
+  color: #125cb0;
+}
+
+/* Активная вкладка */
+.tab-button.active {
+  background-color: #2075d6;
+  color: white;
+  font-weight: 600;
+}
+
     .topbar {
       position: fixed;
       top: 0;
@@ -187,13 +203,12 @@ input[type="submit"]:hover {
     </div>
   </div>
 
-  <div class="sidebar">
-    <a href="#" onclick="showTab('tab1')" id="btn_tab1">Сотрудники</a>
-    <a href="#" onclick="showTab('tab2')" id="btn_tab2">Уровни доступа</a>
-    <a href="#" onclick="showTab('tab3')" id="btn_tab3">ИП преподавателей</a>
-    <a href="#" onclick="showTab('tab4')" id="btn_tab4">ППС</a>
-  </div>
-
+    <div class="sidebar">
+    <a href="#" class="tab-button active" onclick="showTab('tab1')" id="btn_tab1">Сотрудники</a>
+    <a href="#" class="tab-button" onclick="showTab('tab2')" id="btn_tab2">Уровни доступа</a>
+    <a href="#" class="tab-button" onclick="showTab('tab3')" id="btn_tab3">ИП преподавателей</a>
+    <a href="#" class="tab-button" onclick="showTab('tab4')" id="btn_tab4">ППС</a>
+    </div>
 
     <div class="content">
         <!-- Вкладка 1: Сотрудники -->

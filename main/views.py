@@ -217,7 +217,7 @@ def dashboard(request):
     
 def teacher_dashboard(request):
     teacher = request.user.teacher
-    
+    last_initial = teacher.full_name.strip()[0].upper() if teacher.full_name else ''
     # === Выбор учебного года ===
     selected_year = request.GET.get("year") or request.session.get("selected_year")
     if not selected_year:
@@ -530,6 +530,7 @@ def teacher_dashboard(request):
         'active_tab': active_tab,
         'selected_year': selected_year,
         'available_years': ["2022–2023", "2023–2024", "2024–2025"],  # временно
+        'last_initial': last_initial,
     }
 
     return render(request, 'main/teacher_dashboard.html', context)
