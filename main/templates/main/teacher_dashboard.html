@@ -723,65 +723,77 @@ input:focus + .bar:before {
 </table>
 </div>
 <div class="tab-content" id="tab6">
-<h3>Научно-методическая работа</h3>
-<form method="post">
+  <h3>Научно-методическая работа</h3>
+
+  <form method="post">
+    {% csrf_token %}
+    <input name="form_type" type="hidden" value="scientific_method" />
+    <input name="active_tab" type="hidden" value="6" />
+
+    {% if edit_work_tab6 %}
+      <input name="work_id" type="hidden" value="{{ edit_work_tab6.id }}" />
+    {% endif %}
+
+    <label>Наименование темы, этап, задание:</label>
+    <textarea name="topic" required="">{{ edit_work_tab6.topic|default:'' }}</textarea>
+
+    <label>Начало:</label>
+    <input name="start_date" type="date" value="{{ edit_work_tab6.start_date|default:'' }}" />
+
+    <label>Окончание:</label>
+    <input name="end_date" type="date" value="{{ edit_work_tab6.end_date|default:'' }}" />
+
+    <label>Отметка о выполнении:</label>
+    <input name="completed" type="text" value="{{ edit_work_tab6.completed|default:'' }}" />
+
+    <button class="button-add" type="submit">
+      {% if edit_work_tab6 %}Сохранить изменения{% else %}Добавить{% endif %}
+    </button>
+  </form>
+
+  <form method="get" action="{% url 'export_scientific_excel' %}" style="margin-bottom: 15px;">
+    <button type="submit" class="button-add">Экспорт в Excel</button>
+  </form>
+
+  <table class="responsive-table">
+    <thead>
+      <tr>
+        <th>Наименование темы</th>
+        <th>Начало</th>
+        <th>Окончание</th>
+        <th>Отметка</th>
+        <th>Действие</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for work in scientific_works %}
+      <tr>
+        <td>{{ work.topic }}</td>
+        <td>{{ work.start_date }}</td>
+        <td>{{ work.end_date }}</td>
+        <td>{{ work.completed }}</td>
+        <td>
+          <form method="post" style="display:inline;">
             {% csrf_token %}
-            <input name="form_type" type="hidden" value="scientific_method"/>
-<input name="active_tab" type="hidden" value="6"/>
-            {% if edit_id_tab6 and edit_work_tab6 %}
-              <input name="work_id" type="hidden" value="{{ edit_work_tab6.id }}"/>
-            {% endif %}
-        
-            <label>Наименование темы, этап, задание:</label>
-<textarea name="topic" required="">{{ edit_work_tab6.topic|default:'' }}</textarea>
-<label>Начало:</label>
-<input name="start_date" type="date" value="{{ edit_work_tab6.start_date|default:'' }}"/>
-<label>Окончание:</label>
-<input name="end_date" type="date" value="{{ edit_work_tab6.end_date|default:'' }}"/>
-<label>Отметка о выполнении:</label>
-<input name="completed" type="text" value="{{ edit_work_tab6.completed|default:'' }}"/>
-<button class="button-add" style="" type="submit">Добавить</button>
-</form>
-<form method="get" action="{% url 'export_scientific_excel' %}" style="margin-bottom: 15px;">
-  <button type="submit" class="button-add">Экспорт в Excel</button>
-</form>
-<table class="responsive-table">
-<thead>
-<tr>
-<th>Наименование темы</th>
-<th>Начало</th>
-<th>Окончание</th>
-<th>Отметка</th>
-<th>Действие</th>
-</tr>
-</thead>
-<tbody>
-              {% for work in scientific_works %}
-              <tr>
-<td>{{ work.topic }}</td>
-<td>{{ work.start_date }}</td>
-<td>{{ work.end_date }}</td>
-<td>{{ work.completed }}</td>
-<td>
-<form method="post" style="display:inline;">
-                    {% csrf_token %}
-                    <input name="form_type" type="hidden" value="edit_scientific_method"/>
-<input name="edit_scientific_method" type="hidden" value="{{ work.id }}"/>
-<input name="active_tab" type="hidden" value="6"/>
-<button class="edit-btn" style="color: white;" type="submit">Редактировать</button>
-</form>
-<form method="post" style="display:inline;">
-                    {% csrf_token %}
-                    <input name="form_type" type="hidden" value="delete_scientific_method"/>
-<input name="work_id" type="hidden" value="{{ work.id }}"/>
-<button class="delete-btn" style="color: white;" type="submit">Удалить</button>
-</form>
-</td>
-</tr>
-              {% endfor %}
-            </tbody>
-</table>
+            <input name="form_type" type="hidden" value="edit_scientific_method" />
+            <input name="edit_scientific_method" type="hidden" value="{{ work.id }}" />
+            <input name="active_tab" type="hidden" value="6" />
+            <button class="edit-btn" style="color: white;" type="submit">Редактировать</button>
+          </form>
+          <form method="post" style="display:inline;">
+            {% csrf_token %}
+            <input name="form_type" type="hidden" value="delete_scientific_method" />
+            <input name="work_id" type="hidden" value="{{ work.id }}" />
+            <input name="active_tab" type="hidden" value="6" />
+            <button class="delete-btn" style="color: white;" type="submit">Удалить</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </div>
+
 <div class="tab-content" id="tab7">Тут будут Научные статьи и чекбоксы.</div>
 <div class="tab-content {% if active_tab == 8 %}active{% endif %}" id="tab8">
   <h3>Общественная и воспитательная работа</h3>
