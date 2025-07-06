@@ -12,7 +12,9 @@ from .models import Teacher, EducationalMethodicalWork, OrganizationalMethodical
 from .forms import EducationalMethodicalWorkForm, OrganizationalMethodicalWorkForm, ResearchWorkForm, ContractResearchWorkForm
 import openpyxl
 from django.http import HttpResponse
-
+from io import BytesIO
+import openpyxl
+from openpyxl.utils import get_column_letter
 
 def login_view(request):
     if request.method == 'POST':
@@ -710,3 +712,63 @@ def export_qualification_excel(request):
     response["Content-Disposition"] = 'attachment; filename="qualification.xlsx"'
     wb.save(response)
     return response
+
+
+def export_full_teacher_excel(request):
+    teacher = request.user.teacher
+
+    wb = openpyxl.Workbook()
+    wb.remove(wb.active)
+
+    def add_sheet(title, queryset, columns, extract_fn):
+        ws = wb.create_sheet(title=title)
+        ws.append(columns)
+        for obj in queryset:
+            ws.append(extract_fn(obj))
+
+        for col in range(1, len(columns) + 1):
+            ws.column_dimensions[get_column_letter(col)].width = 20
+
+    add_sheet("Уч.-методическая", EducationalMethodicalWork.objects.filter(teacher=teacher),
+              ["Название", "Начало", "Окончание", "Отметка"],
+              lambda w: [w.title, w.start_date, w.end_date, w.completed])
+
+    add_sheet("Орг.-методическая", OrganizationalMethodicalWork.objects.filter(teacher=teacher),
+              ["Название", "Начало", "Окончание", "Отметка"],
+              lambda w: [w.title, w.start_date, w.end_date, w.completed])
+
+    add_sheet("НИР", ResearchWork.objects.filter(teacher=teacher),
+              ["Тема", "Начало", "Окончание", "Отметка"],
+              lambda w: [w.topic, w.start_date, w.end_date, w.completed])
+
+    add_sheet("Хоздоговорная", ContractResearchWork.objects.filter(teacher=teacher),
+              ["Тема", "Должность", "Начало", "Окончание", "Отметка"],
+              lambda w: [w.topic, w.position, w.start_date, w.end_date, w.completed])
+
+    add_sheet("Научно-методическая", ScientificMethodicalWork.objects.filter(teacher=teacher),
+              ["Тема", "Начало", "Окончание", "Отметка"],
+              lambda w: [w.topic, w.start_date, w.end_date, w.completed])
+
+    add_sheet("Общественная работа", SocialEducationalWork.objects.filter(teacher=teacher),
+              ["Наименование", "Отметка"],
+              lambda w: [w.title, w.completed])
+
+    add_sheet("Замечания", TeacherRemark.objects.filter(teacher=teacher),
+              ["Дата", "Содержание"],
+              lambda w: [w.date, w.content])
+
+    add_sheet("Повышение квалификации", QualificationUpgrade.objects.filter(teacher=teacher),
+              ["Название", "Место", "Номер документа", "Дата", "Срок", "Объём"],
+              lambda w: [w.title, w.location, w.document_number, w.date, w.duration, w.volume])
+
+    buffer = BytesIO()
+    wb.save(buffer)
+    buffer.seek(0)
+
+    response = HttpResponse(buffer.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=teacher_full_report.xlsx'
+    return response
+
+def teacher_profile(request):
+    teacher = request.user.teacher
+    return render(request, 'main/teacher_profile.html', {'teacher': teacher})

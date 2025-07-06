@@ -23,5 +23,7 @@ path('export/contract/', export_contract_excel, name='export_contract_excel'),
 path('export/scientific/', export_scientific_excel, name='export_scientific_excel'),
 path('export/social/', export_social_excel, name='export_social_excel'),
 path('export/remarks/', export_remarks_excel, name='export_remarks_excel'),
+path('export/full/', views.export_full_teacher_excel, name='export_full_teacher_excel'),
+path('profile/', views.teacher_profile, name='teacher_profile'),
     
 ]

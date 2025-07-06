@@ -460,13 +460,14 @@ input:focus + .bar:before {
 </style>
 </head>
 <body>
+  
 <div class="user-dropdown" id="userDropdown">
 <div class="avatar" onclick="toggleDropdown()">
       {{ request.user.username|slice:":1"|upper }}
     </div>
 <span class="username">{{ request.user.username }}</span>
 <div class="dropdown-menu" id="dropdownMenu">
-<a href="#">Профиль</a>
+  <a href="{% url 'teacher_profile' %}">Профиль</a>
 <a href="{% url 'logout' %}">Выйти</a>
 </div>
 </div>
