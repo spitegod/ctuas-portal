@@ -189,6 +189,54 @@ button:hover,
 input[type="submit"]:hover {
     background-color: #1565c0;
 }
+
+
+.user-select-block {
+  margin-bottom: 20px;
+  background: #f9fbff;
+  padding: 15px;
+  border-left: 4px solid #1976d2;
+  border-radius: 6px;
+}
+
+.section-divider {
+  border: none;
+  height: 1px;
+  background-color: #e0e0e0;
+  margin: 25px 0;
+}
+
+.access-form {
+  margin-top: 20px;
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 500;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.form-group select {
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
   </style>
 </head>
 <body>
@@ -279,45 +327,107 @@ input[type="submit"]:hover {
         </div>
 
         <!-- Вкладка 2: Уровни доступа -->
-        <div id="tab2" class="tab-content">
-            <h2>Уровни доступа</h2>
+<div id="tab2" class="tab-content">
+  <h2>Уровни доступа</h2>
 
-            <form method="post">
-                {% csrf_token %}
-                <input type="hidden" name="action" value="update_permissions">
+  <form method="post" class="access-form">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="update_permissions">
 
-                <label>Выберите сотрудника:</label>
-                <select name="user_id" required>
-                    {% for user in staff_users %}
-                        <option value="{{ user.id }}">{{ user.username }}</option>
-                    {% endfor %}
-                </select>
+    <!-- 🔹 Отдельный блок выбора пользователя -->
+    <div class="form-group user-select-block">
+      <label><strong>Выберите сотрудника для изменения прав:</strong></label>
+      <select name="user_id" required>
+        {% for user in staff_users %}
+          <option value="{{ user.id }}">{{ user.username }}</option>
+        {% endfor %}
+      </select>
+    </div>
 
-                <label>Права преподавателя:</label>
-                <select name="is_staff" required>
-                    <option value="True">Да</option>
-                    <option value="False">Нет</option>
-                </select>
+    <hr class="section-divider">
 
-                <label>Права администратора:</label>
-                <select name="is_superuser" required>
-                    <option value="True">Да</option>
-                    <option value="False">Нет</option>
-                </select>
+    <!-- 🔸 Сетка прав доступа -->
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Права преподавателя:</label>
+        <select name="is_staff" required>
+          <option value="True">Да</option>
+          <option value="False">Нет</option>
+        </select>
+      </div>
 
-                <button type="submit">Сохранить права</button>
-            </form>
+      <div class="form-group">
+        <label>Права администратора:</label>
+        <select name="is_superuser" required>
+          <option value="True">Да</option>
+          <option value="False">Нет</option>
+        </select>
+      </div>
 
-            {% if messages %}
-                <ul class="message">
-                    {% for message in messages %}
-                        {% if "access" in message.tags %}
-                            <li class="{{ message.tags }}">{{ message }}</li>
-                        {% endif %}
-                    {% endfor %}
-                </ul>
-            {% endif %}
+      <div class="form-group">
+        <label>Редактирование публикаций:</label>
+        <select name="can_edit_publications">
+          <option value="True">Да</option>
+          <option value="False">Нет</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Редактирование ИП:</label>
+        <select name="can_edit_ip">
+          <option value="True">Да</option>
+          <option value="False">Нет</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Редактирование ППС:</label>
+        <select name="can_edit_pps">
+          <option value="True">Да</option>
+          <option value="False">Нет</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Организационная работа:</label>
+        <select name="can_edit_org_work">
+          <option value="True">Да</option>
+          <option value="False">Нет</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Научная работа:</label>
+        <select name="can_edit_sci_work">
+          <option value="True">Да</option>
+          <option value="False">Нет</option>
+        </select>
+      </div>
+    </div>
+
+    <button type="submit" style="margin-top: 20px;">Сохранить права</button>
+  </form>
+
+{% if messages %}
+  <div class="alert-container">
+    {% for message in messages %}
+      {% if "access" in message.tags %}
+        <div class="alert alert-success" role="alert">
+          {{ message }}
         </div>
+      {% elif message.tags == "error" %}
+        <div class="alert alert-danger" role="alert">
+          {{ message }}
+        </div>
+      {% elif message.tags == "warning" %}
+        <div class="alert alert-warning" role="alert">
+          {{ message }}
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+{% endif %}
+</div>
 
         <!-- Вкладка 3: ИП преподавателей -->
         <div id="tab3" class="tab-content">

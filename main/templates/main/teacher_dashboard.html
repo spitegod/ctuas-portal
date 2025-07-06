@@ -534,10 +534,10 @@ input:focus + .bar:before {
     <div class="avatar-circle" onclick="toggleDropdown()">
       {{ last_initial }}
     </div>
-    <span class="user-name">{{ request.user.teacher.full_name }}</span>
-    
+    <span class="user-name" onclick="toggleDropdown()">{{ request.user.teacher.full_name }}</span>
+
     <div class="dropdown-menu" id="dropdownMenu">
-      <a href="#">Профиль</a>
+      <a href="{% url 'teacher_profile' %}">Профиль</a>
       <a href="{% url 'logout' %}">Выйти</a>
     </div>
   </div>
