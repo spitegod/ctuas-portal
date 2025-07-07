@@ -237,6 +237,69 @@ input[type="submit"]:hover {
   border-radius: 6px;
   font-size: 14px;
 }
+
+
+
+/*Форма ППС */
+
+    .form-box {
+      background: white;
+      max-width: 700px;
+      margin: auto;
+      padding: 20px 25px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .form-box h2 {
+      margin-bottom: 15px;
+      font-size: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 8px 10px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    .form-columns {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .form-columns .form-col {
+      flex: 1;
+      min-width: 260px;
+    }
+
+    .submit-button {
+      width: 100%;
+      padding: 10px;
+      font-size: 15px;
+      background-color: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .submit-button:hover {
+      background-color: #1565c0;
+    }
   </style>
 </head>
 <body>
@@ -745,46 +808,75 @@ input[type="submit"]:hover {
         <div id="tab4" class="tab-content">
             <h2>Профессорско-преподавательский состав</h2>
 
-            <form method="post">
+            <div class="form-box">
+              <h2>Добавление преподавателя</h2>
+              <form method="post">
                 {% csrf_token %}
                 <input type="hidden" name="action" value="add_teacher">
 
-                <label>ФИО:</label>
-                <input type="text" name="full_name" required>
+                <div class="form-group">
+                  <label>ФИО:</label>
+                  <input type="text" name="full_name" required>
+                </div>
 
-                <label>Тип:</label>
-                <select name="teacher_type" required>
-                    <option value="">--Выберите--</option>
-                    <option value="Внутр">Внутр</option>
-                    <option value="Шт">Шт</option>
-                </select>
+                <div class="form-columns">
+                  <div class="form-col">
+                    <div class="form-group">
+                      <label>Тип:</label>
+                      <select name="teacher_type" required>
+                        <option value="">--Выберите--</option>
+                        <option value="Внутр">Внутр</option>
+                        <option value="Шт">Шт</option>
+                      </select>
+                    </div>
 
-                <label>Должность:</label>
-                <input type="text" name="position" required>
+                    <div class="form-group">
+                      <label>Должность:</label>
+                      <input type="text" name="position" required>
+                    </div>
 
-                <label>Ставка:</label>
-                <input type="text" name="rate" required>
+                    <div class="form-group">
+                      <label>Ставка:</label>
+                      <input type="text" name="rate" required>
+                    </div>
 
-                <label>Степень:</label>
-                <input type="text" name="degree">
+                    <div class="form-group">
+                      <label>Степень:</label>
+                      <input type="text" name="degree">
+                    </div>
 
-                <label>Звание:</label>
-                <input type="text" name="rank">
+                    <div class="form-group">
+                      <label>Звание:</label>
+                      <input type="text" name="rank">
+                    </div>
+                  </div>
 
-                <label>Почта:</label>
-                <input type="email" name="email">
+                  <div class="form-col">
+                    <div class="form-group">
+                      <label>Почта:</label>
+                      <input type="email" name="email">
+                    </div>
 
-                <label>Телефон:</label>
-                <input type="text" name="phone">
+                    <div class="form-group">
+                      <label>Телефон:</label>
+                      <input type="text" name="phone">
+                    </div>
 
-                <label>Дата рождения:</label>
-                <input type="date" name="birthday">
+                    <div class="form-group">
+                      <label>Дата рождения:</label>
+                      <input type="date" name="birthday">
+                    </div>
 
-                <label>Домашний адрес:</label>
-                <input type="text" name="address">
+                    <div class="form-group">
+                      <label>Домашний адрес:</label>
+                      <input type="text" name="address">
+                    </div>
+                  </div>
+                </div>
 
-                <button type="submit">Добавить преподавателя</button>
-            </form>
+                <button type="submit" class="submit-button">Добавить преподавателя</button>
+              </form>
+            </div>
 
             <h3>Список преподавателей</h3>
             <table>
