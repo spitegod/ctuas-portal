@@ -300,6 +300,39 @@ input[type="submit"]:hover {
     .submit-button:hover {
       background-color: #1565c0;
     }
+
+
+
+
+
+    /* Таблица уровней доступа */
+    .access-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  background-color: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  font-size: 14px;
+}
+
+.access-table th,
+.access-table td {
+  padding: 10px 12px;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+}
+
+.access-table th {
+  background-color: #f0f4fa;
+  font-weight: 600;
+  color: #333;
+}
+
+.access-table tr:nth-child(even) {
+  background-color: #f9fbff;
+}
   </style>
 </head>
 <body>
@@ -470,7 +503,37 @@ input[type="submit"]:hover {
 
     <button type="submit" style="margin-top: 20px;">Сохранить права</button>
   </form>
+<hr style="margin: 40px 0 20px;">
 
+<h3>Текущие уровни доступа сотрудников</h3>
+<table class="access-table">
+  <thead>
+    <tr>
+      <th>Логин</th>
+      <th>Преподаватель</th>
+      <th>Администратор</th>
+      <th>Публикации</th>
+      <th>ИП</th>
+      <th>ППС</th>
+      <th>Орг. работа</th>
+      <th>Научная работа</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for user in staff_users %}
+      <tr>
+        <td>{{ user.username }}</td>
+        <td>{{ user.is_staff|yesno:"✓,✗" }}</td>
+        <td>{{ user.is_superuser|yesno:"✓,✗" }}</td>
+        <td>{{ user.can_edit_publications|yesno:"✓,✗" }}</td>
+        <td>{{ user.can_edit_ip|yesno:"✓,✗" }}</td>
+        <td>{{ user.can_edit_pps|yesno:"✓,✗" }}</td>
+        <td>{{ user.can_edit_org_work|yesno:"✓,✗" }}</td>
+        <td>{{ user.can_edit_sci_work|yesno:"✓,✗" }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
 {% if messages %}
   <div class="alert-container">
     {% for message in messages %}
@@ -956,6 +1019,10 @@ input[type="submit"]:hover {
         const box = document.querySelector('.profile-box');
         if (!box.contains(e.target)) box.classList.remove('open');
         });
+
+
+
+        
     </script>
 </body>
 </html>

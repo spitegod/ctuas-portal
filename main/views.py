@@ -96,15 +96,30 @@ def dashboard(request):
                 is_staff = request.POST.get("is_staff") == "True"
                 is_superuser = request.POST.get("is_superuser") == "True"
 
+                can_edit_publications = request.POST.get("can_edit_publications") == "True"
+                can_edit_ip = request.POST.get("can_edit_ip") == "True"
+                can_edit_pps = request.POST.get("can_edit_pps") == "True"
+                can_edit_org_work = request.POST.get("can_edit_org_work") == "True"
+                can_edit_sci_work = request.POST.get("can_edit_sci_work") == "True"
+
                 try:
                     user = User.objects.get(id=user_id)
+
                     if user == request.user and not is_superuser:
                         messages.warning(request, "Нельзя снять права суперпользователя у самого себя.")
                     else:
                         user.is_staff = is_staff
                         user.is_superuser = is_superuser
+
+                        user.can_edit_publications = can_edit_publications
+                        user.can_edit_ip = can_edit_ip
+                        user.can_edit_pps = can_edit_pps
+                        user.can_edit_org_work = can_edit_org_work
+                        user.can_edit_sci_work = can_edit_sci_work
+
                         user.save()
                         messages.success(request, f"Права пользователя '{user.username}' обновлены.", extra_tags="access")
+
                 except User.DoesNotExist:
                     messages.error(request, "Пользователь не найден.", extra_tags="access")
 
