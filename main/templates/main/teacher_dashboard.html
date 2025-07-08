@@ -743,11 +743,11 @@ input:focus + .bar:before {
             <label>Наименование темы, шифр:</label>
 <textarea name="topic" required="">{{ edit_work_tab5.topic|default:'' }}</textarea>
 <label>Должность:</label>
-<input name="position" required="" type="text" value="{{ edit_work_tab5.position|default:'' }}"/>
+<input name="position" required type="text" value="{{ edit_work_tab5.position|default:'' }}">
 <label>Начало:</label>
-<input name="start_date" required="" type="date" value="{{ edit_work_tab5.start_date|default:'' }}"/>
+<input name="start_date" required type="date" value="{{ edit_work_tab5.start_date|date:'Y-m-d' }}">
 <label>Окончание:</label>
-<input name="end_date" type="date" value="{{ edit_work_tab5.end_date|default:'' }}"/>&gt;
+<input name="end_date" type="date" value="{{ edit_work_tab5.end_date|date:'Y-m-d' }}">
         
             <label>Отметка о выполнении:</label>
 <input name="completed" type="text" value="{{ edit_work_tab5.completed|default:'' }}"/>
@@ -915,7 +915,7 @@ input:focus + .bar:before {
       <input type="hidden" name="work_id" value="{{ edit_work_tab9.id }}">
     {% endif %}
     <label>Дата:</label>
-    <input type="date" name="date" value="{{ edit_work_tab9.date|default:'' }}"><br>
+    <input type="date" name="date" value="{{ edit_work_tab9.date|date:'Y-m-d'  }}"><br>
     <label>Содержание замечаний:</label>
     <input type="text" name="content" value="{{ edit_work_tab9.content|default:'' }}"><br>
     <button type="submit" class="button-add">
@@ -968,7 +968,7 @@ input:focus + .bar:before {
     <label>Название: <input type="text" name="title" value="{{ edit_work_tab10.title|default:'' }}"></label>
     <label>Место: <input type="text" name="place" value="{{ edit_work_tab10.location|default:'' }}"></label>
     <label>Номер документа: <input type="text" name="document_number" value="{{ edit_work_tab10.document_number|default:'' }}"></label>
-    <label>Дата: <input type="date" name="date" value="{{ edit_work_tab10.date|default:'' }}"></label>
+    <label>Дата: <input type="date" name="date" value="{{ edit_work_tab10.date|date:'Y-m-d'  }}"></label>
     <label>Срок прохождения: <input type="text" name="duration" value="{{ edit_work_tab10.duration|default:'' }}"></label>
     <label>Объём: <input type="text" name="volume" value="{{ edit_work_tab10.volume|default:'' }}"></label>
     <button type="submit" class="button-add">{% if edit_work_tab10 %}Сохранить изменения{% else %}Добавить{% endif %}</button>
