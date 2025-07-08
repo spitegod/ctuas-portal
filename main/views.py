@@ -8,7 +8,7 @@ from main.models import Teacher, FirstSem, SecondSem, MethodicalWork, OrgMethodi
 from django.db.models import Q
 from django.shortcuts import render, redirect
 from main.models import Teacher, EducationalMethodicalWork, OrganizationalMethodicalWork,ResearchWork
-from .models import Teacher, EducationalMethodicalWork, OrganizationalMethodicalWork, ResearchWork, ContractResearchWork,ScientificMethodicalWork,SocialEducationalWork,TeacherRemark, QualificationUpgrade, QualificationUpgrade, PublishedSciWork, Raising, Recommendation
+from .models import Teacher, EducationalMethodicalWork, OrganizationalMethodicalWork, ResearchWork, ContractResearchWork,ScientificMethodicalWork,SocialEducationalWork,TeacherRemark, QualificationUpgrade, QualificationUpgrade, PublishedSciWork, Raising, Recommendation,TeacherPermission
 from .forms import EducationalMethodicalWorkForm, OrganizationalMethodicalWorkForm, ResearchWorkForm, ContractResearchWorkForm
 import openpyxl
 from django.http import HttpResponse
@@ -101,24 +101,27 @@ def dashboard(request):
                 can_edit_pps = request.POST.get("can_edit_pps") == "True"
                 can_edit_org_work = request.POST.get("can_edit_org_work") == "True"
                 can_edit_sci_work = request.POST.get("can_edit_sci_work") == "True"
-
+                
                 try:
                     user = User.objects.get(id=user_id)
 
                     if user == request.user and not is_superuser:
                         messages.warning(request, "Нельзя снять права суперпользователя у самого себя.")
-                    else:
-                        user.is_staff = is_staff
-                        user.is_superuser = is_superuser
+                    else:      
+                      user.is_staff = is_staff
+                      user.is_superuser = is_superuser
+                      user.save()
 
-                        user.can_edit_publications = can_edit_publications
-                        user.can_edit_ip = can_edit_ip
-                        user.can_edit_pps = can_edit_pps
-                        user.can_edit_org_work = can_edit_org_work
-                        user.can_edit_sci_work = can_edit_sci_work
-
-                        user.save()
-                        messages.success(request, f"Права пользователя '{user.username}' обновлены.", extra_tags="access")
+                      teacher = Teacher.objects.filter(user=user).first()
+                      if teacher:
+                            permissions, _ = TeacherPermission.objects.get_or_create(teacher=teacher)
+                            permissions.can_edit_publications = can_edit_publications
+                            permissions.can_edit_ip = can_edit_ip
+                            permissions.can_edit_pps = can_edit_pps
+                            permissions.can_edit_org_work = can_edit_org_work
+                            permissions.can_edit_sci_work = can_edit_sci_work
+                            permissions.save()
+                      messages.success(request, f"Права пользователя '{user.username}' обновлены.", extra_tags="access")
 
                 except User.DoesNotExist:
                     messages.error(request, "Пользователь не найден.", extra_tags="access")
@@ -232,6 +235,8 @@ def dashboard(request):
     
 def teacher_dashboard(request):
     teacher = request.user.teacher
+    permissions = getattr(teacher, 'permissions', None)
+    print(f"[DEBUG] can_edit_pps = {permissions.can_edit_pps if permissions else 'NO PERMS'}")
     last_initial = teacher.full_name.strip()[0].upper() if teacher.full_name else ''
     # === Выбор учебного года ===
     selected_year = request.GET.get("year") or request.session.get("selected_year")
@@ -524,29 +529,43 @@ def teacher_dashboard(request):
             return redirect(f'/dashboard?tab=10')
 
     
-    
     context = {
-        'works': EducationalMethodicalWork.objects.filter(teacher=teacher, academic_year=selected_year),
-    'org_works': OrganizationalMethodicalWork.objects.filter(teacher=teacher),  # убрано academic_year
+    # Данные по вкладкам
+    'works': EducationalMethodicalWork.objects.filter(teacher=teacher, academic_year=selected_year),
+    'org_works': OrganizationalMethodicalWork.objects.filter(teacher=teacher),
     'research_works': ResearchWork.objects.filter(teacher=teacher),
     'contract_works': ContractResearchWork.objects.filter(teacher=teacher),
     'scientific_works': ScientificMethodicalWork.objects.filter(teacher=teacher),
     'social_works': SocialEducationalWork.objects.filter(teacher=teacher),
     'teacher_remarks': TeacherRemark.objects.filter(teacher=teacher),
     'qualification_upgrades': QualificationUpgrade.objects.filter(teacher=teacher),
-        'edit_work_tab2': edit_work_tab2,
-        'edit_work_tab3': edit_work_tab3,
-        'edit_work_tab4': edit_work_tab4,
-        'edit_work_tab5': edit_work_tab5,
-        'edit_work_tab6': edit_work_tab6,
-        'edit_work_tab8': edit_work_tab8,
-        'edit_work_tab9': edit_work_tab9,
-        'edit_work_tab10': edit_work_tab10,
-        'active_tab': active_tab,
-        'selected_year': selected_year,
-        'available_years': ["2022–2023", "2023–2024", "2024–2025"],  # временно
-        'last_initial': last_initial,
-    }
+    
+    'permissions': permissions,
+
+    # Редактируемые записи
+    'edit_work_tab2': edit_work_tab2,
+    'edit_work_tab3': edit_work_tab3,
+    'edit_work_tab4': edit_work_tab4,
+    'edit_work_tab5': edit_work_tab5,
+    'edit_work_tab6': edit_work_tab6,
+    'edit_work_tab8': edit_work_tab8,
+    'edit_work_tab9': edit_work_tab9,
+    'edit_work_tab10': edit_work_tab10,
+
+    # Учебные года
+    'selected_year': selected_year,
+    'available_years': ["2022–2023", "2023–2024", "2024–2025"],
+
+    # Права доступа
+    'can_edit_pps': permissions.can_edit_pps if permissions else False,
+
+    # Преподаватели (для tab11, только если разрешено)
+    'teachers': Teacher.objects.all() if permissions and permissions.can_edit_pps else [],
+
+    # Остальное
+    'active_tab': active_tab,
+    'last_initial': last_initial,
+}
 
     return render(request, 'main/teacher_dashboard.html', context)
 

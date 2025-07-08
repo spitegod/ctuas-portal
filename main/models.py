@@ -231,3 +231,15 @@ class Raising(models.Model):
 class Recommendation(models.Model):
     teacher = models.ForeignKey('main.Teacher', on_delete=models.CASCADE, related_name='recommendation')
     recom = models.TextField("Рекомендация кафедры по избранию преподавателя")   
+    
+class TeacherPermission(models.Model):
+    teacher = models.OneToOneField('Teacher', on_delete=models.CASCADE, related_name='permissions')
+
+    can_edit_publications = models.BooleanField("Может редактировать публикации", default=False)
+    can_edit_ip = models.BooleanField("Может редактировать индивидуальный план", default=False)
+    can_edit_pps = models.BooleanField("Может редактировать ППС", default=False)
+    can_edit_org_work = models.BooleanField("Может редактировать орг. работу", default=False)
+    can_edit_sci_work = models.BooleanField("Может редактировать научную работу", default=False)
+
+    def __str__(self):
+        return f"Права для {self.teacher.full_name}"

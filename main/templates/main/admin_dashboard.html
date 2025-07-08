@@ -525,11 +525,13 @@ input[type="submit"]:hover {
         <td>{{ user.username }}</td>
         <td>{{ user.is_staff|yesno:"✓,✗" }}</td>
         <td>{{ user.is_superuser|yesno:"✓,✗" }}</td>
-        <td>{{ user.can_edit_publications|yesno:"✓,✗" }}</td>
-        <td>{{ user.can_edit_ip|yesno:"✓,✗" }}</td>
-        <td>{{ user.can_edit_pps|yesno:"✓,✗" }}</td>
-        <td>{{ user.can_edit_org_work|yesno:"✓,✗" }}</td>
-        <td>{{ user.can_edit_sci_work|yesno:"✓,✗" }}</td>
+        {% with perms=user.teacher.permissions %}
+          <td>{{ perms.can_edit_publications|yesno:"✓,✗" }}</td>
+          <td>{{ perms.can_edit_ip|yesno:"✓,✗" }}</td>
+          <td>{{ perms.can_edit_pps|yesno:"✓,✗" }}</td>
+          <td>{{ perms.can_edit_org_work|yesno:"✓,✗" }}</td>
+          <td>{{ perms.can_edit_sci_work|yesno:"✓,✗" }}</td>
+        {% endwith %}
       </tr>
     {% endfor %}
   </tbody>

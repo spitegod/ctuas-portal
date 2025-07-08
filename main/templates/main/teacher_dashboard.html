@@ -557,6 +557,12 @@ input:focus + .bar:before {
   <div class="tab-button {% if active_tab == 8 %}active{% endif %}" onclick="showTab(8)">Общественно-воспитательная</div>
   <div class="tab-button {% if active_tab == 9 %}active{% endif %}" onclick="showTab(9)">Замечания</div>
   <div class="tab-button {% if active_tab == 10 %}active{% endif %}" onclick="showTab(10)">Повышение квалификации</div>
+
+  {% if can_edit_pps %}
+  <div class="tab-button {% if active_tab == 11 %}active{% endif %}" onclick="showTab(11)">
+    Редактирование ППС
+  </div>
+{% endif %}
 </div>
 <div class="main-content">
   <!-- Контейнер для вкладок -->
@@ -1013,10 +1019,86 @@ input:focus + .bar:before {
     </tbody>
   </table>
 </div>
+  
+{% if can_edit_pps %}
+<div class="tab-content {% if active_tab == 11 %}active{% endif %}" id="tab11">
+  <h2>Профессорско-преподавательский состав</h2>
+
+  <div class="form-box">
+    <h2>Добавление преподавателя</h2>
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="add_teacher">
+      <div class="form-columns">
+        <div class="form-col">
+          <div class="form-group"><label>ФИО:</label><input type="text" name="full_name" required></div>
+          <div class="form-group"><label>Тип:</label>
+            <select name="teacher_type" required>
+              <option value="">--Выберите--</option>
+              <option value="Внутр">Внутр</option>
+              <option value="Шт">Шт</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Должность:</label><input type="text" name="position" required></div>
+          <div class="form-group"><label>Ставка:</label><input type="text" name="rate" required></div>
+          <div class="form-group"><label>Степень:</label><input type="text" name="degree"></div>
+          <div class="form-group"><label>Звание:</label><input type="text" name="rank"></div>
+        </div>
+        <div class="form-col">
+          <div class="form-group"><label>Почта:</label><input type="email" name="email"></div>
+          <div class="form-group"><label>Телефон:</label><input type="text" name="phone"></div>
+          <div class="form-group"><label>Дата рождения:</label><input type="date" name="birthday"></div>
+          <div class="form-group"><label>Домашний адрес:</label><input type="text" name="address"></div>
+        </div>
+      </div>
+      <button type="submit" class="submit-button">Добавить преподавателя</button>
+    </form>
+  </div>
+
+  <h3>Список преподавателей</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th><th>ФИО</th><th>Тип</th><th>Должность</th><th>Ставка</th>
+        <th>Степень</th><th>Звание</th><th>Почта</th><th>Телефон</th>
+        <th>Дата рождения</th><th>Адрес</th><th>Логин</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for teacher in teachers %}
+      <tr>
+        <td>{{ teacher.id }}</td>
+        <td>{{ teacher.full_name }}</td>
+        <td>{{ teacher.teacher_type }}</td>
+        <td>{{ teacher.position }}</td>
+        <td>{{ teacher.rate }}</td>
+        <td>{{ teacher.degree }}</td>
+        <td>{{ teacher.rank }}</td>
+        <td>{{ teacher.email }}</td>
+        <td>{{ teacher.phone }}</td>
+        <td>{{ teacher.birthday }}</td>
+        <td>{{ teacher.address }}</td>
+        <td>{% if teacher.user %}{{ teacher.user.username }}{% else %}-{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h3>Удалить преподавателя</h3>
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="delete_teacher">
+    <select name="delete_teacher" required>
+      {% for teacher in teachers %}
+      <option value="{{ teacher.id }}">{{ teacher.full_name }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="button-add">Удалить</button>
+  </form>
 </div>
-</div>
-</div>
-</div>
+{% endif %}
+</div> 
+</div> 
 </div>
 <script>
   function toggleDropdown() {
@@ -1051,8 +1133,17 @@ input:focus + .bar:before {
   window.addEventListener('DOMContentLoaded', function () {
     let activeTab = parseInt("{{ active_tab|default:'1' }}");
     if (isNaN(activeTab)) activeTab = 1;
-    showTab(activeTab);
-  });
+  
+    // Задержка 0 — выполнится в конце очереди событий (гарантированный доступ к DOM)
+    setTimeout(() => {
+      showTab(activeTab);
+    }, 0);
+  })
   </script>
+  {% if can_edit_pps %}
+  <p style="color:green;">✅ tab11 добавлен</p>
+{% else %}
+  <p style="color:red;">❌ tab11 не добавлен</p>
+{% endif %}
 </body>
 </html>
