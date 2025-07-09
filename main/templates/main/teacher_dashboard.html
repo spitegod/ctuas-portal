@@ -568,6 +568,10 @@ input:focus + .bar:before {
   Список сотрудников
 </div>
 {% endif %}
+{% if can_edit_ip%}
+<div class="tab-button {% if active_tab == 13 %}active{% endif %}" onclick="showTab(13)">
+  Уровни доступа преподавателей
+</div>
 </div>
 <div class="main-content">
   <!-- Контейнер для вкладок -->
@@ -1172,6 +1176,37 @@ input:focus + .bar:before {
 </div>
 {% endif %}
 
+</div>
+{% if can_edit_ip %}
+<div class="tab-content {% if active_tab == '13' %}active{% endif %}" id="tab13">
+  <h2>Уровни доступа преподавателей</h2>
+
+  <table class="access-table">
+    <thead>
+      <tr>
+        <th>ФИО преподавателя</th>
+        <th>Привязан к логину</th>
+        <th>Список сотрудников</th>
+        <th>Уровни доступа</th>
+        <th>Ред. ППС</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for teacher in teachers %}
+        <tr>
+          <td>{{ teacher.full_name }}</td>
+          <td>{{ teacher.user.username if teacher.user else "—" }}</td>
+          {% with perms=teacher.permissions %}
+            <td>{{ perms.can_manage_accounts|yesno:"✓,✗" }}</td>
+            <td>{{ perms.can_edit_ip|yesno:"✓,✗" }}</td>
+            <td>{{ perms.can_edit_pps|yesno:"✓,✗" }}</td>
+          {% endwith %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
 </div>
 </div>
 </div>

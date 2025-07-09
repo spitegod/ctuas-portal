@@ -77,3 +77,38 @@ def handle_delete_user(request, teacher=None):
     except User.DoesNotExist:
         messages.error(request, "Пользователь не найден.")
         return False
+    
+def handle_update_permissions(request):
+    user_id = request.POST.get("user_id")
+    is_staff = request.POST.get("is_staff") == "True"
+    is_superuser = request.POST.get("is_superuser") == "True"
+    can_manage_accounts = request.POST.get("can_manage_accounts") == "True"
+    can_edit_ip = request.POST.get("can_edit_ip") == "True"
+    can_edit_pps = request.POST.get("can_edit_pps") == "True"
+
+    try:
+        user = User.objects.get(id=user_id)
+
+        # Нельзя убрать суперправа у самого себя
+        if user == request.user and not is_superuser:
+            messages.warning(request, "Нельзя снять права суперпользователя у самого себя.")
+            return
+
+        user.is_staff = is_staff
+        user.is_superuser = is_superuser
+        user.save()
+
+        teacher = Teacher.objects.filter(user=user).first()
+        if teacher:
+            perm, _ = TeacherPermission.objects.get_or_create(teacher=teacher)
+            perm.can_manage_accounts = can_manage_accounts
+            perm.can_edit_ip = can_edit_ip
+            perm.can_edit_pps = can_edit_pps
+            perm.save()
+        else:
+            messages.warning(request, f"У пользователя '{user.username}' не найден преподаватель. Права не обновлены.")
+
+        messages.success(request, f"Права пользователя '{user.username}' успешно обновлены.", extra_tags="access")
+
+    except User.DoesNotExist:
+        messages.error(request, "Пользователь не найден.", extra_tags="access")
