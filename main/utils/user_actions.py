@@ -51,22 +51,25 @@ def handle_delete_user(request, teacher=None):
     try:
         user_to_delete = User.objects.get(id=user_id)
 
-        # Проверка прав, если удаляет преподаватель
-        if teacher:
-            # Получаем или создаём права, если их нет
-            permissions, created = TeacherPermission.objects.get_or_create(teacher=teacher)
+        # Защита от самоуничтожения
+        if request.user == user_to_delete:
+            messages.error(request, "Вы не можете удалить самого себя.")
+            return False
 
-            print(f"[DEBUG] can_manage_accounts = {permissions.can_manage_accounts}")
+        # Преподаватель не может удалить админа
+        if user_to_delete.is_superuser:
+            messages.error(request, "Нельзя удалить администратора.")
+            return False
+
+        # Если удаляет не суперпользователь, проверяем права
+        if teacher:
+            permissions, _ = TeacherPermission.objects.get_or_create(teacher=teacher)
 
             if not permissions.can_manage_accounts:
                 messages.error(request, "У вас нет прав на удаление пользователей.")
                 return False
 
-            # Дополнительно: запрещаем преподавателю удалять чужих пользователей
-            if not Teacher.objects.filter(user=user_to_delete, id=teacher.id).exists():
-                messages.error(request, "Нельзя удалить этого пользователя.")
-                return False
-
+        # Всё прошло — удаляем
         user_to_delete.delete()
         messages.success(request, "Пользователь успешно удалён.")
         return True
