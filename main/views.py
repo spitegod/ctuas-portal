@@ -16,6 +16,9 @@ from io import BytesIO
 import openpyxl
 from openpyxl.utils import get_column_letter
 from datetime import datetime
+from .utils.user_actions import handle_add_user, handle_delete_user
+from django.urls import reverse
+from django.http import HttpResponseForbidden
 
 
 def login_view(request):
@@ -44,89 +47,62 @@ def logout_view(request):
 
 @login_required
 def dashboard(request):
-    if request.user.is_superuser:
-        if request.method == 'POST':
-            action = request.POST.get('action')
+    tab = request.GET.get('tab') or request.POST.get('active_tab') or '1'
 
-            # === Добавление пользователя ===
-            if action == 'add':
-                username = request.POST.get('username')
-                password = request.POST.get('password')
-                teacher_id = request.POST.get('teacher_id')
+    if request.method == 'POST':
+        action = request.POST.get('action')
 
-                if not username or not password:
-                    messages.error(request, "Имя пользователя и пароль обязательны.")
-                elif User.objects.filter(username=username).exists():
-                    messages.warning(request, f"Пользователь '{username}' уже существует.")
+        if action == 'update_permissions':
+            user_id = request.POST.get("user_id")
+            is_staff = request.POST.get("is_staff") == "True"
+            is_superuser = request.POST.get("is_superuser") == "True"
+
+            can_manage_accounts = request.POST.get("can_manage_accounts") == "True"
+            can_edit_ip = request.POST.get("can_edit_ip") == "True"
+            can_edit_pps = request.POST.get("can_edit_pps") == "True"
+
+            try:
+                user = User.objects.get(id=user_id)
+
+                if user == request.user and not is_superuser:
+                    messages.warning(request, "Нельзя снять права суперпользователя у самого себя.")
                 else:
-                    user = User.objects.create_user(username=username, password=password, is_staff=True)
+                    user.is_staff = is_staff
+                    user.is_superuser = is_superuser
+                    user.save()
 
-                    if teacher_id:
-                        try:
-                            teacher = Teacher.objects.get(id=teacher_id)
-                            if teacher.user:
-                                messages.warning(request, f"У преподавателя '{teacher.full_name}' уже есть логин.")
-                            else:
-                                teacher.user = user
-                                teacher.save()
-                                messages.success(request, f"Пользователь '{username}' привязан к преподавателю '{teacher.full_name}'.")
-                        except Teacher.DoesNotExist:
-                            messages.error(request, "Преподаватель не найден.")
+                    teacher = Teacher.objects.filter(user=user).first()
+                    if teacher:
+                        permissions, _ = TeacherPermission.objects.get_or_create(teacher=teacher)
+                        permissions.can_manage_accounts = can_manage_accounts
+                        permissions.can_edit_ip = can_edit_ip
+                        permissions.can_edit_pps = can_edit_pps
+                        permissions.save()
                     else:
-                        Teacher.objects.create(full_name=username, user=user)
-                        messages.success(request, f"Создан новый преподаватель и пользователь '{username}'.")
+                        messages.warning(request, f"У пользователя '{user.username}' не найден преподаватель. Права не обновлены.")
 
-            # === Удаление пользователя ===
+                    messages.success(request, f"Права пользователя '{user.username}' успешно обновлены.", extra_tags="access")
+
+            except User.DoesNotExist:
+                messages.error(request, "Пользователь не найден.", extra_tags="access")
+
+        elif request.user.is_superuser:
+            if action == 'add':
+                handle_add_user(request)
+                return redirect(f"{reverse('dashboard')}?tab={tab}")
             elif action == 'delete':
-                user_id = request.POST.get('delete_user')
-                try:
-                    user = User.objects.get(id=user_id)
-                    if user.is_superuser:
-                        messages.warning(request, "Нельзя удалить суперпользователя.")
-                    else:
-                        Teacher.objects.filter(user=user).update(user=None)
-                        user.delete()
-                        messages.success(request, f"Пользователь '{user.username}' удалён.")
-                except User.DoesNotExist:
-                    messages.error(request, "Пользователь не найден.")
+                handle_delete_user(request)
+                return redirect(f"{reverse('dashboard')}?tab={tab}")
 
-            # === Изменение прав доступа ===
-            elif action == 'update_permissions':
-                user_id = request.POST.get("user_id")
-                is_staff = request.POST.get("is_staff") == "True"
-                is_superuser = request.POST.get("is_superuser") == "True"
+        else:
+            teacher = Teacher.objects.filter(user=request.user).first()
 
-                can_edit_publications = request.POST.get("can_edit_publications") == "True"
-                can_edit_ip = request.POST.get("can_edit_ip") == "True"
-                can_edit_pps = request.POST.get("can_edit_pps") == "True"
-                can_edit_org_work = request.POST.get("can_edit_org_work") == "True"
-                can_edit_sci_work = request.POST.get("can_edit_sci_work") == "True"
-                
-                try:
-                    user = User.objects.get(id=user_id)
-
-                    if user == request.user and not is_superuser:
-                        messages.warning(request, "Нельзя снять права суперпользователя у самого себя.")
-                    else:      
-                      user.is_staff = is_staff
-                      user.is_superuser = is_superuser
-                      user.save()
-
-                      teacher = Teacher.objects.filter(user=user).first()
-                      if teacher:
-                            permissions, _ = TeacherPermission.objects.get_or_create(teacher=teacher)
-                            permissions.can_edit_publications = can_edit_publications
-                            permissions.can_edit_ip = can_edit_ip
-                            permissions.can_edit_pps = can_edit_pps
-                            permissions.can_edit_org_work = can_edit_org_work
-                            permissions.can_edit_sci_work = can_edit_sci_work
-                            permissions.save()
-                      messages.success(request, f"Права пользователя '{user.username}' обновлены.", extra_tags="access")
-
-                except User.DoesNotExist:
-                    messages.error(request, "Пользователь не найден.", extra_tags="access")
-
-            # === Добавление преподавателя ===
+            if action == 'add_user_from_teacher':
+                handle_add_user(request)
+                return redirect(f"{reverse('dashboard')}?tab=12")
+            elif action == 'delete_user_from_teacher':
+                handle_delete_user(request, teacher)
+                return redirect(f"{reverse('dashboard')}?tab=12")
             elif action == 'add_teacher':
                 full_name = request.POST.get('full_name')
                 teacher_type = request.POST.get('teacher_type')
@@ -138,7 +114,6 @@ def dashboard(request):
                 phone = request.POST.get('phone')
                 birthday = request.POST.get('birthday') or None
                 address = request.POST.get('address')
-
                 if not full_name or not teacher_type or not position or not rate:
                     messages.error(request, "Поля ФИО, Тип, Должность и Ставка обязательны.")
                 else:
@@ -156,7 +131,6 @@ def dashboard(request):
                     )
                     messages.success(request, f"Преподаватель '{full_name}' успешно добавлен.")
 
-            # === Удаление преподавателя ===
             elif action == 'delete_teacher':
                 teacher_id = request.POST.get('delete_teacher')
                 try:
@@ -169,26 +143,21 @@ def dashboard(request):
                     messages.success(request, f"Преподаватель '{name}' удалён.")
                 except Teacher.DoesNotExist:
                     messages.error(request, "Преподаватель не найден.")
-            
-            # === Выбор преподавателя ===
+
             elif action == 'select_ip_teacher':
                 selected_teacher_id = request.POST.get('selected_teacher_id')
                 if selected_teacher_id:
                     request.session['selected_teacher_id'] = selected_teacher_id
 
-        # === Подготовка данных для отображения ===
-        staff_users = User.objects.filter(
-            Q(is_staff=True) | Q(teacher__isnull=False)
-        ).distinct()
+    if request.user.is_superuser:
+        staff_users = User.objects.filter(Q(is_staff=True) | Q(teacher__isnull=False)).distinct()
 
         selected_teacher = None
         selected_teacher_id = request.session.get('selected_teacher_id')
-
         if selected_teacher_id:
             try:
                 selected_teacher = Teacher.objects.get(id=selected_teacher_id)
             except Teacher.DoesNotExist:
-                selected_teacher = None
                 request.session.pop('selected_teacher_id', None)
 
         teachers = Teacher.objects.all()
@@ -206,6 +175,7 @@ def dashboard(request):
         recommendation = Recommendation.objects.filter(teacher=selected_teacher) if selected_teacher else []
 
         return render(request, 'main/admin_dashboard.html', {
+            'active_tab': int(tab),
             'staff_users': staff_users,
             'teachers': teachers,
             'disciplines_firstsem': discipines_firstsem,
@@ -223,21 +193,19 @@ def dashboard(request):
             'selected_teacher': selected_teacher
         })
 
-    # === Для обычных преподавателей ===
-    elif request.user.is_staff:
-         return teacher_dashboard(request)
+    elif request.user.is_staff and not request.user.is_superuser:
+        return teacher_dashboard(request, tab=tab)
 
-   
+    return HttpResponseForbidden("Доступ запрещён.")
 
-    # === Для студентов (если реализовано) ===
-    else:
-        return render(request, 'main/student_dashboard.html')
+
     
-def teacher_dashboard(request):
+def teacher_dashboard(request,tab="1"):
     teacher = request.user.teacher
     permissions = getattr(teacher, 'permissions', None)
     print(f"[DEBUG] can_edit_pps = {permissions.can_edit_pps if permissions else 'NO PERMS'}")
     last_initial = teacher.full_name.strip()[0].upper() if teacher.full_name else ''
+    active_tab = int(tab)
     # === Выбор учебного года ===
     selected_year = request.GET.get("year") or request.session.get("selected_year")
     if not selected_year:
@@ -247,10 +215,15 @@ def teacher_dashboard(request):
 
     edit_id_tab2 = edit_id_tab3 = edit_id_tab4 = edit_id_tab5 = edit_id_tab6 = edit_id_tab8 = edit_id_tab9 = edit_id_tab10 = None
     edit_work_tab2 = edit_work_tab3 = edit_work_tab4 = edit_work_tab5 = edit_work_tab6 = edit_work_tab8 = edit_work_tab9 = edit_work_tab10 = None
-    active_tab = int(request.GET.get("tab") or request.POST.get("active_tab") or 1)
+    
 
     if request.method == 'POST':
         form_type = request.POST.get("form_type")
+        action = request.POST.get("action")
+        if action == "add_user_from_teacher":
+            return handle_add_user(request, teacher)
+        elif action == "delete_user_from_teacher":
+             return handle_delete_user(request, teacher)
 
         # === Вкладка 2: Учебно-методическая ===
         if request.POST.get("edit_teaching_method"):
@@ -551,6 +524,12 @@ def teacher_dashboard(request):
     'edit_work_tab8': edit_work_tab8,
     'edit_work_tab9': edit_work_tab9,
     'edit_work_tab10': edit_work_tab10,
+    
+     'active_tab': int(tab),
+    'teacher': teacher,
+    'permissions': permissions,
+    'can_manage_accounts': permissions.can_manage_accounts if permissions else False,
+    'staff_users': User.objects.filter(is_staff=True) if permissions and permissions.can_manage_accounts else [],
 
     # Учебные года
     'selected_year': selected_year,
@@ -558,6 +537,7 @@ def teacher_dashboard(request):
 
     # Права доступа
     'can_edit_pps': permissions.can_edit_pps if permissions else False,
+'can_manage_accounts': permissions.can_manage_accounts if permissions else False,
 
     # Преподаватели (для tab11, только если разрешено)
     'teachers': Teacher.objects.all() if permissions and permissions.can_edit_pps else [],
@@ -565,6 +545,10 @@ def teacher_dashboard(request):
     # Остальное
     'active_tab': active_tab,
     'last_initial': last_initial,
+    
+    # Для отображения списка сотрудников (если есть доступ)
+'can_manage_accounts': permissions.can_manage_accounts if permissions else False,
+'staff_users': User.objects.filter(is_staff=True) if permissions and permissions.can_manage_accounts else [],
 }
 
     return render(request, 'main/teacher_dashboard.html', context)

@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import export_qualification_excel,export_teaching_excel,export_contract_excel,export_organizational_excel,export_remarks_excel,export_research_excel,export_scientific_excel,export_social_excel
+from .views import export_qualification_excel,export_teaching_excel,export_contract_excel,export_organizational_excel,export_remarks_excel,export_research_excel,export_scientific_excel,export_social_excel,teacher_dashboard
 
 urlpatterns = [
     path('', views.dashboard, name='dashboard'),
@@ -25,5 +25,6 @@ path('export/social/', export_social_excel, name='export_social_excel'),
 path('export/remarks/', export_remarks_excel, name='export_remarks_excel'),
 path('export/full/', views.export_full_teacher_excel, name='export_full_teacher_excel'),
 path('profile/', views.teacher_profile, name='teacher_profile'),
+ path('dashboard/', teacher_dashboard, name='teacher_dashboard'),
     
 ]

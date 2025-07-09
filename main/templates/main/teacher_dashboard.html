@@ -563,6 +563,11 @@ input:focus + .bar:before {
     Редактирование ППС
   </div>
 {% endif %}
+{% if can_manage_accounts %}
+<div class="tab-button {% if active_tab == 12 %}active{% endif %}" onclick="showTab(12)">
+  Список сотрудников
+</div>
+{% endif %}
 </div>
 <div class="main-content">
   <!-- Контейнер для вкладок -->
@@ -1098,7 +1103,77 @@ input:focus + .bar:before {
 </div>
 {% endif %}
 </div> 
-</div> 
+{% if can_manage_accounts %}
+<div class="tab-content {% if active_tab == 12 %}active{% endif %}" id="tab12">
+  <h2>Список сотрудников</h2>
+
+  <!-- Список -->
+  <table class="responsive-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Имя пользователя</th>
+        <th>Преподаватель</th>
+        <th>Администратор</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in staff_users %}
+        <tr>
+          <td>{{ user.id }}</td>
+          <td>{{ user.username }}</td>
+          <td>{{ user.is_staff|yesno:"Да,Нет" }}</td>
+          <td>{{ user.is_superuser|yesno:"Да,Нет" }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="4">Сотрудники не найдены</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Добавление -->
+  <h3 style="margin-top: 30px;">Добавить сотрудника</h3>
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="add_user_from_teacher">
+    <input type="hidden" name="active_tab" value="12">
+
+    <label>Имя пользователя:</label>
+    <input type="text" name="username" required>
+
+    <label>Пароль:</label>
+    <input type="password" name="password" required>
+
+    <label>Привязать к преподавателю:</label>
+    <select name="teacher_id">
+      <option value="">-- Новый преподаватель --</option>
+      {% for teacher in teachers %}
+        {% if not teacher.user %}
+          <option value="{{ teacher.id }}">{{ teacher.full_name }}</option>
+        {% endif %}
+      {% endfor %}
+    </select>
+
+    <button type="submit" class="button-add" style="margin-top: 10px;">Добавить</button>
+  </form>
+
+  <!-- Удаление -->
+  <h3 style="margin-top: 30px;">Удалить сотрудника</h3>
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="active_tab" value="12">
+    <select name="delete_user" required>
+      {% for user in staff_users %}
+        <option value="{{ user.id }}">{{ user.username }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" name="action" value="delete_user_from_teacher" class="button-add">Удалить</button>
+  </form>
+</div>
+{% endif %}
+
+</div>
+</div>
 </div>
 <script>
   function toggleDropdown() {
@@ -1140,10 +1215,5 @@ input:focus + .bar:before {
     }, 0);
   })
   </script>
-  {% if can_edit_pps %}
-  <p style="color:green;">✅ tab11 добавлен</p>
-{% else %}
-  <p style="color:red;">❌ tab11 не добавлен</p>
-{% endif %}
 </body>
 </html>

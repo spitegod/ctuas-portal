@@ -461,15 +461,15 @@ input[type="submit"]:hover {
       </div>
 
       <div class="form-group">
-        <label>Редактирование публикаций:</label>
-        <select name="can_edit_publications">
+        <label>Список сотрудников:</label>
+        <select name="can_manage_accounts">
           <option value="True">Да</option>
           <option value="False">Нет</option>
         </select>
       </div>
 
       <div class="form-group">
-        <label>Редактирование ИП:</label>
+        <label>Уровни доступа:</label>
         <select name="can_edit_ip">
           <option value="True">Да</option>
           <option value="False">Нет</option>
@@ -483,79 +483,57 @@ input[type="submit"]:hover {
           <option value="False">Нет</option>
         </select>
       </div>
-
-      <div class="form-group">
-        <label>Организационная работа:</label>
-        <select name="can_edit_org_work">
-          <option value="True">Да</option>
-          <option value="False">Нет</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Научная работа:</label>
-        <select name="can_edit_sci_work">
-          <option value="True">Да</option>
-          <option value="False">Нет</option>
-        </select>
-      </div>
     </div>
 
     <button type="submit" style="margin-top: 20px;">Сохранить права</button>
   </form>
-<hr style="margin: 40px 0 20px;">
 
-<h3>Текущие уровни доступа сотрудников</h3>
-<table class="access-table">
-  <thead>
-    <tr>
-      <th>Логин</th>
-      <th>Преподаватель</th>
-      <th>Администратор</th>
-      <th>Публикации</th>
-      <th>ИП</th>
-      <th>ППС</th>
-      <th>Орг. работа</th>
-      <th>Научная работа</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for user in staff_users %}
+  <hr style="margin: 40px 0 20px;">
+
+  <h3>Текущие уровни доступа сотрудников</h3>
+  <table class="access-table">
+    <thead>
       <tr>
-        <td>{{ user.username }}</td>
-        <td>{{ user.is_staff|yesno:"✓,✗" }}</td>
-        <td>{{ user.is_superuser|yesno:"✓,✗" }}</td>
-        {% with perms=user.teacher.permissions %}
-          <td>{{ perms.can_edit_publications|yesno:"✓,✗" }}</td>
-          <td>{{ perms.can_edit_ip|yesno:"✓,✗" }}</td>
-          <td>{{ perms.can_edit_pps|yesno:"✓,✗" }}</td>
-          <td>{{ perms.can_edit_org_work|yesno:"✓,✗" }}</td>
-          <td>{{ perms.can_edit_sci_work|yesno:"✓,✗" }}</td>
-        {% endwith %}
+        <th>Логин</th>
+        <th>Преподаватель</th>
+        <th>Админ</th>
+        <th>Список сотрудников</th>
+        <th>Уровни доступа</th>
+        <th>Ред. ППС</th>
       </tr>
-    {% endfor %}
-  </tbody>
-</table>
-{% if messages %}
-  <div class="alert-container">
-    {% for message in messages %}
-      {% if "access" in message.tags %}
-        <div class="alert alert-success" role="alert">
-          {{ message }}
-        </div>
-      {% elif message.tags == "error" %}
-        <div class="alert alert-danger" role="alert">
-          {{ message }}
-        </div>
-      {% elif message.tags == "warning" %}
-        <div class="alert alert-warning" role="alert">
-          {{ message }}
-        </div>
-      {% endif %}
-    {% endfor %}
-  </div>
-{% endif %}
+    </thead>
+    <tbody>
+      {% for user in staff_users %}
+        <tr>
+          <td>{{ user.username }}</td>
+          <td>{{ user.is_staff|yesno:"✓,✗" }}</td>
+          <td>{{ user.is_superuser|yesno:"✓,✗" }}</td>
+          {% with perms=user.teacher.permissions %}
+            <td>{{ perms.can_manage_accounts|yesno:"✓,✗" }}</td>
+            <td>{{ perms.can_edit_ip|yesno:"✓,✗" }}</td>
+            <td>{{ perms.can_edit_pps|yesno:"✓,✗" }}</td>
+          {% endwith %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  
+
+  {% if messages %}
+    <div class="alert-container" style="margin-top: 20px;">
+      {% for message in messages %}
+        {% if "access" in message.tags %}
+          <div class="alert alert-success" role="alert">{{ message }}</div>
+        {% elif message.tags == "error" %}
+          <div class="alert alert-danger" role="alert">{{ message }}</div>
+        {% elif message.tags == "warning" %}
+          <div class="alert alert-warning" role="alert">{{ message }}</div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% endif %}
 </div>
+
 
         <!-- Вкладка 3: ИП преподавателей -->
         <div id="tab3" class="tab-content">
