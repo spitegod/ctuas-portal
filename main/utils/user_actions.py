@@ -78,8 +78,7 @@ def handle_delete_user(request, teacher=None):
         messages.error(request, "Пользователь не найден.")
         return False
     
-def handle_update_permissions(request):
-    user_id = request.POST.get("user_id")
+def handle_update_permissions(request, user_id):
     is_staff = request.POST.get("is_staff") == "True"
     is_superuser = request.POST.get("is_superuser") == "True"
     can_manage_accounts = request.POST.get("can_manage_accounts") == "True"
@@ -89,7 +88,6 @@ def handle_update_permissions(request):
     try:
         user = User.objects.get(id=user_id)
 
-        # Нельзя убрать суперправа у самого себя
         if user == request.user and not is_superuser:
             messages.warning(request, "Нельзя снять права суперпользователя у самого себя.")
             return
