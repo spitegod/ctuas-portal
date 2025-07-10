@@ -47,7 +47,7 @@ def parse_teaching_load(filepath):
     skipped = 0
 
     for i, row in enumerate(sheet.iter_rows(min_row=2, values_only=True), start=2):
-        short_name = row[0]
+        short_name = row[25]
         if not short_name or str(short_name).strip().lower() in ('(фио)', 'фио'):
             continue
 
