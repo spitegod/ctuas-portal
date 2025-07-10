@@ -577,7 +577,10 @@ input:focus + .bar:before {
 <div class="main-content">
   <!-- Контейнер для вкладок -->
   <div class="tab-container" id="tabContents">
-    <div class="tab-content {% if active_tab == 1 %}active{% endif %}" id="tab1"></div>
+    <div class="tab-content {% if active_tab == 1 %}active{% endif %}" id="tab1">
+      <p style="margin-top: 200px;">Индивидуальный план преподавателя {{ request.user.teacher.full_name }}</p>
+
+    </div>
 
     <div class="tab-content {% if active_tab == 2 %}active{% endif %}" id="tab2">
       <h3>Учебно-методическая работа</h3>
