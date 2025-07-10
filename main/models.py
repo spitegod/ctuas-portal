@@ -240,3 +240,28 @@ class TeacherPermission(models.Model):
 
     def __str__(self):
         return f"Права для {self.teacher.full_name}"
+    
+
+class TeachingLoad(models.Model):
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+    discipline = models.CharField(max_length=255)
+    course = models.CharField(max_length=10)
+    groups = models.CharField(max_length=100)
+    students = models.IntegerField(default=0)
+    lectures = models.FloatField(default=0)
+    practice = models.FloatField(default=0)
+    labs = models.FloatField(default=0)
+    coursework = models.FloatField(default=0)
+    consultations = models.FloatField(default=0)
+    exams = models.FloatField(default=0)
+    review_work = models.FloatField(default=0)
+    practice_supervision = models.FloatField(default=0)
+    thesis_supervision = models.FloatField(default=0)
+    gak = models.FloatField(default=0)
+    admission = models.FloatField(default=0)
+    phd_supervision = models.FloatField(default=0)
+    org_work = models.FloatField(default=0)
+    rating = models.FloatField(default=0)
+
+    def __str__(self):
+        return f"{self.teacher.full_name} — {self.discipline}"
