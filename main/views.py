@@ -8,7 +8,7 @@ from main.models import Teacher, FirstSem, SecondSem, MethodicalWork, OrgMethodi
 from django.db.models import Q
 from django.shortcuts import render, redirect
 from main.models import Teacher, EducationalMethodicalWork, OrganizationalMethodicalWork,ResearchWork
-from .models import Teacher, EducationalMethodicalWork, OrganizationalMethodicalWork, ResearchWork, ContractResearchWork,ScientificMethodicalWork,SocialEducationalWork,TeacherRemark, QualificationUpgrade, QualificationUpgrade, PublishedSciWork, Raising, Recommendation,TeacherPermission
+from .models import Teacher, EducationalMethodicalWork, OrganizationalMethodicalWork, ResearchWork, ContractResearchWork,ScientificMethodicalWork,SocialEducationalWork,TeacherRemark, QualificationUpgrade, QualificationUpgrade, PublishedSciWork, Raising, Recommendation,TeacherPermission, TeachingLoad
 from .forms import EducationalMethodicalWorkForm, OrganizationalMethodicalWorkForm, ResearchWorkForm, ContractResearchWorkForm
 import openpyxl
 from django.http import HttpResponse
@@ -142,6 +142,7 @@ def dashboard(request):
         remark = TeacherRemark.objects.filter(teacher=selected_teacher) if selected_teacher else []
         raising = Raising.objects.filter(teacher=selected_teacher) if selected_teacher else []
         recommendation = Recommendation.objects.filter(teacher=selected_teacher) if selected_teacher else []
+        teachingload = TeachingLoad.objects.all()
 
         return render(request, 'main/admin_dashboard.html', {
             'active_tab': int(tab),
@@ -159,7 +160,8 @@ def dashboard(request):
             'remark': remark,
             'raising': raising,
             'recommendation': recommendation,
-            'selected_teacher': selected_teacher
+            'selected_teacher': selected_teacher,
+            'teachingload': teachingload
         })
 
     elif request.user.is_staff and not request.user.is_superuser:
@@ -512,6 +514,7 @@ def teacher_dashboard(request,tab="1"):
 
     # Преподаватели (для tab11, только если разрешено)
     'teachers': Teacher.objects.all() if permissions and permissions.can_edit_pps else [],
+    'teachingload': TeachingLoad.objects.all()
 }
 
     return render(request, 'main/teacher_dashboard.html', context)
@@ -788,3 +791,14 @@ def export_full_teacher_excel(request):
 def teacher_profile(request):
     teacher = request.user.teacher
     return render(request, 'main/teacher_profile.html', {'teacher': teacher})
+
+def teacher_load_view(request, teacher_id):
+    teacher = Teacher.objects.get(id=teacher_id)
+    disciplines = TeachingLoad.objects.filter(teacher=teacher)
+    print("Преподаватель:", teacher.full_name)
+    print("Найдено записей:", disciplines.count())
+
+    return render(request, 'teacher_dashboard.html', {
+        'teacher': teacher,
+        'disciplines_ip': disciplines,
+    })

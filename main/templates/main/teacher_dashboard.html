@@ -604,6 +604,33 @@ input:focus + .bar:before {
                     <th>Всего часов по плану</th>
                     <th>Всего часов фактически</th>
                 </tr>
+                <p>Debug: {{ disciplines_ip|length }} записей</p>
+                {% for d in teachingload %}
+                <tr>
+                    <td>{{ d.discipline }}</td>
+                    <td>{{ d.course }}</td>
+                    <td>{{ d.groups }}</td>
+                    <td>{{ d.students }}</td>
+                    <td>{{ d.lectures }}</td>
+                    <td>{{ d.practice }}</td>
+                    <td>{{ d.labs }}</td>
+                    <td>{{ d.coursework }}</td>
+                    <td>{{ d.consultations }}</td>
+                    <td>–</td>
+                    <td>{{ d.exams }}</td>
+                    <td>{{ d.review_work }}</td>
+                    <td>{{ d.practice_supervision }}</td>
+                    <td>–</td>
+                    <td>{{ d.thesis_supervision }}</td>
+                    <td>{{ d.gak }}</td>
+                    <td>{{ d.admission }}</td>
+                    <td>{{ d.phd_supervision }}</td>
+                    <td>{{ d.org_work }}</td>
+                    <td>{{ d.rating }}</td>
+                    <td>–</td>
+                    <td>–</td>
+                </tr>
+                {% endfor %}
           </table>
 
     </div>
