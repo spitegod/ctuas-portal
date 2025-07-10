@@ -514,7 +514,9 @@ def teacher_dashboard(request,tab="1"):
 
     # Преподаватели (для tab11, только если разрешено)
     'teachers': Teacher.objects.all() if permissions and permissions.can_edit_pps else [],
-    'teachingload': TeachingLoad.objects.all()
+    
+
+    'teachingload': TeachingLoad.objects.filter(teacher=request.user.teacher) if hasattr(request.user, 'teacher') else []
 }
 
     return render(request, 'main/teacher_dashboard.html', context)
