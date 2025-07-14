@@ -204,11 +204,10 @@ class QualificationUpgrade(models.Model):
     
 class PublishedSciWork(models.Model):
     teacher = models.ForeignKey('main.Teacher', on_delete=models.CASCADE, related_name='published_sci_work')
-    name = models.TextField("№ п/п")
-    job = models.TextField("Наименование и вид работы", max_length=100)
-    start_date = models.TextField("Выходные данные", max_length=100)
-    end_date = models.TextField("Объем в п.л.", max_length=100)
-    status = models.TextField("Соавторы", max_length=100, blank=True)
+    title = models.TextField("Наименование и вид работы", max_length=100)
+    output = models.TextField("Выходные данные", max_length=100)
+    size = models.TextField("Объем в п.л.", max_length=100)
+    autors = models.TextField("Соавторы", max_length=100, blank=True)
 
 class PublicWork(models.Model):
     name = models.TextField("Наименование работы")
