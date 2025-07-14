@@ -421,7 +421,7 @@ def teacher_dashboard(request,tab="1"):
             print(added_count)
             if added_count > 0:
                 messages.success(request, f"Импортировано публикаций: {added_count}")
-            if added_count == -1:
+            elif added_count == -1:
                 messages.success(request, "Произошла ошибка импорта.")
             else:
                 messages.warning(request, "Публикации не найдены или уже добавлены.")
