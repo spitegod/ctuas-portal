@@ -10,6 +10,7 @@ from .public_work import parse_methodical_work as parse_public
 from .remarks import parse_methodical_work as parse_remarks
 from .raising import parse_methodical_work as parse_raising
 from .recommendation import parse_methodical_work as parse_recom
+from .published_sciworks_from_library_vstu import import_published_from_library
 
 sheet_parsers = {
     "1. У.Р. Первый семестр": parse_first_sem,
