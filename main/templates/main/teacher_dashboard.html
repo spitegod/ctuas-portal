@@ -543,7 +543,23 @@ input:focus + .bar:before {
   </div>
 </div>
 
-
+{% if messages %}
+  <div style="max-width: 800px; margin: 10px auto;">
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}" style="
+        padding: 10px 20px;
+        border-radius: 8px;
+        background-color: {% if message.tags == 'error' %}#f8d7da{% elif message.tags == 'success' %}#d4edda{% elif message.tags == 'warning' %}#fff3cd{% endif %};
+        color: {% if message.tags == 'error' %}#721c24{% elif message.tags == 'success' %}#155724{% elif message.tags == 'warning' %}#856404{% endif %};
+        margin-bottom: 15px;
+        text-align: center;
+        font-weight: bold;
+      ">
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
 <div class="layout">
   <!-- Сайдбар с кнопками -->
   <div class="sidebar">
@@ -959,40 +975,6 @@ input:focus + .bar:before {
     <input name="active_tab" type="hidden" value="7" />
     <button type="submit" class="button-add">Импорт из библиотеки ВолгГТУ</button>
   </form>
-
-  <script>
-    function showLoadingOverlay() {
-      const overlay = document.getElementById('loading-overlay');
-      const text = document.getElementById('loading-text');
-      const spinner = document.getElementById('spinner');
-
-      text.innerText = 'Импортируются публикации...';
-      spinner.style.display = 'block';
-      overlay.style.display = 'flex';
-    }
-
-    // Если сервер вернул сообщение Django messages
-    window.addEventListener('DOMContentLoaded', () => {
-      const overlay = document.getElementById('loading-overlay');
-      const text = document.getElementById('loading-text');
-      const spinner = document.getElementById('spinner');
-
-      {% if messages %}
-        {% for message in messages %}
-          if ("{{ message.tags }}" === "success" || "{{ message.tags }}" === "warning" || "{{ message.tags }}" === "error") {
-            overlay.style.display = 'flex';
-            spinner.style.display = 'none';
-            text.innerText = "{{ message }}";
-
-            // Скрыть затемнение
-            setTimeout(() => {
-              overlay.style.display = 'none';
-            }, 1500);
-          }
-        {% endfor %}
-      {% endif %}
-    });
-  </script>
 
   <table class="responsive-table" style="margin-top: 20px;">
     <thead>
@@ -1439,18 +1421,18 @@ input:focus + .bar:before {
   </table>
 
   {% if messages %}
-    <div class="alert-container" style="margin-top: 20px;">
-      {% for message in messages %}
-        {% if "access" in message.tags %}
-          <div class="alert alert-success" role="alert">{{ message }}</div>
-        {% elif message.tags == "error" %}
-          <div class="alert alert-danger" role="alert">{{ message }}</div>
-        {% elif message.tags == "warning" %}
-          <div class="alert alert-warning" role="alert">{{ message }}</div>
-        {% endif %}
-      {% endfor %}
-    </div>
-  {% endif %}
+  <div class="alert-container" style="margin-top: 20px;">
+    {% for message in messages %}
+      {% if "access" in message.tags %}
+        <div class="alert alert-success" role="alert">{{ message|safe }}</div>
+      {% elif message.tags == "error" %}
+        <div class="alert alert-danger" role="alert">{{ message|safe }}</div>
+      {% elif message.tags == "warning" %}
+        <div class="alert alert-warning" role="alert">{{ message|safe }}</div>
+      {% endif %}
+    {% endfor %}
+  </div>
+{% endif %}
 </div>
   {% endif %}
 </div>
@@ -1468,7 +1450,6 @@ input:focus + .bar:before {
       menu.style.display = "none";
     }
   });
-
 
   function showTab(index) {
     const contents = document.querySelectorAll(".tab-content");
@@ -1488,13 +1469,52 @@ input:focus + .bar:before {
   window.addEventListener('DOMContentLoaded', function () {
     let activeTab = parseInt("{{ active_tab|default:'1' }}");
     if (isNaN(activeTab)) activeTab = 1;
-  
-    // Задержка 0 — выполнится в конце очереди событий (гарантированный доступ к DOM)
-    setTimeout(() => {
-      showTab(activeTab);
-    }, 0);
-  })
-  </script>
+
+    showTab(activeTab);
+
+    const overlay = document.getElementById('loading-overlay');
+    const spinner = document.getElementById('spinner');
+    const text = document.getElementById('loading-text');
+
+    {% if messages %}
+      {% for message in messages %}
+        const tag = "{{ message.tags|escapejs }}";
+        const content = "{{ message|escapejs }}";
+
+        // Для импорта публикаций — тёмное затемнение
+        if (content.includes("Импортировано публикаций") ||
+            content.includes("Публикации не найдены") ||
+            content.includes("Произошла ошибка импорта")) {
+
+          overlay.style.display = 'flex';
+          spinner.style.display = 'none';
+          text.innerText = content;
+
+          setTimeout(() => {
+            overlay.style.display = 'none';
+          }, 1500);
+        } else {
+          // Все другие сообщения — обычные alert
+          const alertDiv = document.createElement("div");
+          alertDiv.className = "alert alert-" + (tag === "error" ? "danger" : tag);
+          alertDiv.innerText = content;
+          alertDiv.style.margin = "20px auto";
+          alertDiv.style.maxWidth = "720px";
+          alertDiv.style.borderRadius = "10px";
+          alertDiv.style.textAlign = "center";
+          alertDiv.style.fontWeight = "500";
+          alertDiv.style.padding = "10px 20px";
+          alertDiv.style.position = "relative";
+          document.body.prepend(alertDiv);
+
+          setTimeout(() => {
+            alertDiv.remove();
+          }, 3000);
+        }
+      {% endfor %}
+    {% endif %}
+  });
+</script>
 
   <!-- ===== ЗАГРУЗКА: затемнение и спиннер ===== -->
 <div id="loading-overlay" style="display: none;">

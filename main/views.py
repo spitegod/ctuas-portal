@@ -203,9 +203,20 @@ def teacher_dashboard(request,tab="1"):
             active_tab = 2
 
         elif form_type == "teaching_method":
-            work_id = request.POST.get("work_id")
-            academic_year = request.POST.get("academic_year", selected_year)
-            if work_id:
+             title = request.POST.get("title", "").strip()
+
+             if not title:
+                messages.error(request, "Поле 'Наименование работы' обязательно для заполнения.")
+                return redirect('/dashboard?tab=2')
+            
+             start_date = request.POST.get("start_date")
+             if not start_date:
+               messages.error(request, "Поле 'Дата начала' обязательно для заполнения.")
+               return redirect('/dashboard?tab=2')
+        
+             work_id = request.POST.get("work_id")
+             academic_year = request.POST.get("academic_year", selected_year)
+             if work_id:
                 work = EducationalMethodicalWork.objects.filter(id=work_id, teacher=teacher).first()
                 if work:
                     work.title = request.POST.get("title")
@@ -215,7 +226,7 @@ def teacher_dashboard(request,tab="1"):
                     work.academic_year = academic_year
                     work.save()
                     messages.success(request, "Запись обновлена.")
-            else:
+             else:
                 EducationalMethodicalWork.objects.create(
                     teacher=teacher,
                     title=request.POST.get("title"),
@@ -225,7 +236,7 @@ def teacher_dashboard(request,tab="1"):
                     academic_year=academic_year 
                 )
                 messages.success(request, "Учебно-методическая работа добавлена.")
-            return redirect(f'/dashboard?tab=2')
+             return redirect(f'/dashboard?tab=2')
 
         elif form_type == "delete_teaching_method":
             EducationalMethodicalWork.objects.filter(id=request.POST.get("work_id"), teacher=teacher).delete()
@@ -239,6 +250,16 @@ def teacher_dashboard(request,tab="1"):
             active_tab = 3
 
         elif form_type == "organizational_method":
+            title = request.POST.get("title", "").strip()
+            if not title: 
+                messages.error(request, "Поле 'Наименование работы' обязательно для заполнения.")
+                return redirect(f'/dashboard?tab=3')
+            
+            start_date = request.POST.get("start_date")
+            if not start_date:
+               messages.error(request, "Поле 'Дата начала' обязательно для заполнения.")
+               return redirect('/dashboard?tab=3')
+        
             work_id = request.POST.get("work_id")
             if work_id:
                 work = OrganizationalMethodicalWork.objects.filter(id=work_id, teacher=teacher).first()
@@ -272,6 +293,16 @@ def teacher_dashboard(request,tab="1"):
             active_tab = 4
 
         elif form_type == "research_work":
+            topic = request.POST.get("topic", "").strip()
+            if not topic:
+               messages.error(request, "Поле 'Тема работы' обязательно для заполнения.")
+               return redirect(f'/dashboard?tab=4')
+           
+            start_date = request.POST.get("start_date")
+            if not start_date:
+               messages.error(request, "Поле 'Дата начала' обязательно для заполнения.")
+               return redirect('/dashboard?tab=4')
+        
             work_id = request.POST.get("work_id")
             if work_id:
                 work = ResearchWork.objects.filter(id=work_id, teacher=teacher).first()
@@ -305,6 +336,18 @@ def teacher_dashboard(request,tab="1"):
             active_tab = 5
 
         elif form_type == "contract_research":
+            topic = request.POST.get("topic", "").strip()
+            position = request.POST.get("position", "").strip()
+
+            if not topic or not position:
+             messages.error(request, "Поля 'Тема' и 'Должность' обязательны для заполнения.")
+             return redirect(f'/dashboard?tab=5')
+         
+            start_date = request.POST.get("start_date")
+            if not start_date:
+               messages.error(request, "Поле 'Дата начала' обязательно для заполнения.")
+               return redirect('/dashboard?tab=5')
+         
             work_id = request.POST.get("work_id")
             if work_id:
                 work = ContractResearchWork.objects.filter(id=work_id, teacher=teacher).first()
@@ -346,6 +389,11 @@ def teacher_dashboard(request,tab="1"):
             if not topic:
                 messages.error(request, "Поле 'Наименование темы' обязательно для заполнения.")
                 return redirect(f'/dashboard?tab=6')
+            
+            start_date = request.POST.get("start_date")
+            if not start_date:
+               messages.error(request, "Поле 'Дата начала' обязательно для заполнения.")
+               return redirect('/dashboard?tab=6')
 
             if work_id:
                 work = ScientificMethodicalWork.objects.filter(id=work_id, teacher=teacher).first()
@@ -435,6 +483,10 @@ def teacher_dashboard(request,tab="1"):
             active_tab = 8
 
         elif form_type == "social_work":
+            title = request.POST.get("title", "").strip()
+            if not title:
+             messages.error(request, "Поле 'Наименование работы' обязательно для заполнения.")
+             return redirect(f'/dashboard?tab=8')
             work_id = request.POST.get("work_id")
             if work_id:
                 work = SocialEducationalWork.objects.filter(id=work_id, teacher=teacher).first()
@@ -464,6 +516,11 @@ def teacher_dashboard(request,tab="1"):
             active_tab = 9
 
         elif form_type == "teacher_remark":
+            content = request.POST.get("content", "").strip()
+            if not content:
+               messages.error(request, "Поле 'Содержание замечания' обязательно для заполнения.")
+               return redirect(f'/dashboard?tab=9')
+           
             work_id = request.POST.get("work_id")
             if work_id:
                 work = TeacherRemark.objects.filter(id=work_id, teacher=teacher).first()
@@ -488,9 +545,22 @@ def teacher_dashboard(request,tab="1"):
 
         # === Вкладка 10: Повышение квалификации ===
         if request.POST.get("edit_qualification"):
-            edit_id_tab10 = request.POST.get("edit_qualification")
-            edit_work_tab10 = QualificationUpgrade.objects.filter(id=edit_id_tab10, teacher=teacher).first()
-            active_tab = 10
+              title = request.POST.get("title", "").strip()
+              place = request.POST.get("place", "").strip()
+              document_number = request.POST.get("document_number", "").strip()
+              date = request.POST.get("date", "").strip()
+              duration = request.POST.get("duration", "").strip()
+              volume = request.POST.get("volume", "").strip()
+              work_id = request.POST.get("work_id")
+
+    # Проверка обязательных полей
+              if not title or not place or not document_number or not date or not duration or not volume:
+                 messages.error(request, "Все поля: 'Название', 'Место', 'Номер документа', 'Дата', 'Срок прохождения', 'Объём' обязательны для заполнения.")
+                 return redirect(f'/dashboard?tab=10')
+            
+              edit_id_tab10 = request.POST.get("edit_qualification")
+              edit_work_tab10 = QualificationUpgrade.objects.filter(id=edit_id_tab10, teacher=teacher).first()
+              active_tab = 10
 
         elif form_type == "qualification_upgrade":
             work_id = request.POST.get("work_id")
