@@ -932,9 +932,10 @@ input:focus + .bar:before {
     {% csrf_token %}
     <input name="form_type" type="hidden" value="published_work"/>
     <input name="active_tab" type="hidden" value="7"/>
-    {% if edit_id_tab7 and edit_work_tab7 %}
+    {% if active_tab == 7 and edit_work_tab7 %}
       <input name="work_id" type="hidden" value="{{ edit_work_tab7.id }}"/>
     {% endif %}
+
 
     <label>Наименование и вид работы:</label>
     <textarea name="title" required>{{ edit_work_tab7.title|default:'' }}</textarea>
@@ -948,11 +949,11 @@ input:focus + .bar:before {
     <label>Соавторы:</label>
     <input name="autors" type="text" value="{{ edit_work_tab7.autors|default:'' }}" />
 
-    <button class="button-add" type="submit">{% if edit_id_tab7 %}Сохранить{% else %}Добавить{% endif %}</button>
+    <button class="button-add" type="submit">{% if active_tab == 7 and edit_work_tab7 %}Сохранить изменения{% else %}Добавить{% endif %}</button>
   </form>
 
 
-  <form id="import-form" method="post" onsubmit="showLoadingOverlay()" style="margin-top:10px;">
+  <form id="import-form" method="post" onsubmit="showLoadingOverlay()" style="margin-bottom: 15px;">
     {% csrf_token %}
     <input name="form_type" type="hidden" value="import_published_from_library" />
     <input name="active_tab" type="hidden" value="7" />
