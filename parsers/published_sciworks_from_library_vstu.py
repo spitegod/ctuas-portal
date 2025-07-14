@@ -1,6 +1,9 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 from bs4 import BeautifulSoup
 import time
 import re
@@ -11,7 +14,8 @@ def import_published_from_library(teacher, year_from="2024", year_to="2025"):
     search_name = get_short_name(teacher)
 
     options = webdriver.ChromeOptions()
-    options.headless = True
+    options.add_argument('--headless')
+    options.add_argument('--disable-gpu') 
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
     driver = webdriver.Chrome(options=options)
@@ -24,7 +28,6 @@ def import_published_from_library(teacher, year_from="2024", year_to="2025"):
         driver.find_element(By.NAME, "year_rel2").send_keys(year_to)
 
         driver.find_element(By.XPATH, "//input[@type='submit' and @value='Найти']").click()
-        time.sleep(2)
 
         soup = BeautifulSoup(driver.page_source, "html.parser")
         results_div = soup.find("div", class_="resultlist", id="LIST")
@@ -75,6 +78,10 @@ def import_published_from_library(teacher, year_from="2024", year_to="2025"):
             count += 1
 
         return count
+
+    except Exception as e:
+        print(f"Ошибка при импорте: {e}")
+        return -1
 
     finally:
         driver.quit()
