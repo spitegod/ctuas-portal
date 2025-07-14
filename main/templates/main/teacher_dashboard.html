@@ -952,12 +952,46 @@ input:focus + .bar:before {
   </form>
 
 
-  <form method="post" style="margin-top:10px;">
+  <form id="import-form" method="post" onsubmit="showLoadingOverlay()" style="margin-top:10px;">
     {% csrf_token %}
     <input name="form_type" type="hidden" value="import_published_from_library" />
     <input name="active_tab" type="hidden" value="7" />
     <button type="submit" class="button-add">Импорт из библиотеки ВолгГТУ</button>
   </form>
+
+  <script>
+    function showLoadingOverlay() {
+      const overlay = document.getElementById('loading-overlay');
+      const text = document.getElementById('loading-text');
+      const spinner = document.getElementById('spinner');
+
+      text.innerText = 'Импортируются публикации...';
+      spinner.style.display = 'block';
+      overlay.style.display = 'flex';
+    }
+
+    // Если сервер вернул сообщение Django messages
+    window.addEventListener('DOMContentLoaded', () => {
+      const overlay = document.getElementById('loading-overlay');
+      const text = document.getElementById('loading-text');
+      const spinner = document.getElementById('spinner');
+
+      {% if messages %}
+        {% for message in messages %}
+          if ("{{ message.tags }}" === "success" || "{{ message.tags }}" === "warning" || "{{ message.tags }}" === "error") {
+            overlay.style.display = 'flex';
+            spinner.style.display = 'none';
+            text.innerText = "{{ message }}";
+
+            // Скрыть затемнение
+            setTimeout(() => {
+              overlay.style.display = 'none';
+            }, 1500);
+          }
+        {% endfor %}
+      {% endif %}
+    });
+  </script>
 
   <table class="responsive-table" style="margin-top: 20px;">
     <thead>
@@ -1460,5 +1494,43 @@ input:focus + .bar:before {
     }, 0);
   })
   </script>
+
+  <!-- ===== ЗАГРУЗКА: затемнение и спиннер ===== -->
+<div id="loading-overlay" style="display: none;">
+  <div class="spinner" id="spinner"></div>
+  <div class="loading-text" id="loading-text">Импортируются публикации...</div>
+</div>
+
+<style>
+  #loading-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 20px;
+    font-family: sans-serif;
+  }
+
+  .spinner {
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid #3498db;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+</style>
 </body>
 </html>
