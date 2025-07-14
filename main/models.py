@@ -143,35 +143,58 @@ class ScientificMethodicalWork(models.Model):
         return self.topic
     
 class MethodicalWork(models.Model):
+    teacher = models.ForeignKey('main.Teacher', on_delete=models.CASCADE, related_name='methodical_works')
     name = models.TextField("Наименование работы")
     start_date = models.CharField("Начало работы", max_length=100)
     end_date = models.CharField("Окончание работы", max_length=100)
     status = models.CharField("Отметка о выполнении", max_length=100, blank=True)
+    
+    def __str__(self):
+        return f"{self.name} ({self.teacher.full_name})"
 
 class OrgMethodicalWork(models.Model):
+    teacher = models.ForeignKey('main.Teacher', on_delete=models.CASCADE, related_name='org_methodical_works')
     name = models.TextField("Наименование работы")
     start_date = models.CharField("Начало работы", max_length=100)
     end_date = models.CharField("Окончание работы", max_length=100)
     status = models.CharField("Отметка о выполнении", max_length=100, blank=True)
+    
+    
+    def __str__(self):
+        return f"{self.name} ({self.teacher.full_name})"
+
 
 class SciResearchWork(models.Model):
+    teacher = models.ForeignKey('main.Teacher', on_delete=models.CASCADE, related_name='sci_research_works')
     name = models.TextField("Наименование работы")
     start_date = models.CharField("Начало работы", max_length=100)
     end_date = models.CharField("Окончание работы", max_length=100)
     status = models.CharField("Отметка о выполнении", max_length=100, blank=True)
+    
+    def __str__(self):
+     return f"{self.name} ({self.teacher.full_name})"
+
 
 class ContractWork(models.Model):
+    teacher = models.ForeignKey('main.Teacher', on_delete=models.CASCADE, related_name='contract_works')
     name = models.TextField("Наименование работы")
     job = models.TextField("Должность по НИР", max_length=100)
     start_date = models.CharField("Начало работы", max_length=100)
     end_date = models.CharField("Окончание работы", max_length=100)
     status = models.CharField("Отметка о выполнении", max_length=100, blank=True)
+    
+    def __str__(self):
+        return f"{self.name} ({self.teacher.full_name})"
 
 class SciMethodicalWork(models.Model):
+    teacher = models.ForeignKey('main.Teacher', on_delete=models.CASCADE, related_name='sci_methodical_works')
     name = models.TextField("Наименование работы")
     start_date = models.CharField("Начало работы", max_length=100)
     end_date = models.CharField("Окончание работы", max_length=100)
     status = models.CharField("Отметка о выполнении", max_length=100, blank=True)
+    
+    def __str__(self):
+        return f"{self.name} ({self.teacher.full_name})"
 
 class SocialEducationalWork(models.Model):
     teacher = models.ForeignKey('main.Teacher', on_delete=models.CASCADE, related_name='social_works')
@@ -208,16 +231,29 @@ class PublishedSciWork(models.Model):
     output = models.TextField("Выходные данные", max_length=100)
     size = models.TextField("Объем в п.л.", max_length=100)
     autors = models.TextField("Соавторы", max_length=100, blank=True)
+    
+    def __str__(self):
+        return f"{self.title} ({self.teacher.full_name})"
 
 class PublicWork(models.Model):
+    teacher = models.ForeignKey('main.Teacher', on_delete=models.CASCADE, related_name='public_works')
     name = models.TextField("Наименование работы")
     mark = models.TextField("Отметка о выполнении", max_length=100)
+    
+    
+    def __str__(self):
+        return f"{self.name} ({self.teacher.full_name})"
 
 
 class Remark(models.Model):
+    teacher = models.ForeignKey('main.Teacher', on_delete=models.CASCADE, related_name='remarks_manual')
     date = models.TextField("Дата")
     remark = models.TextField("Содержание замечаний", max_length=100)
     signature = models.TextField("Роспись проверяющего", max_length=100)
+    
+    def __str__(self):
+        return f"{self.date} — {self.remark[:30]}"
+
 
 
 class Raising(models.Model):
@@ -225,11 +261,17 @@ class Raising(models.Model):
     date = models.TextField("Дата")
     form = models.TextField("Форма повышения квалификации", max_length=100)
     mark = models.TextField("Отметка о выполнении", max_length=100)
+    
+    def __str__(self):
+        return f"{self.date} — {self.remark[:30]}"
 
 
 class Recommendation(models.Model):
     teacher = models.ForeignKey('main.Teacher', on_delete=models.CASCADE, related_name='recommendation')
-    recom = models.TextField("Рекомендация кафедры по избранию преподавателя")   
+    recom = models.TextField("Рекомендация кафедры по избранию преподавателя")
+       
+    def __str__(self):
+        return f"Рекомендация — {self.teacher.full_name}"
     
 class TeacherPermission(models.Model):
     teacher = models.OneToOneField('Teacher', on_delete=models.CASCADE, related_name='permissions')
