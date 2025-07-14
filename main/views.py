@@ -184,8 +184,8 @@ def teacher_dashboard(request,tab="1"):
         selected_year = f"{current-1}–{current}"
     request.session["selected_year"] = selected_year
 
-    edit_id_tab2 = edit_id_tab3 = edit_id_tab4 = edit_id_tab5 = edit_id_tab6 = edit_id_tab8 = edit_id_tab9 = edit_id_tab10 = None
-    edit_work_tab2 = edit_work_tab3 = edit_work_tab4 = edit_work_tab5 = edit_work_tab6 = edit_work_tab8 = edit_work_tab9 = edit_work_tab10 = None
+    edit_id_tab2 = edit_id_tab3 = edit_id_tab4 = edit_id_tab5 = edit_id_tab6 = edit_id_tab7 = edit_id_tab8 = edit_id_tab9 = edit_id_tab10 = None
+    edit_work_tab2 = edit_work_tab3 = edit_work_tab4 = edit_work_tab5 = edit_work_tab6 = edit_work_tab7 = edit_work_tab8 = edit_work_tab9 = edit_work_tab10 = None
     
 
     if request.method == 'POST':
@@ -372,6 +372,60 @@ def teacher_dashboard(request,tab="1"):
             messages.success(request, "Запись удалена.")
             return redirect(f'/dashboard?tab=6')
 
+        # === Вкладка 7: Публикации ===
+        if request.POST.get("edit_published_work"):
+            edit_id_tab7 = request.POST.get("edit_published_work")
+            edit_work_tab7 = PublishedSciWork.objects.filter(id=edit_id_tab7, teacher=teacher).first()
+            active_tab = 7
+
+        elif form_type == "published_work":
+            work_id = request.POST.get("work_id")
+            title = request.POST.get("title")  # Наименование и вид работы
+            output = request.POST.get("output")  # Выходные данные
+            size = request.POST.get("size")  # Объем
+            autors = request.POST.get("autors")  # Соавторы
+
+            if not title:
+                messages.error(request, "Поле 'Наименование и вид работы' обязательно для заполнения.")
+                return redirect(f'/dashboard?tab=7')
+
+            if work_id:
+                work = PublishedSciWork.objects.filter(id=work_id, teacher=teacher).first()
+                if work:
+                    work.title = title
+                    work.output = output or ""
+                    work.size = size or ""
+                    work.autors = autors or ""
+                    work.save()
+                    messages.success(request, "Запись обновлена.")
+            else:
+                PublishedSciWork.objects.create(
+                    teacher=teacher,
+                    title=title,
+                    output=output or "",
+                    size=size or "",
+                    autors=autors or ""
+                )
+                messages.success(request, "Публикация добавлена.")
+            return redirect(f'/dashboard?tab=7')
+
+        elif form_type == "delete_published_work":
+            PublishedSciWork.objects.filter(id=request.POST.get("work_id"), teacher=teacher).delete()
+            messages.success(request, "Запись удалена.")
+            return redirect(f'/dashboard?tab=7')
+
+        elif form_type == "import_published_from_library":
+            from parsers import import_published_from_library
+
+            added_count = import_published_from_library(teacher)
+            print(added_count)
+            if added_count > 0:
+                messages.success(request, f"Импортировано публикаций: {added_count}")
+            else:
+                messages.warning(request, "Публикации не найдены или уже добавлены.")
+            return redirect(f'/dashboard?tab=7')
+
+
         # === Вкладка 8: Общественная работа ===
         if request.POST.get("edit_social_work"):
             edit_id_tab8 = request.POST.get("edit_social_work")
@@ -480,6 +534,7 @@ def teacher_dashboard(request,tab="1"):
     'research_works': ResearchWork.objects.filter(teacher=teacher),
     'contract_works': ContractResearchWork.objects.filter(teacher=teacher),
     'scientific_works': ScientificMethodicalWork.objects.filter(teacher=teacher),
+    'published_works': PublishedSciWork.objects.filter(teacher=teacher),
     'social_works': SocialEducationalWork.objects.filter(teacher=teacher),
     'teacher_remarks': TeacherRemark.objects.filter(teacher=teacher),
     'qualification_upgrades': QualificationUpgrade.objects.filter(teacher=teacher),
@@ -490,6 +545,7 @@ def teacher_dashboard(request,tab="1"):
     'edit_work_tab4': edit_work_tab4,
     'edit_work_tab5': edit_work_tab5,
     'edit_work_tab6': edit_work_tab6,
+    'edit_work_tab7': edit_work_tab7,
     'edit_work_tab8': edit_work_tab8,
     'edit_work_tab9': edit_work_tab9,
     'edit_work_tab10': edit_work_tab10,

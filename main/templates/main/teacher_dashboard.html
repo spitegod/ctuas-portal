@@ -925,7 +925,83 @@ input:focus + .bar:before {
             </tbody>
 </table>
 </div>
-<div class="tab-content" id="tab7">Тут будут Научные статьи и чекбоксы.</div>
+<div class="tab-content" id="tab7">
+  <h3>Перечень опубликованных научных и научно-методических работ</h3>
+
+  <form method="post">
+    {% csrf_token %}
+    <input name="form_type" type="hidden" value="published_work"/>
+    <input name="active_tab" type="hidden" value="7"/>
+    {% if edit_id_tab7 and edit_work_tab7 %}
+      <input name="work_id" type="hidden" value="{{ edit_work_tab7.id }}"/>
+    {% endif %}
+
+    <label>Наименование и вид работы:</label>
+    <textarea name="title" required>{{ edit_work_tab7.title|default:'' }}</textarea>
+
+    <label>Выходные данные:</label>
+    <input name="output" type="text" value="{{ edit_work_tab7.output|default:'' }}" />
+
+    <label>Объем в п.л.:</label>
+    <input name="size" type="text" value="{{ edit_work_tab7.size|default:'' }}" />
+
+    <label>Соавторы:</label>
+    <input name="autors" type="text" value="{{ edit_work_tab7.autors|default:'' }}" />
+
+    <button class="button-add" type="submit">{% if edit_id_tab7 %}Сохранить{% else %}Добавить{% endif %}</button>
+  </form>
+
+
+  <form method="post" style="margin-top:10px;">
+    {% csrf_token %}
+    <input name="form_type" type="hidden" value="import_published_from_library" />
+    <input name="active_tab" type="hidden" value="7" />
+    <button type="submit" class="button-add">Импорт из библиотеки ВолгГТУ</button>
+  </form>
+
+  <table class="responsive-table" style="margin-top: 20px;">
+    <thead>
+      <tr>
+        <th>№ п/п</th>
+        <th>Наименование и вид работы</th>
+        <th>Выходные данные</th>
+        <th>Объем в п.л.</th>
+        <th>Соавторы</th>
+        <th>Действие</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for work in published_works %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>{{ work.title }}</td>
+          <td>{{ work.output }}</td>
+          <td>{{ work.size }}</td>
+          <td>{{ work.autors }}</td>
+          <td>
+            <form method="post" style="display:inline;">
+              {% csrf_token %}
+              <input name="form_type" type="hidden" value="edit_published_work"/>
+              <input name="edit_published_work" type="hidden" value="{{ work.id }}"/>
+              <input name="active_tab" type="hidden" value="7"/>
+              <button class="edit-btn" style="color: white;" type="submit">Редактировать</button>
+            </form>
+            <form method="post" style="display:inline;">
+              {% csrf_token %}
+              <input name="form_type" type="hidden" value="delete_published_work"/>
+              <input name="work_id" type="hidden" value="{{ work.id }}"/>
+              <input name="active_tab" type="hidden" value="7"/>
+              <button class="delete-btn" style="color: white;" type="submit">Удалить</button>
+            </form>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="6">Публикации отсутствуют.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+</div>
 <div class="tab-content {% if active_tab == 8 %}active{% endif %}" id="tab8">
   <h3>Общественная и воспитательная работа</h3>
   <form method="POST">
