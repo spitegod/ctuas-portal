@@ -411,7 +411,7 @@ def teacher_dashboard(request,tab="1"):
 
         elif form_type == "delete_published_work":
             PublishedSciWork.objects.filter(id=request.POST.get("work_id"), teacher=teacher).delete()
-            messages.success(request, "Запись удалена.")
+            #messages.success(request, "Запись удалена.")
             return redirect(f'/dashboard?tab=7')
 
         elif form_type == "import_published_from_library":
@@ -421,6 +421,8 @@ def teacher_dashboard(request,tab="1"):
             print(added_count)
             if added_count > 0:
                 messages.success(request, f"Импортировано публикаций: {added_count}")
+            if added_count == -1:
+                messages.success(request, "Произошла ошибка импорта.")
             else:
                 messages.warning(request, "Публикации не найдены или уже добавлены.")
             return redirect(f'/dashboard?tab=7')
