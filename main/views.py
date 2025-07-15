@@ -46,6 +46,9 @@ def logout_view(request):
 
 def dashboard(request):
     tab = request.GET.get('tab') or request.POST.get('active_tab') or '1'
+    
+    if not request.user.is_authenticated:
+        return redirect('login')  # или 'accounts:login' если namespace
 
     if request.method == 'POST':
         action = request.POST.get("action")
