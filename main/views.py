@@ -130,8 +130,7 @@ def dashboard(request):
                 request.session.pop('selected_teacher_id', None)
 
         teachers = Teacher.objects.all()
-        disciplines_firstsem = FirstSem.objects.filter(teacher=selected_teacher) if selected_teacher else []
-        disciplines_secondsem = SecondSem.objects.filter(teacher=selected_teacher) if selected_teacher else []
+        teachingload = TeachingLoad.objects.filter(teacher=selected_teacher) if selected_teacher else TeachingLoad.objects.all()
         edu_methodwork = EducationalMethodicalWork.objects.filter(teacher=selected_teacher) if selected_teacher else []
         org_methodwork = OrganizationalMethodicalWork.objects.filter(teacher=selected_teacher) if selected_teacher else []
         sci_researchwork = ResearchWork.objects.filter(teacher=selected_teacher) if selected_teacher else []
@@ -142,14 +141,13 @@ def dashboard(request):
         remark = TeacherRemark.objects.filter(teacher=selected_teacher) if selected_teacher else []
         raising = Raising.objects.filter(teacher=selected_teacher) if selected_teacher else []
         recommendation = Recommendation.objects.filter(teacher=selected_teacher) if selected_teacher else []
-        teachingload = TeachingLoad.objects.all()
+        
 
         return render(request, 'main/admin_dashboard.html', {
             'active_tab': int(tab),
             'staff_users': staff_users,
             'teachers': teachers,
-            'disciplines_firstsem': disciplines_firstsem,
-            'disciplines_secondsem': disciplines_secondsem,
+            'teachingload': teachingload,
             'edu_methodwork': edu_methodwork,
             'org_methodwork': org_methodwork,
             'sci_researchwork': sci_researchwork,
@@ -161,7 +159,6 @@ def dashboard(request):
             'raising': raising,
             'recommendation': recommendation,
             'selected_teacher': selected_teacher,
-            'teachingload': teachingload
         })
 
     elif request.user.is_staff and not request.user.is_superuser:

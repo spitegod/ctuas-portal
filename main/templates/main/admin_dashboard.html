@@ -548,120 +548,59 @@ input[type="submit"]:hover {
                 <select name="selected_teacher_id" onchange="this.form.submit()">
                     <option value="">-- выберите преподавателя --</option>
                     {% for teacher in teachers %}
-                        <option value="{{ teacher.id }}" {% if selected_teacher and selected_teacher.id == teacher.id %}selected{% endif %}>
-                            {{ teacher.full_name }}
-                        </option>
+                    <option value="{{ teacher.id }}" {% if selected_teacher and teacher.id == selected_teacher.id %}selected{% endif %}>
+                      {{ teacher.full_name }}
+                  </option>
                     {% endfor %}
                 </select>
             </form>
 
-
-            <h2>Первый семестр</h2>
             <table>
-                <tr>
-                    <th>Дисциплины</th>
-                    <th>Курс</th>
-                    <th>Количество групп</th>
-                    <th>Количество студентов</th>
-                    <th>Лекции</th>
-                    <th>Практические занятия</th>
-                    <th>Лабораторные занятия</th>
-                    <th>Курсовое проектирование</th>
-                    <th>Консультации</th>
-                    <th>Зачеты</th>
-                    <th>Экзамены</th>
-                    <th>Рецензирование контр.работ заочников</th>
-                    <th>Руководство практиками студентов</th>
-                    <th>Контрольное посещение занятий</th>
-                    <th>Руководство квалификац. работами бакалавра, специалиста, магистра</th>
-                    <th>Работа в ГЭК, ГАК</th>
-                    <th>Прием вступительных и кандидатских экзаменов</th>
-                    <th>Руководство аспирантами и соискателями</th>
-                    <th>ОргСРС</th>
-                    <th>Рейтинг</th>
-                    <th>Всего часов по плану</th>
-                    <th>Всего часов фактически</th>
-                </tr>
-                {% for d in disciplines_firstsem %}
-                <tr>
-                    <td>{{ d.discipline }}</td>
-                    <td>{{ d.course|default_if_none:"" }}</td>
-                    <td>{{ d.group_count|default_if_none:"" }}</td>
-                    <td>{{ d.student_count|default_if_none:"" }}</td>
-                    <td>{% if d.lectures %}{{ d.lectures }}{% endif %}</td>
-                    <td>{% if d.practicals %}{{ d.practicals }}{% endif %}</td>
-                    <td>{% if d.labs %}{{ d.labs }}{% endif %}</td>
-                    <td>{% if d.project_work %}{{ d.project_work}}{% endif %}</td>
-                    <td>{% if d.consultations %}{{ d.consultations }}{% endif %}</td>
-                    <td>{% if d.tests %}{{ d.tests }}{% endif %}</td>
-                    <td>{% if d.exams %}{{ d.exams }}{% endif %}</td>
-                    <td>{% if d.review_distance %}{{ d.review_distance }}{% endif %}</td>
-                    <td>{% if d.practice_supervision %}{{ d.practice_supervision }}{% endif %}</td>
-                    <td>{% if d.visit_control %}{{ d.visit_control }}{% endif %}</td>
-                    <td>{% if d.qualification_supervision %}{{ d.qualification_supervision }}{% endif %}</td>
-                    <td>{% if d.committee_work %}{{ d.committee_work }}{% endif %}</td>
-                    <td>{% if d.exam_commission %}{{ d.exam_commission }}{% endif %}</td>
-                    <td>{% if d.phd_supervision %}{{ d.phd_supervision }}{% endif %}</td>
-                    <td>{% if d.org_srs %}{{ d.org_srs}}{% endif %}</td>
-                    <td>{% if d.rating %}{{ d.rating }}{% endif %}</td>
-                    <td>{% if d.total_plan %}{{ d.total_plan }}{% endif %}</td>
-                    <td>{% if d.total_actual %}{{ d.total_actual }}{% endif %}</td>
-                </tr>
-                {% endfor %}
-            </table>
-            <h2>Второй семестр</h2>
-            <table>
-                <tr>
-                    <th>Дисциплины</th>
-                    <th>Курс</th>
-                    <th>Количество групп</th>
-                    <th>Количество студентов</th>
-                    <th>Лекции</th>
-                    <th>Практические занятия</th>
-                    <th>Лабораторные занятия</th>
-                    <th>Курсовое проектирование</th>
-                    <th>Консультации</th>
-                    <th>Зачеты</th>
-                    <th>Экзамены</th>
-                    <th>Рецензирование контр.работ заочников</th>
-                    <th>Руководство практиками студентов</th>
-                    <th>Контрольное посещение занятий</th>
-                    <th>Руководство квалификац. работами бакалавра, специалиста, магистра</th>
-                    <th>Работа в ГЭК, ГАК</th>
-                    <th>Прием вступительных и кандидатских экзаменов</th>
-                    <th>Руководство аспирантами и соискателями</th>
-                    <th>ОргСРС</th>
-                    <th>Рейтинг</th>
-                    <th>Всего часов по плану</th>
-                    <th>Всего часов фактически</th>
-                </tr>
-                {% for d in discipines_secondsem %}
-                <tr>
-                    <td>{{ d.discipline }}</td>
-                    <td>{{ d.course|default_if_none:"" }}</td>
-                    <td>{{ d.group_count|default_if_none:"" }}</td>
-                    <td>{{ d.student_count|default_if_none:"" }}</td>
-                    <td>{% if d.lectures %}{{ d.lectures }}{% endif %}</td>
-                    <td>{% if d.practicals %}{{ d.practicals }}{% endif %}</td>
-                    <td>{% if d.labs %}{{ d.labs }}{% endif %}</td>
-                    <td>{% if d.project_work %}{{ d.project_work}}{% endif %}</td>
-                    <td>{% if d.consultations %}{{ d.consultations }}{% endif %}</td>
-                    <td>{% if d.tests %}{{ d.tests }}{% endif %}</td>
-                    <td>{% if d.exams %}{{ d.exams }}{% endif %}</td>
-                    <td>{% if d.review_distance %}{{ d.review_distance }}{% endif %}</td>
-                    <td>{% if d.practice_supervision %}{{ d.practice_supervision }}{% endif %}</td>
-                    <td>{% if d.visit_control %}{{ d.visit_control }}{% endif %}</td>
-                    <td>{% if d.qualification_supervision %}{{ d.qualification_supervision }}{% endif %}</td>
-                    <td>{% if d.committee_work %}{{ d.committee_work }}{% endif %}</td>
-                    <td>{% if d.exam_commission %}{{ d.exam_commission }}{% endif %}</td>
-                    <td>{% if d.phd_supervision %}{{ d.phd_supervision }}{% endif %}</td>
-                    <td>{% if d.org_srs %}{{ d.org_srs}}{% endif %}</td>
-                    <td>{% if d.rating %}{{ d.rating }}{% endif %}</td>
-                    <td>{% if d.total_plan %}{{ d.total_plan }}{% endif %}</td>
-                    <td>{% if d.total_actual %}{{ d.total_actual }}{% endif %}</td>
-                </tr>
-                {% endfor %}
-            </table>
+              <tr>
+                  <th>Дисциплина</th>
+                  <th>Курс</th>
+                  <th>Группы</th>
+                  <th>Студенты</th>
+                  <th>Лекции</th>
+                  <th>Практика</th>
+                  <th>Лабы</th>
+                  <th>Курсовое</th>
+                  <th>Консультации</th>
+                  <th>Экзамены</th>
+                  <th>Рецензирование</th>
+                  <th>Практики</th>
+                  <th>Квалификационные работы</th>
+                  <th>ГАК</th>
+                  <th>Вступительные</th>
+                  <th>Аспиранты</th>
+                  <th>ОргСРС</th>
+                  <th>Рейтинг</th>
+                  <th>Всего часов</th>
+              </tr>
+              {% for d in teachingload %}
+              <tr>
+                  <td>{{ d.discipline }}</td>
+                  <td>{{ d.course }}</td>
+                  <td>{{ d.groups }}</td>
+                  <td>{{ d.students }}</td>
+                  <td>{{ d.lectures }}</td>
+                  <td>{{ d.practice }}</td>
+                  <td>{{ d.labs }}</td>
+                  <td>{{ d.coursework }}</td>
+                  <td>{{ d.consultations }}</td>
+                  <td>{{ d.exams }}</td>
+                  <td>{{ d.review_work }}</td>
+                  <td>{{ d.practice_supervision }}</td>
+                  <td>{{ d.thesis_supervision }}</td>
+                  <td>{{ d.gak }}</td>
+                  <td>{{ d.admission }}</td>
+                  <td>{{ d.phd_supervision }}</td>
+                  <td>{{ d.org_work }}</td>
+                  <td>{{ d.rating }}</td>
+                  <td>{{ d.total_hours }}</td>
+              </tr>
+              {% endfor %}
+          </table>
 
             <h2>Учебно-методическая работа</h2>
             <table>
