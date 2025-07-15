@@ -306,3 +306,21 @@ class TeachingLoad(models.Model):
 
     def __str__(self):
         return f"{self.teacher.full_name} — {self.discipline}"
+
+    @property
+    def total_hours(self):
+        return sum(filter(None, [
+            self.lectures,
+            self.practice,
+            self.labs,
+            self.coursework,
+            self.consultations,
+            self.exams,
+            self.review_work,
+            self.practice_supervision,
+            self.org_work,
+            self.thesis_supervision,
+            self.gak,
+            self.admission,
+            self.phd_supervision,
+        ]))
