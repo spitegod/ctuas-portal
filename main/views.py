@@ -46,17 +46,27 @@ def logout_view(request):
 
 def dashboard(request):
     tab = request.GET.get('tab') or request.POST.get('active_tab') or '1'
-    
+
     if not request.user.is_authenticated:
-        return redirect('login')  # или 'accounts:login' если namespace
+        return redirect('login')
 
     if request.method == 'POST':
         action = request.POST.get("action")
 
         if action == "update_permissions":
-           user_id = request.POST.get("user_id")
-           handle_update_permissions(request, user_id)
-           return redirect(f"{reverse('dashboard')}?tab=13")
+            user_id = request.POST.get("user_id")
+            handle_update_permissions(request, user_id)
+            return redirect(f"{reverse('dashboard')}?tab=13")
+
+        elif action == 'select_ip_teacher':
+            selected_teacher_id = request.POST.get('selected_teacher_id')
+            print("Получен selected_teacher_id из POST:", selected_teacher_id)
+            if selected_teacher_id:
+                request.session['selected_teacher_id'] = selected_teacher_id
+            else:
+                request.session.pop('selected_teacher_id', None)
+            return redirect('dashboard')
+
         elif request.user.is_superuser:
             if action == 'add':
                 handle_add_user(request)
@@ -71,9 +81,11 @@ def dashboard(request):
             if action == 'add_user_from_teacher':
                 handle_add_user(request)
                 return redirect(f"{reverse('dashboard')}?tab=12")
+
             elif action == 'delete_user_from_teacher':
                 handle_delete_user(request, teacher)
                 return redirect(f"{reverse('dashboard')}?tab=12")
+
             elif action == 'add_teacher':
                 full_name = request.POST.get('full_name')
                 teacher_type = request.POST.get('teacher_type')
@@ -116,24 +128,24 @@ def dashboard(request):
                 except Teacher.DoesNotExist:
                     messages.error(request, "Преподаватель не найден.")
 
-            elif action == 'select_ip_teacher':
-                selected_teacher_id = request.POST.get('selected_teacher_id')
-                if selected_teacher_id:
-                    request.session['selected_teacher_id'] = selected_teacher_id
-
     if request.user.is_superuser:
         staff_users = User.objects.filter(Q(is_staff=True) | Q(teacher__isnull=False)).distinct()
+        teachers = Teacher.objects.all()
 
         selected_teacher = None
         selected_teacher_id = request.session.get('selected_teacher_id')
+        print("ID из сессии:", selected_teacher_id)
         if selected_teacher_id:
             try:
                 selected_teacher = Teacher.objects.get(id=selected_teacher_id)
+                print("Найден преподаватель:", selected_teacher.full_name)
             except Teacher.DoesNotExist:
+                print("Преподаватель не найден")
                 request.session.pop('selected_teacher_id', None)
 
-        teachers = Teacher.objects.all()
-        teachingload = TeachingLoad.objects.filter(teacher=selected_teacher) if selected_teacher else TeachingLoad.objects.all()
+        teachingload = TeachingLoad.objects.filter(teacher=selected_teacher) if selected_teacher else TeachingLoad.objects.none()
+        print("TeachingLoad найдено записей:", teachingload.count())
+
         edu_methodwork = EducationalMethodicalWork.objects.filter(teacher=selected_teacher) if selected_teacher else []
         org_methodwork = OrganizationalMethodicalWork.objects.filter(teacher=selected_teacher) if selected_teacher else []
         sci_researchwork = ResearchWork.objects.filter(teacher=selected_teacher) if selected_teacher else []
@@ -144,7 +156,6 @@ def dashboard(request):
         remark = TeacherRemark.objects.filter(teacher=selected_teacher) if selected_teacher else []
         raising = Raising.objects.filter(teacher=selected_teacher) if selected_teacher else []
         recommendation = Recommendation.objects.filter(teacher=selected_teacher) if selected_teacher else []
-        
 
         return render(request, 'main/admin_dashboard.html', {
             'active_tab': int(tab),
@@ -168,7 +179,6 @@ def dashboard(request):
         return teacher_dashboard(request, tab=tab)
 
     return HttpResponseForbidden("Доступ запрещён.")
-
 
     
 def teacher_dashboard(request,tab="1"):

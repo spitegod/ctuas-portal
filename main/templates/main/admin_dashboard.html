@@ -540,20 +540,7 @@ input[type="submit"]:hover {
             <h1>ИП преподавателей</h1>
             <p>Здесь можно просматривать и редактировать ИП преподавателей.</p>
 
-            <form method="post">
-                {% csrf_token %}
-                <input type="hidden" name="action" value="select_ip_teacher">
-                
-                <label><strong>Выберите преподавателя:</strong></label>
-                <select name="selected_teacher_id" onchange="this.form.submit()">
-                    <option value="">-- выберите преподавателя --</option>
-                    {% for teacher in teachers %}
-                    <option value="{{ teacher.id }}" {% if selected_teacher and teacher.id == selected_teacher.id %}selected{% endif %}>
-                      {{ teacher.full_name }}
-                  </option>
-                    {% endfor %}
-                </select>
-            </form>
+
 
             <table>
               <tr>
