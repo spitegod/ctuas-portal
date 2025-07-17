@@ -928,6 +928,10 @@ def export_full_teacher_excel(request):
               ["Тема", "Начало", "Окончание", "Отметка"],
               lambda w: [w.topic, w.start_date, w.end_date, w.completed])
 
+    add_sheet("Публикации", PublishedSciWork,
+              ["Наименование и вид работы", "Выходные данные", "Объем в п.л.", "Соавторы"],
+              lambda w: [w.title, w.output, w.size, w.autors])
+
     add_sheet("Общественная работа", SocialEducationalWork,
               ["Наименование", "Отметка"],
               lambda w: [w.title, w.completed])
