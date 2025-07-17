@@ -7,9 +7,9 @@ from django.shortcuts import redirect
 
 def handle_add_user(request):
     """Добавление пользователя преподавателем или администратором"""
-    # Администратор всегда имеет доступ
+
+    # Проверка прав доступа
     if not request.user.is_superuser:
-        # Проверка наличия разрешения у преподавателя
         teacher = Teacher.objects.filter(user=request.user).first()
         if not teacher:
             messages.error(request, "Вы не привязаны к преподавателю.")
@@ -20,10 +20,12 @@ def handle_add_user(request):
             messages.error(request, "У вас нет прав для добавления пользователей.")
             return
 
+    # Получение данных формы
     username = request.POST.get("username")
     password = request.POST.get("password")
     teacher_id = request.POST.get("teacher_id")
 
+    # Валидация
     if not username or not password:
         messages.error(request, "Имя пользователя и пароль обязательны.")
         return
@@ -32,16 +34,27 @@ def handle_add_user(request):
         messages.error(request, "Пользователь с таким именем уже существует.")
         return
 
+    # Создание пользователя
     new_user = User.objects.create_user(username=username, password=password, is_staff=True)
 
+    # Привязка к преподавателю
     if teacher_id:
         t = Teacher.objects.filter(id=teacher_id, user=None).first()
         if t:
             t.user = new_user
             t.save()
+    else:
+       
+        Teacher.objects.create(
+            full_name=f"Преподаватель {username}",
+            teacher_type='Внутр',  # Можно заменить на значение по умолчанию
+            position="—",
+            rate="1.0",
+            user=new_user
+        )
 
-    messages.success(request, f"Пользователь '{username}' добавлен.")
-    
+    messages.success(request, f"Пользователь '{username}' успешно добавлен.")
+
 
 
 def handle_delete_user(request, teacher=None):

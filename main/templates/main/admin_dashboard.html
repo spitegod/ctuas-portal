@@ -388,27 +388,46 @@ input[type="submit"]:hover {
             </table>
 
             <h3>Добавить сотрудника</h3>
-            <form method="post">
-                {% csrf_token %}
-                <input type="hidden" name="action" value="add">
-                <label>Имя пользователя:</label>
-                <input type="text" name="username" required>
+<form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="add">
 
-                <label>Пароль:</label>
-                <input type="password" name="password" required>
+    <label>Имя пользователя:</label>
+    <input type="text" name="username" required>
 
-                <label>Преподаватель:</label>
-                <select name="teacher_id">
-                    <option value="">-- Новый преподаватель --</option>
-                    {% for teacher in teachers %}
-                        {% if not teacher.user %}
-                            <option value="{{ teacher.id }}">{{ teacher.full_name }}</option>
-                        {% endif %}
-                    {% endfor %}
-                </select>
+    <label>Пароль:</label>
+    <input type="password" name="password" required>
 
-                <button type="submit">Добавить</button>
-            </form>
+    <label>Преподаватель (если нужно привязать):</label>
+    <select name="teacher_id">
+        <option value="">-- Создать нового преподавателя --</option>
+        {% for teacher in teachers %}
+            {% if not teacher.user %}
+                <option value="{{ teacher.id }}">{{ teacher.full_name }}</option>
+            {% endif %}
+        {% endfor %}
+    </select>
+
+    <!-- Поля для нового преподавателя (если teacher_id пустой) -->
+    <div style="margin-top: 15px;">
+        <label>ФИО нового преподавателя:</label>
+        <input type="text" name="full_name" placeholder="Например: Иванов И.И.">
+
+        <label>Тип:</label>
+        <select name="teacher_type">
+            <option value="Внутр">Внутр</option>
+            <option value="Шт">Шт</option>
+        </select>
+
+        <label>Должность:</label>
+        <input type="text" name="position" value="—">
+
+        <label>Ставка:</label>
+        <input type="text" name="rate" value="1.0">
+    </div>
+
+    <button type="submit">Добавить</button>
+</form>
 
             <h3>Удалить сотрудника</h3>
             <form method="post">
