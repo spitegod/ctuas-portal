@@ -994,8 +994,7 @@ input:focus + .bar:before {
     <button class="button-add" type="submit">{% if active_tab == 7 and edit_work_tab7 %}Сохранить изменения{% else %}Добавить{% endif %}</button>
   </form>
 
-
-  <form id="import-form" method="post" onsubmit="showLoadingOverlay()" style="margin-bottom: 15px;">
+  <form id="import-form" method="post" style="margin-bottom: 15px;">
     {% csrf_token %}
     <input name="form_type" type="hidden" value="import_published_from_library" />
     <input name="active_tab" type="hidden" value="7" />
@@ -1498,86 +1497,46 @@ input:focus + .bar:before {
 
     showTab(activeTab);
 
-    const overlay = document.getElementById('loading-overlay');
-    const spinner = document.getElementById('spinner');
-    const text = document.getElementById('loading-text');
+    const messagesContainer = document.getElementById('messages-container');
 
     {% if messages %}
       {% for message in messages %}
+        (function(){
         const tag = "{{ message.tags|escapejs }}";
         const content = "{{ message|escapejs }}";
 
-        // Для импорта публикаций — тёмное затемнение
-        if (content.includes("Импортировано публикаций") ||
-            content.includes("Публикации не найдены") ||
-            content.includes("Произошла ошибка импорта")) {
+          // Создаем div для сообщения
+          const msgDiv = document.createElement('div');
+          msgDiv.className = 'message-alert ' + tag;
+          msgDiv.innerText = content;
 
-          overlay.style.display = 'flex';
-          spinner.style.display = 'none';
-          text.innerText = content;
-
-          setTimeout(() => {
-            overlay.style.display = 'none';
-          }, 1500);
-        } else {
-          // Все другие сообщения — обычные alert
-          const alertDiv = document.createElement("div");
-          alertDiv.className = "alert alert-" + (tag === "error" ? "danger" : tag);
-          alertDiv.innerText = content;
-          alertDiv.style.margin = "20px auto";
-          alertDiv.style.maxWidth = "720px";
-          alertDiv.style.borderRadius = "10px";
-          alertDiv.style.textAlign = "center";
-          alertDiv.style.fontWeight = "500";
-          alertDiv.style.padding = "10px 20px";
-          alertDiv.style.position = "relative";
-          document.body.prepend(alertDiv);
+          // Добавляем в контейнер
+          messagesContainer.appendChild(msgDiv);
 
           setTimeout(() => {
-            alertDiv.remove();
-          }, 3000);
-        }
+            msgDiv.style.opacity = '0';
+          setTimeout(() => {
+              msgDiv.remove();
+            }, 1000);
+          }, 8000);
+        })();
       {% endfor %}
     {% endif %}
+
+    // --- Дополнительно: уведомление при старте импорта ---
+
+    const importForm = document.getElementById('import-form');
+    if(importForm){
+      importForm.addEventListener('submit', function(e){
+        // Перед отправкой показываем info уведомление
+        const importMsg = document.createElement('div');
+        importMsg.className = 'message-alert info';
+        importMsg.innerText = 'Импорт запущен, пожалуйста, не закрывайте страницу...';
+
+        messagesContainer.appendChild(importMsg);
+      });
+    }
   });
 </script>
-
-  <!-- ===== ЗАГРУЗКА: затемнение и спиннер ===== -->
-<div id="loading-overlay" style="display: none;">
-  <div class="spinner" id="spinner"></div>
-  <div class="loading-text" id="loading-text">Импортируются публикации...</div>
-</div>
-
-<style>
-  #loading-overlay {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
-    background-color: rgba(0, 0, 0, 0.6);
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    font-size: 20px;
-    font-family: sans-serif;
-  }
-
-  .spinner {
-    border: 6px solid #f3f3f3;
-    border-top: 6px solid #3498db;
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    animation: spin 1s linear infinite;
-    margin-bottom: 15px;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-</style>
 </body>
 </html>
