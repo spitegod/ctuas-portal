@@ -37,41 +37,78 @@ def import_published_from_library(teacher, year_from="2024", year_to="2025"):
         count = 0
         for p in results_div.find_all("p"):
             text = p.get_text().strip()
-            if not text or len(text) < 10:
+            if not text:
                 continue
-
-            # Полный текст публикации
-            full_text = text
 
             # Разбиваем по " / "
             parts = text.split(" / ")
             if len(parts) < 2:
                 continue
 
-            # Название работы — первая часть (после номера с точкой)
-            # Уберём номер и точку с начала
-            name_part = re.sub(r'^\d+\.\s*[^,]+,\s*[^.]+\.\s*(?:[^.]+\.\s*)?', '', parts[0]).strip()
+            # Убираем номер в начале, например "10. "
+            text_wo_number = re.sub(r'^\d+\.\s*', '', text)
 
-            name = name_part
+            # Ищем позицию первого слэша " / ", чтобы разбить на части
+            slash_pos = text_wo_number.find(" / ")
+            if slash_pos == -1:
+                continue
 
-            # Соавторы — часть между " / " и "//"
-            autors = parts[1].split("//")[0].strip()
+            # Всё, что до " / " — это потенциальное название (включая ФИО, которое мы хотим убрать)
+            before_slash = text_wo_number[:slash_pos].strip()
+            after_slash = text_wo_number[slash_pos + 3:].strip()  # После " / "
 
-            # Объем — ищем в тексте, например "C. 410-411" или "6 п.л."
-            size_match = re.search(r'(C\.\s*\d+[-–]?\d*)|(\d+\s*п\.л\.)', text)
-            size = size_match.group(0) if size_match else ""
+            # Удаляем возможные фамилии с инициалами в начале — "Фамилия, И.О."
+            # Например: "Шлянников, В.М. Название работы"
+            before_slash_cleaned = re.sub(r'^[А-ЯЁA-Z][^,]+,\s*[А-ЯA-Z]\.\s*(?:[А-ЯA-Z]\.\s*)?', '', before_slash).strip()
+
+            # Название работы:
+            title = before_slash_cleaned
+
+            # Авторы — если после " / " и до "//" что-то есть
+            autors = ""
+            if "//" in after_slash:
+                autors = after_slash.split("//")[0].strip()
+            elif ";" in after_slash:
+                autors = after_slash.split(";")[0].strip()
+
+            # Выходные данные — всё после "//" или ";"
+            output = ""
+            if "//" in text:
+                output = text.split("//", 1)[1].strip()
+            elif ";" in text:
+                output = text.split(";", 1)[1].strip()
+
+            size = ""
+
+            # 1. Диапазон страниц: "С. 348–349" или "P. 348–349"
+            range_match = re.search(r'[СCПP]\.\s*(\d+)[–-](\d+)', text, re.IGNORECASE)
+            if range_match:
+                start = int(range_match.group(1))
+                end = int(range_match.group(2))
+                pages = end - start + 1
+                size = f"{pages}"
+
+            # 2. Одна страница: "С. 408" или "P. 408"
+            elif re.search(r'[СCПP]\.\s*\d+', text, re.IGNORECASE):
+                size = "1"
+
+            # 3. Количество страниц: "55 с." или "55 p."
+            else:
+                page_count_match = re.search(r'(\d+)\s*(?:с\.|p\.)', text, re.IGNORECASE)
+                if page_count_match:
+                    size = page_count_match.group(1)
 
             # Вид работы — если есть логика, можно добавить, пока пусто
             type_work = ""
 
             # Проверяем, чтобы не дублировать по полю text
-            if PublishedSciWork.objects.filter(teacher=teacher, output=full_text).exists():
+            if PublishedSciWork.objects.filter(teacher=teacher, title=title).exists():
                 continue
 
             PublishedSciWork.objects.create(
                 teacher=teacher,
-                title=name,
-                output=full_text,
+                title=title,
+                output=output,
                 size=size,
                 autors=autors
             )
@@ -81,7 +118,7 @@ def import_published_from_library(teacher, year_from="2024", year_to="2025"):
 
     except Exception as e:
         print(f"Ошибка при импорте: {e}")
-        return -1
+        return -1, str(e)
 
     finally:
         driver.quit()
