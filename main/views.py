@@ -469,18 +469,19 @@ def teacher_dashboard(request,tab="1"):
 
         elif form_type == "delete_published_work":
             PublishedSciWork.objects.filter(id=request.POST.get("work_id"), teacher=teacher).delete()
-            #messages.success(request, "Запись удалена.")
+            messages.success(request, "Запись удалена.")
             return redirect(f'/dashboard?tab=7')
 
         elif form_type == "import_published_from_library":
             from parsers import import_published_from_library
 
-            added_count = import_published_from_library(teacher)
-            print(added_count)
-            if added_count > 0:
-                messages.success(request, f"Импортировано публикаций: {added_count}")
-            elif added_count == -1:
-                messages.success(request, "Произошла ошибка импорта.")
+            result = import_published_from_library(teacher)
+
+            if isinstance(result, tuple) and result[0] == -1:
+                _, error_message = result
+                messages.error(request, f"Ошибка импорта: {error_message}")
+            elif result > 0:
+                messages.success(request, f"Импортировано публикаций: {result}")
             else:
                 messages.warning(request, "Публикации не найдены или уже добавлены.")
             return redirect(f'/dashboard?tab=7')
