@@ -57,39 +57,33 @@ def handle_add_user(request):
 
 
 
-def handle_delete_user(request, teacher=None):
-    user_id = request.POST.get("delete_user")
-    print(f"[DEBUG] Удаляем пользователя: {user_id}")
+def handle_delete_user(request, user_or_teacher=None):
+    if isinstance(user_or_teacher, Teacher):
+        user = user_or_teacher.user
+    else:
+        user_id = request.POST.get("user_id")
+        user = User.objects.filter(id=user_id).first()
 
-    try:
-        user_to_delete = User.objects.get(id=user_id)
-
-        # Защита от самоуничтожения
-        if request.user == user_to_delete:
-            messages.error(request, "Вы не можете удалить самого себя.")
-            return False
-
-        # Преподаватель не может удалить админа
-        if user_to_delete.is_superuser:
-            messages.error(request, "Нельзя удалить администратора.")
-            return False
-
-        # Если удаляет не суперпользователь, проверяем права
-        if teacher:
-            permissions, _ = TeacherPermission.objects.get_or_create(teacher=teacher)
-
-            if not permissions.can_manage_accounts:
-                messages.error(request, "У вас нет прав на удаление пользователей.")
-                return False
-
-        # Всё прошло — удаляем
-        user_to_delete.delete()
-        messages.success(request, "Пользователь успешно удалён.")
-        return True
-
-    except User.DoesNotExist:
+    if not user:
         messages.error(request, "Пользователь не найден.")
-        return False
+        return
+
+    if user != request.user and user.is_superuser:
+        messages.error(request, "Нельзя удалить другого суперпользователя.")
+        return
+
+
+    if user == request.user:
+        messages.warning(request, "Нельзя удалить самого себя.")
+        return
+
+    teacher = Teacher.objects.filter(user=user).first()
+    if teacher:
+        teacher.user = None
+        teacher.save()
+
+    user.delete()
+    messages.success(request, "Пользователь успешно удалён.")
     
 def handle_update_permissions(request, user_id):
     is_staff = request.POST.get("is_staff") == "True"
@@ -101,6 +95,12 @@ def handle_update_permissions(request, user_id):
     try:
         user = User.objects.get(id=user_id)
 
+        
+        if user != request.user and user.is_superuser:
+            messages.error(request, "Нельзя редактировать другого суперпользователя.")
+            return
+
+        
         if user == request.user and not is_superuser:
             messages.warning(request, "Нельзя снять права суперпользователя у самого себя.")
             return
