@@ -1001,6 +1001,11 @@ input:focus + .bar:before {
     <button type="submit" class="button-add">Импорт из библиотеки ВолгГТУ</button>
   </form>
 
+  <form method="get" action="{% url 'export_publications_excel' %}" style="margin-bottom: 15px;">
+    <button type="submit" class="button-add">Экспорт в Excel</button>
+  </form>
+
+
   <table class="responsive-table" style="margin-top: 20px;">
     <thead>
       <tr>
@@ -1502,8 +1507,8 @@ input:focus + .bar:before {
     {% if messages %}
       {% for message in messages %}
         (function(){
-        const tag = "{{ message.tags|escapejs }}";
-        const content = "{{ message|escapejs }}";
+          const tag = "{{ message.tags|escapejs }}";
+          const content = "{{ message|escapejs }}";
 
           // Создаем div для сообщения
           const msgDiv = document.createElement('div');
@@ -1515,7 +1520,7 @@ input:focus + .bar:before {
 
           setTimeout(() => {
             msgDiv.style.opacity = '0';
-          setTimeout(() => {
+            setTimeout(() => {
               msgDiv.remove();
             }, 1000);
           }, 8000);

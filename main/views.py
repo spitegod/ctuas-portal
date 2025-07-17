@@ -8,7 +8,7 @@ from main.models import Teacher, FirstSem, SecondSem, MethodicalWork, OrgMethodi
 from django.db.models import Q
 from django.shortcuts import render, redirect
 from main.models import Teacher, EducationalMethodicalWork, OrganizationalMethodicalWork,ResearchWork
-from .models import Teacher, EducationalMethodicalWork, OrganizationalMethodicalWork, ResearchWork, ContractResearchWork,ScientificMethodicalWork,SocialEducationalWork,TeacherRemark, QualificationUpgrade, QualificationUpgrade, PublishedSciWork, Raising, Recommendation,TeacherPermission, TeachingLoad
+from .models import Teacher, EducationalMethodicalWork, OrganizationalMethodicalWork, ResearchWork, ContractResearchWork,ScientificMethodicalWork,PublishedSciWork,SocialEducationalWork,TeacherRemark, QualificationUpgrade, QualificationUpgrade, PublishedSciWork, Raising, Recommendation,TeacherPermission, TeachingLoad
 from .forms import EducationalMethodicalWorkForm, OrganizationalMethodicalWorkForm, ResearchWorkForm, ContractResearchWorkForm
 import openpyxl
 from django.http import HttpResponse
@@ -803,6 +803,27 @@ def export_scientific_excel(request):
     wb.save(response)
     return response
 
+@login_required
+def export_publications_excel(request):
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Публикации"
+
+    # Заголовки
+    ws.append(["Наименование и вид работы", "Выходные данные", "Объем в п.л.", "Соавторы"])  # подгони под свою модель
+
+    for pub in PublishedSciWork.objects.filter(teacher=request.user.teacher):
+        ws.append([
+            pub.title,
+            pub.output,
+            pub.size,
+            pub.autors,
+        ])
+
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response["Content-Disposition"] = 'attachment; filename="publications.xlsx"'
+    wb.save(response)
+    return response
 
 @login_required
 def export_social_excel(request):
