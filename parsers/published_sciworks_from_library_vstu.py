@@ -10,7 +10,7 @@ import re
 
 from main.models import Teacher, PublishedSciWork
 
-def import_published_from_library(teacher, year_from="2024", year_to="2025"):
+def import_published_from_library(teacher, year_from, year_to):
     search_name = get_short_name(teacher)
 
     options = webdriver.ChromeOptions()

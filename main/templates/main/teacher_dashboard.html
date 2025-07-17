@@ -994,7 +994,7 @@ input:focus + .bar:before {
     <button class="button-add" type="submit">{% if active_tab == 7 and edit_work_tab7 %}Сохранить изменения{% else %}Добавить{% endif %}</button>
   </form>
 
-  <form id="import-form" method="post" style="margin-bottom: 15px;">
+  <form id="import-form" method="post">
     {% csrf_token %}
     <input name="form_type" type="hidden" value="import_published_from_library" />
     <input name="active_tab" type="hidden" value="7" />

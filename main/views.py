@@ -475,7 +475,7 @@ def teacher_dashboard(request,tab="1"):
         elif form_type == "import_published_from_library":
             from parsers import import_published_from_library
 
-            result = import_published_from_library(teacher)
+            result = import_published_from_library(teacher, 2024, 2025)
 
             if isinstance(result, tuple) and result[0] == -1:
                 _, error_message = result
